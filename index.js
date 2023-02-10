@@ -85,6 +85,9 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       let hasFullPerWidth = false;
       const selector = rule.selector;
 
+      // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
+      if (rule.parent.params) return;
+
       // 设置页面最外层 class 的最大宽度，并居中
       if (selector === `.${rootClass}`) {
         if (border) {
@@ -158,12 +161,21 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       }
     })
 
-    mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-    css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
-    mergeRules(landScapeViewAtRule);
-    css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
-    mergeRules(sharedAtRult);
-    css.append(sharedAtRult); // 样式中添加公共媒体查询
+    const appendedDesktop = desktopViewAtRule.nodes.length > 0;
+    const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
+
+    if (appendedDesktop) {
+      mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+      css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
+    }
+    if (appendedLandscape) {
+      mergeRules(landScapeViewAtRule);
+      css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
+    }
+    if (appendedDesktop && appendedLandscape) {
+      mergeRules(sharedAtRult);
+      css.append(sharedAtRult); // 样式中添加公共媒体查询
+    }
   };
 })
 
