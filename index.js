@@ -28,6 +28,28 @@ const defaults = {
   disableLandscape: false,
 };
 
+/** 移除重复属性 */
+removeDulplicateDecls = (node) => {
+  node.walkRules(rule => {
+    const walked = { props: [], propNodes: [] }
+    rule.walkDecls(decl => {
+      const prop = decl.prop;
+      const i = walked.props.indexOf(prop);
+      if (i > -1) {
+        const important = decl.important;
+        const prevImportant = walked.propNodes[i].important;
+        if (important || (!important && !prevImportant)) {
+          walked.propNodes[i].remove();
+          walked.propNodes[i] = decl;
+        }
+      } else {
+        walked.props.push(prop);
+        walked.propNodes.push(decl);
+      }
+    });
+  });
+};
+
 /** 合并相同名称的选择器 */
 const mergeRules = (node) => {
 	const walked = { rules: [], selectors: [] };
@@ -167,14 +189,17 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
 
     if (appendedDesktop) {
       mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+      removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
       css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
     }
     if (appendedLandscape) {
       mergeRules(landScapeViewAtRule);
+      removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
       css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
     }
     if (appendedShared) {
       mergeRules(sharedAtRult);
+      removeDulplicateDecls(sharedAtRult); // 移除重复属性
       css.append(sharedAtRult); // 样式中添加公共媒体查询
     }
   };
