@@ -163,6 +163,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
 
     const appendedDesktop = desktopViewAtRule.nodes.length > 0;
     const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
+    const appendedShared = sharedAtRult.nodes.length > 0;
 
     if (appendedDesktop) {
       mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
@@ -172,7 +173,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       mergeRules(landScapeViewAtRule);
       css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
     }
-    if (appendedDesktop && appendedLandscape) {
+    if (appendedShared) {
       mergeRules(sharedAtRult);
       css.append(sharedAtRult); // 样式中添加公共媒体查询
     }
