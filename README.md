@@ -98,7 +98,7 @@
 /* 桌面端媒体查询 */
 @media (min-width: 600px) and (min-height: 640px) { /* 这里的 600 是默认值，可以自定义 */
 	.root-class {
-		max-width: 600px;
+		max-width: 600px !important;
 	}
 
 	.class {
@@ -107,23 +107,23 @@
 
 	.class2 {
 		width: 600px; /* 100vw -> 600px */
-		height: 24px; /* 600/750*30=24，600 是默认的桌面端预期宽度，750 是默认的设计图宽度 */
+		height: 24.000px; /* 600/750*30=24，600 是默认的桌面端预期宽度，750 是默认的设计图宽度 */
 	}
 }
 
 /* 移动端媒体查询 */
 @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { /* 这里的 640 是固定值 */
 	.root-class {
-		max-width: 450px;	
+		max-width: 425px !important;
 	}
 
 	.class {
-		width: 450px; /* 100% -> 450px */
+		width: 425px; /* 100% -> 425px */
 	}
 	
 	.class2 {
-		width: 450px; /* 100vw -> 450px */
-		height: 18px; /* 450/750*30=18 */
+		width: 425px; /* 100vw -> 425px */
+		height: 17.000px; /* 425/750*30=17 */
 	}
 }
 
@@ -132,15 +132,9 @@
 	.root-class {
 		margin-left: auto !important;
 		margin-right: auto !important;
-		box-sizing: content-box;
-		border-left: 1px solid #eee;
-		border-right: 1px solid #eee;
-		min-height: 100vh;
-		height: auto !important;	
 	}
 
 	.class {
-		position: fixed;
 		margin-left: auto;  /* 用于居中 */
 		margin-right: auto; /* 用于居中 */
 		left: 0;            /* 用于居中 */
