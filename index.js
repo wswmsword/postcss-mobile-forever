@@ -5,7 +5,7 @@ const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, conten
 const pxTestReg = /(?<=\d)px/;
 
 /** 用于匹配字符串形如“数字px”中的“数字” */
-const pxMatchReg = /(?:\d+)(?=px)/g;
+const pxMatchReg = /\d+\.\d+|\d+|\.\d+/g;
 
 const defaults = {
   /** 设计图宽度 */
