@@ -1,11 +1,12 @@
 const postcss = require("postcss");
 const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
 
-/** 用于验证字符串是否为“数字px”的形式 */
-const pxTestReg = /(?<=\d)px/;
-
-/** 用于匹配字符串形如“数字px”中的“数字” */
-const pxMatchReg = /\d+\.\d+|\d+|\.\d+/g;
+const {
+  /** 用于验证字符串是否为“数字px”的形式 */
+  pxTestReg,
+  /** 用于匹配字符串形如“数字px”中的“数字” */
+  pxMatchReg,
+ } = require("./regexs");
 
 const defaults = {
   /** 设计图宽度 */
