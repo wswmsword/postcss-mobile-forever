@@ -50,3 +50,12 @@ describe("mobile-to-multi-displays", function() {
     expect(processed).toBe(output);
   });
 });
+
+describe("value parsing", function() {
+  it("should not convert values in url()", function() {
+    var input = ".rule { background: url(750px.jpg); font-size: 75px; } .l{}";
+    var output = ".rule { background: url(750px.jpg); font-size: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { background: url(750px.jpg); font-size: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { background: url(750px.jpg); font-size: 42.500px; } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
