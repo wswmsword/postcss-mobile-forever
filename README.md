@@ -26,6 +26,18 @@
 		- 低于 X，使用设计图宽度（移动端竖屏）
 ```
 
+## 安装
+
+npm 安装：
+```bash
+npm install postcss-mobile-to-multi-displays --save-dev
+```
+
+yarn 安装：
+```bash
+yarn add -D postcss-mobile-to-multi-displays
+```
+
 ## 配置参数
 
 下面是默认的配置参数：
@@ -170,6 +182,12 @@
 
 `root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
+## 测试
+
+```bash
+npm install
+npm run test
+```
 
 ## 其它
 
