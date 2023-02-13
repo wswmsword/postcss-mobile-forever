@@ -274,18 +274,24 @@ function appendMediaRadioPxFromPx(selector, prop, val, disableDesktop, disableLa
   pass1px,
 }) {
   if (!disableDesktop) {
-    desktopViewAtRule.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val.replace(pxMatchReg, getReplacer(desktopRadio, pass1px)), // 替换 px 比例计算后的值
-      important, // 值的尾部有 important 则添加
-    }));
+    const convertedVal = val.replace(pxMatchReg, getReplacer(desktopRadio, pass1px)); // 替换 px 比例计算后的值
+    if (convertedVal !== val) {
+      desktopViewAtRule.append(postcss.rule({ selector }).append({
+        prop: prop, // 属性
+        value: convertedVal, // 替换 px 比例计算后的值
+        important, // 值的尾部有 important 则添加
+      }));
+    }
   }
   if (!disableLandscape) {
-    landScapeViewAtRule.append(postcss.rule({ selector }).append({
-      prop,
-      value: val.replace(pxMatchReg, getReplacer(landscapeRadio, pass1px)),
-      important,
-    }));
+    const convertedVal = val.replace(pxMatchReg, getReplacer(landscapeRadio, pass1px)); // 替换 px 比例计算后的值
+    if (convertedVal !== val) {
+      landScapeViewAtRule.append(postcss.rule({ selector }).append({
+        prop,
+        value: convertedVal,
+        important,
+      }));
+    }
   }
 }
 

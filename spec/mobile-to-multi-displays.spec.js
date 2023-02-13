@@ -54,7 +54,7 @@ describe("mobile-to-multi-displays", function() {
 describe("value parsing", function() {
   it("should not convert values in url()", function() {
     var input = ".rule { background: url(750px.jpg); font-size: 75px; } .l{}";
-    var output = ".rule { background: url(750px.jpg); font-size: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { background: url(750px.jpg); font-size: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { background: url(750px.jpg); font-size: 42.500px; } }"
+    var output = ".rule { background: url(750px.jpg); font-size: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font-size: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { font-size: 42.500px; } }"
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -75,7 +75,16 @@ describe("value parsing", function() {
 
   it("should not convert values equal to 1", function() {
     var input = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{}";
-    var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border: 1px solid white; left: 1px; top: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { border: 1px solid white; left: 1px; top: 42.500px; } }";
+    var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { top: 42.500px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
+describe("media queries", function() {
+  it("should ignore 1px in media queries", function() {
+    var input = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
+    var output = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
