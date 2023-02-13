@@ -58,4 +58,18 @@ describe("value parsing", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should convert value outside url()", function() {
+    var input = ".rule { background: left 75px / 7.5px 60% repeat-x url(./star750px); } .l{}";
+    var output = ".rule { background: left 75px / 7.5px 60% repeat-x url(./star750px); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { background: left 60.000px / 6.000px 60% repeat-x url(./star750px); } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { background: left 42.500px / 4.250px 60% repeat-x url(./star750px); } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not convert value end with other words except px", function() {
+    var input = ".rule { width: calc(100% - 75px); } .l{}";
+    var output = ".rule { width: calc(100% - 75px); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: calc(100% - 60.000px); } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { width: calc(100% - 42.500px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
