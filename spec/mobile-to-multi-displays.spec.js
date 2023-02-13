@@ -72,4 +72,11 @@ describe("value parsing", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert values equal to 1", function() {
+    var input = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{}";
+    var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border: 1px solid white; left: 1px; top: 60.000px; } } @media ((min-width: 600px) and (max-height: 640px)) or ((max-width: 600px) and (orientation: landscape)) { .rule { border: 1px solid white; left: 1px; top: 42.500px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });

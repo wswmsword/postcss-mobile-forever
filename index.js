@@ -27,6 +27,8 @@ const defaults = {
   disableDesktop: false,
   /** 不做移动端横屏的适配 */
   disableLandscape: false,
+  /** 不转换 1px */
+  pass1px: true,
 };
 
 /** 移除重复属性 */
@@ -82,7 +84,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     ...options,
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, xAxisBreakPoint } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, xAxisBreakPoint, pass1px } = opts;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
@@ -159,6 +161,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             desktopViewAtRule,
             landScapeViewAtRule,
             important,
+            pass1px,
           })
         }
       })
@@ -207,8 +210,11 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
 })
 
 /** 比例计算后的新 px（媒体查询中的 px） */
-function getReplacer(radio) {
+function getReplacer(radio, pass1px) {
   return function(machedNumber) {
+    if (pass1px && Number(machedNumber) === 1) {
+      return 1;
+    }
     return Number(Number(machedNumber) * radio).toFixed(3);
   }
 }
@@ -264,19 +270,20 @@ function appendMediaRadioPxFromPx(selector, prop, val, disableDesktop, disableLa
   landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
-  important
+  important,
+  pass1px,
 }) {
   if (!disableDesktop) {
     desktopViewAtRule.append(postcss.rule({ selector }).append({
       prop: prop, // 属性
-      value: val.replace(pxMatchReg, getReplacer(desktopRadio)), // 替换 px 比例计算后的值
+      value: val.replace(pxMatchReg, getReplacer(desktopRadio, pass1px)), // 替换 px 比例计算后的值
       important, // 值的尾部有 important 则添加
     }));
   }
   if (!disableLandscape) {
     landScapeViewAtRule.append(postcss.rule({ selector }).append({
       prop,
-      value: val.replace(pxMatchReg, getReplacer(landscapeRadio)),
+      value: val.replace(pxMatchReg, getReplacer(landscapeRadio, pass1px)),
       important,
     }));
   }
