@@ -3,6 +3,8 @@
   background-color: black;
   min-height: 100vh;
   position: relative;
+  padding: 40px 27px;
+  box-sizing: border-box;
 }
 
 .appInnerRoot::before {
@@ -23,7 +25,7 @@
   justify-content: center;
   align-items: flex-end;
   gap: 84px;
-  height: 570px;
+  height: 521px;
 }
 
 .titleWrapper {
@@ -53,11 +55,11 @@
 }
 
 .content {
-  width: 567px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
+  column-gap: 50px;
   row-gap: 56px;
   margin: 0 auto;
-  padding-bottom: 180px;
+  padding-bottom: 88px;
 }

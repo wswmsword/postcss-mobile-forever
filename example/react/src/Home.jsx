@@ -5,8 +5,8 @@ import styles from "./Home.module.css";
 
 const Hello = () => <div className={styles.appInnerRoot}>
   <div className={styles.top}>
-    <div className={styles.cardWrapper}><Card /></div>
-    <div className={styles.cardBackWrapper}><CardBack /></div>
+    <Card />
+    <CardBack />
   </div>
   <div className={styles.titleWrapper}>
     <h1 className={styles.title}>TAROTCARD</h1>
