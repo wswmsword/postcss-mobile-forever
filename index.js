@@ -100,7 +100,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     const landscapeMediaStr_2 = `(max-width: ${yAxisBreakPoint}px) and (orientation: landscape)`;
     let landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
     /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-    let sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px), (orientation: landscape) and (max-width: ${yAxisBreakPoint})`, nodes: [] });
+    let sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px), (orientation: landscape) and (max-width: ${yAxisBreakPoint}px)`, nodes: [] });
 
 
     // 遍历选择器
