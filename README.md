@@ -40,7 +40,9 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 演示效果
 
-下面的三张图是使用本插件后，移动端、移动端横屏和桌面端的展示效果：
+<details>
+
+<summary>这三张图是使用本插件后，移动端、移动端横屏和桌面端的展示效果：</summary>
 
 <div style="display: flex; align-items: center;">
 
@@ -51,6 +53,8 @@ yarn add -D postcss-mobile-to-multi-displays
 </div>
 
 ![桌面端的展示效果](./images/desktop.png)
+
+</details>
 
 ## 配置参数
 
@@ -172,7 +176,7 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 范例
 
-`example` 文件夹内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-to-multi-displays` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-to-multi-displays` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
 
 ```bash
 cd example/react/
@@ -191,7 +195,9 @@ npm run test
 
 在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 的官网具有一致的 UI，都偏向于移动端竖屏视图，这里用它作为期望目标。
 
-下面的三张图分别是“多抓鱼“在移动端、移动端横屏和桌面端的展示效果：
+<details>
+
+<summary>这三张图分别是“多抓鱼“在移动端、移动端横屏和桌面端的展示效果：</summary>
 
 <div style="display: flex; align-items: center;">
 
@@ -202,6 +208,8 @@ npm run test
 </div>
 
 ![desk site](./images/dzy-desktop.png)
+
+</details>
 
 “多抓鱼”官网的最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性。
 
