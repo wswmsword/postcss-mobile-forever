@@ -1,0 +1,31 @@
+{
+  "name": "svelte",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "dev": "webpack serve"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "svelte": "^3.55.1",
+    "svelte-loader": "^3.1.5"
+  },
+  "devDependencies": {
+    "css-loader": "^6.7.3",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.2",
+    "postcss": "^8.4.21",
+    "postcss-load-config": "^4.0.1",
+    "postcss-loader": "^7.0.2",
+    "postcss-mobile-to-multi-displays": "^1.0.1",
+    "postcss-px-to-viewport": "^1.1.1",
+    "svelte-preprocess": "^5.0.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
+  }
+}

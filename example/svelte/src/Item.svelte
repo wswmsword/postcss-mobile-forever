@@ -1,0 +1,27 @@
+
+<div class="wrapper">
+  <div class="img"></div>
+  <div class="txt"></div>
+</div>
+
+<style>
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.img {
+  width: 148px;
+  height: 186px;
+  background-color: rgb(230, 210, 153);
+  border-radius: 8px;
+}
+
+.txt {
+  background-color: rgb(164, 144, 127);
+  width: 148px;
+  height: 22px;
+  border-radius: 6px;
+}
+</style>
