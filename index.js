@@ -98,9 +98,9 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     /** 移动端横屏下的媒体查询 */
     const landscapeMediaStr_1 = `(min-width: ${yAxisBreakPoint}px) and (max-height: ${xAxisBreakPoint}px)`;
     const landscapeMediaStr_2 = `(max-width: ${yAxisBreakPoint}px) and (orientation: landscape)`;
-    let landScapeViewAtRule = postcss.atRule({ name: "media", params: `(${landscapeMediaStr_1}) or (${landscapeMediaStr_2})`, nodes: [] });
+    let landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
     /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-    let sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px) or ((orientation: landscape) and (max-width: ${yAxisBreakPoint}))`, nodes: [] });
+    let sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px), (orientation: landscape) and (max-width: ${yAxisBreakPoint})`, nodes: [] });
 
 
     // 遍历选择器
