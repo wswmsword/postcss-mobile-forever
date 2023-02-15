@@ -16,27 +16,16 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 简介
 
-通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 使用本插件，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。
+通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)，使用本插件生成桌面端和移动端横屏的媒体查询，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。
 
-插件会引入两个媒体查询的断点，经过一定的条件后触发，并期望覆盖：
+如何使用：
+- 首先使用本插件，插件会利用源码中移动端设计视图的 px 值，生成桌面端和移动端横屏的媒体查询；
+- 然后使用插件 `postcss-px-to-viewport`，移动端设计视图的 px 值会被转为适合移动端竖屏的可伸缩界面。
+
+本插件生成的媒体查询期望覆盖：
 - 移动端竖屏，正常使用移动端竖屏视图；
 - 移动端横屏，使用**居中的较小固定宽度**的移动端竖屏视图；
 - 平板、笔记本、桌面端，使用**居中的较大固定宽度**的移动端竖屏视图。
-
-两个断点分别是“x 轴断点（X）”和“y 轴断点（Y）”，屏幕的高低（高度）变化触发 x 轴断点，屏幕的宽窄（宽度）变化触发 y 轴断点。下面是触发断点的每种情况，以及和每种情况等效的端口（默认的 x 轴断点是 640px，y 轴断点是 600px）：
-
-```
-- 宽于 Y（600）
-	- 高于 X（640），使用桌面宽度（平板、笔记本、桌面端）
-	- 低于 X，使用移动端横屏宽度（移动端横屏）
-- 窄于 Y
-	- 横屏
-		- 高于 X，使用移动端横屏宽度（移动端横屏）
-		- 低于 X，使用移动端横屏宽度（移动端横屏）
-	- 纵屏
-		- 高于 X，使用设计图宽度（移动端竖屏）
-		- 低于 X，使用设计图宽度（移动端竖屏）
-```
 
 ## 演示效果
 
@@ -58,22 +47,6 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 配置参数
 
-下面是默认的配置参数：
-
-```json
-{
-  "viewportWidth": 750,
-  "desktopWidth": 600,
-  "landscapeWidth": 425,
-  "yAxisBreakPoint": null,
-  "xAxisBreakPoint": 640,
-  "rootClass": "root-class",
-  "border": false,
-  "disableDesktop": false,
-  "disableLandscape": false
-}
-```
-
 | Name | Type | isRequired | Default | Desc |
 |:--|:--|:--|:--|:--|
 | viewportWidth | number | N | 750 | 设计图宽度，代码中的尺寸都是基于这个宽度的尺寸 |
@@ -86,8 +59,62 @@ yarn add -D postcss-mobile-to-multi-displays
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
 | pass1px | boolean | N | true | 是否转换 1px？ |
+| exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
+| include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 
-## 输入输出样例
+下面是默认的配置参数：
+
+```json
+{
+  "viewportWidth": 750,
+  "desktopWidth": 600,
+  "landscapeWidth": 425,
+  "yAxisBreakPoint": null,
+  "xAxisBreakPoint": 640,
+  "rootClass": "root-class",
+  "border": false,
+  "disableDesktop": false,
+  "disableLandscape": false,
+  "pass1px": true,
+  "exclude": null,
+  "include": null,
+}
+```
+
+## 单元测试
+
+```bash
+npm install
+npm run test
+```
+
+## 范例
+
+文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-to-multi-displays` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+
+```bash
+cd example/react/
+npm install
+npm run start
+```
+
+## 原理和输入输出范例
+
+本插件会通过两个媒体查询断点创建可以代表桌面端和移动端横屏的媒体查询，然后找到所有的 px 值进行转换，默认情况会把原值转换成两个经过比例计算后的新 px 值，分别对应桌面端和移动端横屏。
+
+两个断点分别是“x 轴断点（X）”和“y 轴断点（Y）”，屏幕的高低（高度）变化触发 x 轴断点，屏幕的宽窄（宽度）变化触发 y 轴断点。下面是触发断点的每种情况，以及和每种情况等效的端口（默认的 x 轴断点是 640px，y 轴断点是 600px）：
+
+- 宽于 Y（600）
+	- 高于 X（640），使用桌面宽度（平板、笔记本、桌面端）
+	- 低于 X，使用移动端横屏宽度（移动端横屏）
+- 窄于 Y
+	- 横屏
+		- 高于 X，使用移动端横屏宽度（移动端横屏）
+		- 低于 X，使用移动端横屏宽度（移动端横屏）
+	- 纵屏
+		- 高于 X，使用设计图宽度（移动端竖屏）
+		- 低于 X，使用设计图宽度（移动端竖屏）
+
 
 下面是使用默认配置的输入输出内容。
 
@@ -174,23 +201,6 @@ yarn add -D postcss-mobile-to-multi-displays
 }
 ```
 
-## 范例
-
-文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-to-multi-displays` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
-
-```bash
-cd example/react/
-npm install
-npm run start
-```
-
-## 单元测试
-
-```bash
-npm install
-npm run test
-```
-
 ## 期望效果
 
 在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 的官网具有一致的 UI，都偏向于移动端竖屏视图，这里用它作为期望目标。
@@ -229,3 +239,7 @@ npm run test
 
 配套插件：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport/*](https://github.com/evrone/postcss-px-to-viewport/)
+
+相关链接：
+- [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
+- [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器。
