@@ -29,10 +29,36 @@ const defaults = {
   disableLandscape: false,
   /** 不转换 1px */
   pass1px: true,
+  /** 排除文件 */
+  exclude: null,
+  /** 包含文件 */
+  include: null,
 };
 
+const TYPE_REG = "regex";
+const TYPE_ARY = "array";
+
+/** 检查是否是正则类型或包含正则的数组 */
+const checkRegExpOrArray = (options, optionName) => {
+  const obj2Str = val => Object.prototype.toString.call(val);
+  const option = options[optionName];
+  if (!option) return null;
+  if (obj2Str(option) === '[object RegExp]') return TYPE_REG;
+  if (obj2Str(option) === '[object Array]') {
+    let bad = false;
+    for (let i = 0; i < option.length; ++ i) {
+      if (obj2Str(option[i]) !== '[object RegExp]') {
+        bad = true;
+        break;
+      }
+    }
+    if (!bad) return TYPE_ARY;
+  }
+  throw new Error('options.' + optionName + ' should be RegExp or Array of RegExp.');
+}
+
 /** 移除重复属性 */
-removeDulplicateDecls = (node) => {
+const removeDulplicateDecls = (node) => {
   node.walkRules(rule => {
     const walked = { props: [], propNodes: [] }
     rule.walkDecls(decl => {
@@ -84,14 +110,20 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     ...options,
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, xAxisBreakPoint, pass1px } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, xAxisBreakPoint, pass1px, include, exclude } = opts;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
   }
 
+  /** 桌面端缩放比例 */
   const desktopRadio = desktopWidth / viewportWidth;
+  /** 移动端横屏缩放比例 */
   const landscapeRadio = landscapeWidth / viewportWidth;
+
+  const excludeType = checkRegExpOrArray(opts, "exclude");
+  const includeType = checkRegExpOrArray(opts, "include");
+
   return function(css/* , result */) {
     /** 桌面端视图下的媒体查询 */
     let desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px) and (min-height: ${xAxisBreakPoint}px)`, nodes: [] })
@@ -109,6 +141,34 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       let hasFullVwWidth = false;
       let hasFullPerWidth = false;
       const selector = rule.selector;
+      const file = rule.source && rule.source.input.file;
+
+      // 包含文件
+      if (include && file) {
+        if (includeType === TYPE_REG) {
+          if (!include.test(file)) return;
+        }
+        if (includeType === TYPE_ARY) {
+          let book = false;
+          for (let i = 0; i < include.length; ++ i) {
+            if(include[i].test(file)) {
+              book = true;
+              break;
+            }
+          }
+          if (!book) return;
+        }
+      }
+      // 排除文件
+      if (exclude && file) {
+        if (excludeType === TYPE_REG) {
+          if (exclude.test(file)) return;
+        }
+        if (excludeType === TYPE_ARY) {
+          for (let i = 0; i < exclude.length; ++ i)
+            if (exclude[i].test(file)) return;
+        }
+      }
 
       // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
       if (rule.parent.params) return;

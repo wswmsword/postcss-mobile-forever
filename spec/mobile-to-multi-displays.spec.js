@@ -88,4 +88,169 @@ describe("media queries", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert if no px value", function() {
+    var input = ".rule { font-size: 1rem; }";
+    var output = ".rule { font-size: 1rem; }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
+describe("exclude", function() {
+  var rules = ".rule { width: 75px; } .l{}";
+  var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60.000px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { width: 42.500px; } }";
+  it("when using exclude option, the style should not be overwritten.", function() {
+    var options = {
+      exclude: /\/node_modules\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/node_modules/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using exclude option, the style should be overwritten.", function() {
+    var options = {
+      exclude: /\/node_modules\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
+
+  it("when using exclude array, the style should not be overwritten.", function() {
+    var options = {
+      exclude: [/\/node_modules\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/node_modules/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using exclude array, the style should be overwritten.", function() {
+    var options = {
+      exclude: [/\/node_modules\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
+});
+
+describe("include", function() {
+  var rules = ".rule { width: 75px; } .l{}";
+  var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60.000px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { width: 42.500px; } }";
+  it("when using include option, the style should not be overwritten.", function() {
+    var options = {
+      include: /\/src\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/node_modules/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using include option, the style should be overwritten.", function() {
+    var options = {
+      include: /\/src\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
+
+  it("when using include array, the style should not be overwritten.", function() {
+    var options = {
+      include: [/\/src\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/node_modules/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using include array, the style should be overwritten.", function() {
+    var options = {
+      include: [/\/src\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
+});
+
+describe("include and exclude", function() {
+  var rules = ".rule { width: 75px; } .l{}";
+  var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60.000px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { width: 42.500px; } }";
+  it("when using same include and exclude, the style should not be overwritten.", function() {
+    var options = {
+      include: /\/src\//,
+      exclude: /\/src\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using different include and exclude, the style should not be overwritten.", function() {
+    var options = {
+      include: /\/mobile\//,
+      exclude: /\/desktop\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using different include and exclude, the style should be overwritten.", function() {
+    var options = {
+      include: /\/mobile\//,
+      exclude: /\/desktop\//,
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/mobile/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
+
+  it("when using same include and exclude array, the style should not be overwritten.", function() {
+    var options = {
+      include: [/\/src\//],
+      exclude: [/\/src\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using different include and exclude array, the style should not be overwritten.", function() {
+    var options = {
+      include: [/\/mobile\//],
+      exclude: [/\/desktop\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/src/main.css",
+    }).css;
+    expect(processed).toBe(rules);
+  });
+
+  it("when using different include and exclude array, the style should be overwritten.", function() {
+    var options = {
+      include: [/\/mobile\//],
+      exclude: [/\/desktop\//],
+    };
+    var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
+      from: "/mobile/main.css",
+    }).css;
+    expect(processed).toBe(converted);
+  });
 });
