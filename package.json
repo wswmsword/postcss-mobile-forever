@@ -1,7 +1,7 @@
 {
   "name": "postcss-mobile-to-multi-displays",
   "version": "1.0.2",
-  "description": "使用 1 份移动端视图适配桌面端与横屏的 postcss 插件。",
+  "description": "用于在桌面端和移动端横屏展示移动端设计视图的 postcss 插件。",
   "main": "index.js",
   "scripts": {
     "test": "jest spec/*.spec.js"
@@ -21,7 +21,8 @@
     "responsive-design",
     "mobile",
     "desktop",
-    "media-query"
+    "media-query",
+    "mobile-first"
   ],
   "author": "wswmsword",
   "license": "MIT",
