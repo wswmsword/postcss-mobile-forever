@@ -27,6 +27,8 @@ const defaults = {
   disableDesktop: false,
   /** 不做移动端横屏的适配 */
   disableLandscape: false,
+  /** px 转换为视口单位 */
+  enableMobile: false,
   /** 不转换 1px */
   pass1px: true,
   /** 排除文件 */
@@ -140,7 +142,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     ...options,
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, xAxisBreakPoint, pass1px, include, exclude } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude } = opts;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
@@ -224,14 +226,16 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
         if (pxTestReg.test(val)) {
           const important = decl.important;
           // 添加桌面端、移动端媒体查询
-          appendMediaRadioPxFromPx(selector, prop, val, disableDesktop, disableLandscape, {
+          appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
+            viewportWidth,
             desktopRadio,
             landscapeRadio,
             desktopViewAtRule,
             landScapeViewAtRule,
             important,
             pass1px,
-          })
+            decl,
+          });
         }
       })
 
@@ -333,33 +337,70 @@ function appendMarginCentreRootClassNoBorder(selector, disableDesktop, disableLa
   }
 }
 
-/** px 转换为媒体查询中比例计算的 px */
-function appendMediaRadioPxFromPx(selector, prop, val, disableDesktop, disableLandscape, {
+/** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
+function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
+  viewportWidth,
   desktopRadio,
   landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
   important,
   pass1px,
+  decl,
 }) {
-  if (!disableDesktop) {
-    const convertedVal = val.replace(pxMatchReg, getReplacer(desktopRadio, pass1px)); // 替换 px 比例计算后的值
-    if (convertedVal !== val) {
-      desktopViewAtRule.append(postcss.rule({ selector }).append({
-        prop: prop, // 属性
-        value: convertedVal, // 替换 px 比例计算后的值
-        important, // 值的尾部有 important 则添加
-      }));
+  const enabledDesktop = !disableDesktop;
+  const enabledLandscape = !disableLandscape;
+  const enabledMobile = enableMobile;
+
+  if (enabledDesktop || enabledLandscape || enabledMobile) {
+    let mobileVal = '';
+    let desktopVal = '';
+    let landscapeVal = '';
+
+    let mached = null;
+    let lastIndex = 0;
+    let book = false; // 标记
+    while(mached = pxMatchReg.exec(val)) {
+      book = true;
+      const chunk = val.slice(lastIndex, mached.index); // 当前匹配和上一次匹配之间的字符串
+      const pxNum = Number(mached[0].slice(0, -2)); // 数字
+      const pxUnit = mached[0].slice(-2); // 单位
+      const is1px = pass1px && pxNum === 1;
+
+      if (enabledMobile)
+        mobileVal = mobileVal.concat(chunk, is1px ? 1 : Number(pxNum * 100 / viewportWidth).toFixed(3), is1px ? pxUnit : "vw");
+      if (enabledDesktop)
+        desktopVal = desktopVal.concat(chunk, is1px ? 1 : Number(pxNum * desktopRadio).toFixed(3), "px");
+      if (enabledLandscape)
+        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : Number(pxNum * landscapeRadio).toFixed(3), "px");
+
+      lastIndex = pxMatchReg.lastIndex;
     }
-  }
-  if (!disableLandscape) {
-    const convertedVal = val.replace(pxMatchReg, getReplacer(landscapeRadio, pass1px)); // 替换 px 比例计算后的值
-    if (convertedVal !== val) {
-      landScapeViewAtRule.append(postcss.rule({ selector }).append({
-        prop,
-        value: convertedVal,
-        important,
-      }));
+
+    const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
+    if (enabledMobile && book) {
+      mobileVal = mobileVal.concat(tailChunk);
+      decl.value = mobileVal;
+    }
+    if (enabledDesktop && book) {
+      desktopVal = desktopVal.concat(tailChunk);
+      if (val !== desktopVal) {
+        desktopViewAtRule.append(postcss.rule({ selector }).append({
+          prop: prop, // 属性
+          value: desktopVal, // 替换 px 比例计算后的值
+          important, // 值的尾部有 important 则添加
+        }));
+      }
+    }
+    if (enabledLandscape && book) {
+      landscapeVal = landscapeVal.concat(tailChunk);
+      if (val !== landscapeVal) {
+        landScapeViewAtRule.append(postcss.rule({ selector }).append({
+          prop,
+          value: landscapeVal,
+          important,
+        }));
+      }
     }
   }
 }
