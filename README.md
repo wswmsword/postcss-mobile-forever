@@ -29,21 +29,17 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 演示效果
 
-<details>
+下面的三张图是使用本插件后，移动端、移动端横屏和桌面端的展示效果：
 
-<summary>这三张图是使用本插件后，移动端、移动端横屏和桌面端的展示效果：</summary>
-
-<div style="display: flex; align-items: center;">
-
-![移动端的展示效果](./images/portrait.png)
-
-![移动端横屏的展示效果](./images/landscape.png)
-
-</div>
-
-![桌面端的展示效果](./images/desktop.png)
-
-</details>
+<table>
+	<tr>
+		<td><img src="./images/portrait.png" alt="移动端的展示效果" /></td>
+		<td><img src="./images/landscape.png" alt="移动端横屏的展示效果" /></td>
+	</tr>
+	<tr>
+		<td colspan="2"><img src="./images/desktop.png" alt="桌面端的展示效果" /></td>
+	</tr>
+</table>
 
 ## 配置参数
 
@@ -97,6 +93,8 @@ cd example/react/
 npm install
 npm run start
 ```
+
+在“演示效果”一节中查看成功运行之后，不同屏幕的界面图片。
 
 ## 原理和输入输出范例
 
@@ -203,29 +201,25 @@ npm run start
 
 ## 期望效果
 
-在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 的官网具有一致的 UI，都偏向于移动端竖屏视图，这里用它作为期望目标。
+在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 做得很好，桌面端和移动端虽然基本公用一套 UI（移动端竖屏 UI），但访问无障碍，没有巨大字体和全宽的问题，因此这里用它作为期望目标。
 
-<details>
+下面的三张图分别是“多抓鱼“在移动端、移动端横屏和桌面端的展示效果：
 
-<summary>这三张图分别是“多抓鱼“在移动端、移动端横屏和桌面端的展示效果：</summary>
+<table>
+	<tr>
+		<td><img src="./images/dzy-portrait.png" alt="移动端的展示效果" /></td>
+		<td><img src="./images/dzy-landscape.png" alt="移动端横屏的展示效果" /></td>
+	</tr>
+	<tr>
+		<td colspan="2"><img src="./images/dzy-desktop.png" alt="桌面端的展示效果" /></td>
+	</tr>
+</table>
 
-<div style="display: flex; align-items: center;">
-
-![portriat mobile site](./images/dzy-portrait.png)
-
-![landscape mobile site](./images/dzy-landscape.png)
-
-</div>
-
-![desk site](./images/dzy-desktop.png)
-
-</details>
-
-“多抓鱼”官网的最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性。
+“多抓鱼”官网的最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性（展示效果）。
 
 这样适配：
-- 保证内容可用，不会出现“大屏大字”的问题；
-- 在非前端适配方案失效时，终端用户仍可访问。
+- 保证内容可用，不会出现视口单位导致的“大屏大字”问题；
+- 在非前端适配方案失效时，前端有兜底自适应适配，终端用户仍可访问。
 
 ## 注意事项
 
