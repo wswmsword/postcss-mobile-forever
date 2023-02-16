@@ -94,6 +94,36 @@ const mergeRules = (node) => {
 	});
 };
 
+const hasNoIncludeFile = (include, file, regOrAry) => {
+  if (include && file) {
+    if (regOrAry === TYPE_REG) {
+      if (!include.test(file)) return true;
+    }
+    if (regOrAry === TYPE_ARY) {
+      let book = false;
+      for (let i = 0; i < include.length; ++ i) {
+        if(include[i].test(file)) {
+          book = true;
+          break;
+        }
+      }
+      if (!book) return true;
+    }
+  }
+};
+
+const hasExcludeFile = (exclude, file, regOrAry) => {
+  if (exclude && file) {
+    if (regOrAry === TYPE_REG) {
+      if (exclude.test(file)) return true;
+    }
+    if (regOrAry === TYPE_ARY) {
+      for (let i = 0; i < exclude.length; ++ i)
+        if (exclude[i].test(file)) return true;
+    }
+  }
+};
+
 /**
  * 视口类型可以分为 3 种，分别是移动端竖屏、移动端横屏以及桌面端。
  *
@@ -144,31 +174,9 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       const file = rule.source && rule.source.input.file;
 
       // 包含文件
-      if (include && file) {
-        if (includeType === TYPE_REG) {
-          if (!include.test(file)) return;
-        }
-        if (includeType === TYPE_ARY) {
-          let book = false;
-          for (let i = 0; i < include.length; ++ i) {
-            if(include[i].test(file)) {
-              book = true;
-              break;
-            }
-          }
-          if (!book) return;
-        }
-      }
+      if(hasNoIncludeFile(include, file, includeType)) return;
       // 排除文件
-      if (exclude && file) {
-        if (excludeType === TYPE_REG) {
-          if (exclude.test(file)) return;
-        }
-        if (excludeType === TYPE_ARY) {
-          for (let i = 0; i < exclude.length; ++ i)
-            if (exclude[i].test(file)) return;
-        }
-      }
+      if(hasExcludeFile(exclude, file, excludeType)) return;
 
       // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
       if (rule.parent.params) return;
@@ -215,6 +223,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
         // 转换 px
         if (pxTestReg.test(val)) {
           const important = decl.important;
+          // 添加桌面端、移动端媒体查询
           appendMediaRadioPxFromPx(selector, prop, val, disableDesktop, disableLandscape, {
             desktopRadio,
             landscapeRadio,
