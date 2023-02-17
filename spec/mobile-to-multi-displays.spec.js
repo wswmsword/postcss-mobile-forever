@@ -79,6 +79,20 @@ describe("value parsing", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert value in content property value", function() {
+    var input = ".rule::before { content: '75px'; left: 75px; } .l{}";
+    var output = ".rule::before { content: '75px'; left: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule::before { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule::before { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not convert value in quotes of font property", function() {
+    var input = ".rule { font: italic 75px '75px', serif; } .l{}";
+    var output = ".rule { font: italic 75px '75px', serif; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font: italic 60px '75px', serif; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { font: italic 42.5px '75px', serif; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("media queries", function() {
