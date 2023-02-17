@@ -35,6 +35,8 @@ const defaults = {
   exclude: null,
   /** 包含文件 */
   include: null,
+  /** 单位精确到小数点后几位？ */
+  unitPrecision: 3,
 };
 
 const TYPE_REG = "regex";
@@ -145,7 +147,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     ...options,
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision } = opts;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
@@ -238,6 +240,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             important,
             pass1px,
             decl,
+            unitPrecision,
           });
         }
       })
@@ -284,16 +287,6 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     }
   };
 })
-
-/** 比例计算后的新 px（媒体查询中的 px） */
-function getReplacer(radio, pass1px) {
-  return function(machedNumber) {
-    if (pass1px && Number(machedNumber) === 1) {
-      return 1;
-    }
-    return round(Number(Number(machedNumber) * radio), 3);
-  }
-}
 
 /** 居中最外层选择器，用 margin 居中，有 border */
 function appendMarginCentreRootClassWithBorder(selector, disableDesktop, disableLandscape, {
@@ -350,6 +343,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   important,
   pass1px,
   decl,
+  unitPrecision,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -371,11 +365,11 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const is1px = pass1px && pxNum === 1;
 
       if (enabledMobile)
-        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), 3), is1px ? pxUnit : "vw");
+        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), is1px ? pxUnit : "vw");
       if (enabledDesktop)
-        desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), 3), "px");
+        desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
       if (enabledLandscape)
-        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(Number(pxNum * landscapeRadio), 3), "px");
+        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(Number(pxNum * landscapeRadio), unitPrecision), "px");
 
       lastIndex = pxMatchReg.lastIndex;
     }
