@@ -41,6 +41,8 @@ yarn add -D postcss-mobile-to-multi-displays
 	</tr>
 </table>
 
+在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果。
+
 ## 配置参数
 
 | Name | Type | isRequired | Default | Desc |
@@ -54,9 +56,11 @@ yarn add -D postcss-mobile-to-multi-displays
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
+| enableMobile | boolean | N | false | 做移动端竖屏适配，把 px 转换为视口单位 vw |
 | pass1px | boolean | N | true | 是否转换 1px？ |
 | exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
+| unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 
 下面是默认的配置参数：
 
@@ -71,9 +75,11 @@ yarn add -D postcss-mobile-to-multi-displays
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
+  "enableMobile": false,
   "pass1px": true,
   "exclude": null,
   "include": null,
+  "unitPrecision": 3,
 }
 ```
 
