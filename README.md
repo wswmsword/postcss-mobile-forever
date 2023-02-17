@@ -235,6 +235,14 @@ npm run start
 
 `root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
+## 版本规则
+
+版本规则使用[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。
+
+## 协议
+
+协议使用 [MIT License](./LICENSE)。
+
 ## 其它
 
 配套插件：
