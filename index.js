@@ -359,7 +359,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     let book = false; // 标记
     while(mached = pxMatchReg.exec(val)) {
       const pxContent = mached[2];
-      if (pxContent == null) continue;
+      if (pxContent == null || pxContent === "0px") continue;
       book = true;
       const beforePxContent = mached[1] || '';
       const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
