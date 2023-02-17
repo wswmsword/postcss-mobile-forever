@@ -40,6 +40,9 @@ const defaults = {
 const TYPE_REG = "regex";
 const TYPE_ARY = "array";
 
+/** 取小数后一位的四舍五入 */
+const round = (number, precision) => Math.round(+number + 'e' + precision) / Math.pow(10, precision);
+
 /** 检查是否是正则类型或包含正则的数组 */
 const checkRegExpOrArray = (options, optionName) => {
   const obj2Str = val => Object.prototype.toString.call(val);
@@ -288,7 +291,7 @@ function getReplacer(radio, pass1px) {
     if (pass1px && Number(machedNumber) === 1) {
       return 1;
     }
-    return Number(Number(machedNumber) * radio).toFixed(3);
+    return round(Number(Number(machedNumber) * radio), 3);
   }
 }
 
@@ -368,11 +371,11 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const is1px = pass1px && pxNum === 1;
 
       if (enabledMobile)
-        mobileVal = mobileVal.concat(chunk, is1px ? 1 : Number(pxNum * 100 / viewportWidth).toFixed(3), is1px ? pxUnit : "vw");
+        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), 3), is1px ? pxUnit : "vw");
       if (enabledDesktop)
-        desktopVal = desktopVal.concat(chunk, is1px ? 1 : Number(pxNum * desktopRadio).toFixed(3), "px");
+        desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), 3), "px");
       if (enabledLandscape)
-        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : Number(pxNum * landscapeRadio).toFixed(3), "px");
+        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(Number(pxNum * landscapeRadio), 3), "px");
 
       lastIndex = pxMatchReg.lastIndex;
     }
