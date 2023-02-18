@@ -47,7 +47,7 @@ yarn add -D postcss-mobile-to-multi-displays
 
 | Name | Type | isRequired | Default | Desc |
 |:--|:--|:--|:--|:--|
-| viewportWidth | number | N | 750 | 设计图宽度，代码中的尺寸都是基于这个宽度的尺寸 |
+| viewportWidth | number\|(file: string, selector: string) => number | N | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
 | yAxisBreakPoint | number | N | / | 纵向 y 轴断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
