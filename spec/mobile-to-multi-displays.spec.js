@@ -51,6 +51,41 @@ describe("mobile-to-multi-displays", function() {
   });
 });
 
+describe("dynamic viewportWidth", function() {
+  var options = {
+    viewportWidth: file => file.includes("vant") ? 375 : 750,
+    enableMobile: true,
+  };
+  it("should use truthy viewportWidth by dynamic viewportWidth", function() {
+    var input = ".rule { left: 75px; } .l{}";
+    var output = ".rule { left: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { left: 85px; } }"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input, {
+      from: "/vant/main.css",
+    }).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should use falthy viewportWidth by dynamic viewportWidth", function() {
+    var input = ".rule { left: 75px; } .l{}";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { left: 42.5px; } }"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input, {
+      from: "/node_modules/main.css",
+    }).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should use viewportWidth number", function() {
+    var options = {
+      viewportWidth: 375,
+      enableMobile: true,
+    };
+    var input = ".rule { left: 75px; } .l{}";
+    var output = ".rule { left: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .rule { left: 85px; } }"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("value parsing", function() {
   it("should not convert values in url()", function() {
     var input = ".rule { background: url(750px.jpg); font-size: 75px; } .l{}";

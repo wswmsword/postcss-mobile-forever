@@ -86,11 +86,6 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     yAxisBreakPoint = desktopWidth
   }
 
-  /** 桌面端缩放比例 */
-  const desktopRadio = desktopWidth / viewportWidth;
-  /** 移动端横屏缩放比例 */
-  const landscapeRadio = landscapeWidth / viewportWidth;
-
   const excludeType = checkRegExpOrArray(opts, "exclude");
   const includeType = checkRegExpOrArray(opts, "include");
 
@@ -119,6 +114,14 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       if(hasNoIncludeFile(include, file, includeType)) return;
       // 排除文件
       if(hasExcludeFile(exclude, file, excludeType)) return;
+
+      // 是否动态视图宽度？
+      const isDynamicViewportWidth = typeof viewportWidth === "function";
+      const viewportWidthValue = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
+      /** 桌面端缩放比例 */
+      const desktopRadio = desktopWidth / viewportWidthValue;
+      /** 移动端横屏缩放比例 */
+      const landscapeRadio = landscapeWidth / viewportWidthValue;
 
       // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
       if (rule.parent.params) return;
@@ -171,7 +174,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
           const satisfiedMobilePropList = satisfyPropList(prop);
           // 添加桌面端、移动端媒体查询
           appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
-            viewportWidth,
+            viewportWidth: viewportWidthValue,
             desktopRadio,
             landscapeRadio,
             desktopViewAtRule,
