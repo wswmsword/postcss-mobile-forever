@@ -85,6 +85,12 @@ yarn add -D postcss-mobile-to-multi-displays
   "exclude": null,
   "include": null,
   "unitPrecision": 3,
+  "mobileConfig": {
+    "propList": ['*'],
+    "fontViewportUnit": "vw",
+    "selectorBlackList": [],
+    "replace": true
+  }
 }
 ```
 
