@@ -1,6 +1,7 @@
 const postcss = require("postcss");
 const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
 const { removeDulplicateDecls, mergeRules, round, createRegArrayChecker, createIncludeFunc, createExcludeFunc } = require("./helpers");
+var { createPropListMatcher } = require('./prop-list-matcher');
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
@@ -38,6 +39,13 @@ const defaults = {
   include: null,
   /** 单位精确到小数点后几位？ */
   unitPrecision: 3,
+  /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
+  mobileConfig: {
+    propList: ['*'],
+    // fontViewportUnit: "vw",
+    // selectorBlackList: [],
+    // replace: true,
+  },
 };
 
 const TYPE_REG = "regex";
@@ -63,12 +71,18 @@ const hasExcludeFile = createExcludeFunc(TYPE_REG, TYPE_ARY);
  * 宽度的比例，将两种情况的 px 元素的比例计算后的尺寸放入媒体查询中。
  */
 module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options) {
+  const optMobileConfig = (options || {}).mobileConfig;
   const opts = {
     ...defaults,
     ...options,
+    mobileConfig: {
+      ...defaults.mobileConfig,
+      ...optMobileConfig,
+    }
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision, mobileConfig } = opts;
+  const { propList, fontViewportUnit, selectorBlackList, replace } = mobileConfig;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
@@ -81,6 +95,8 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
 
   const excludeType = checkRegExpOrArray(opts, "exclude");
   const includeType = checkRegExpOrArray(opts, "include");
+
+  const satisfyPropList = createPropListMatcher(propList);
 
   return function(css/* , result */) {
     /** 桌面端视图下的媒体查询 */
@@ -151,6 +167,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
         // 转换 px
         if (pxTestReg.test(val)) {
           const important = decl.important;
+          const satisfiedMobilePropList = satisfyPropList(prop);
           // 添加桌面端、移动端媒体查询
           appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
             viewportWidth,
@@ -162,6 +179,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             pass1px,
             decl,
             unitPrecision,
+            satisfiedMobilePropList,
           });
         }
       })
@@ -265,6 +283,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   pass1px,
   decl,
   unitPrecision,
+  satisfiedMobilePropList,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -288,7 +307,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const pxUnit = pxContent.slice(-2); // 单位
       const is1px = pass1px && pxNum === 1;
 
-      if (enabledMobile)
+      if (enabledMobile && satisfiedMobilePropList)
         mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), is1px ? pxUnit : "vw");
       if (enabledDesktop)
         desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
@@ -299,7 +318,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     }
 
     const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
-    if (enabledMobile && book) {
+    if (enabledMobile && book && satisfiedMobilePropList) {
       mobileVal = mobileVal.concat(tailChunk);
       decl.value = mobileVal;
     }

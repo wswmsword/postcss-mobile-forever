@@ -392,6 +392,42 @@ describe('px-to-viewport', function() {
     });
   });
 
+  describe('propList', function () {
+    it('should only replace properties in the prop list', function () {
+      var css = '.rule { font-size: 16px; margin: 16px; margin-left: 5px; padding: 5px; padding-right: 16px }';
+      var expected = '.rule { font-size: 5vw; margin: 5vw; margin-left: 5px; padding: 5px; padding-right: 5vw }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          propList: ['*font*', 'margin*', '!margin-left', '*-right', 'pad']
+        }
+      })).process(css).css;
+  
+      expect(processed).toBe(expected);
+    });
+  
+    it('should only replace properties in the prop list with wildcard', function () {
+      var css = '.rule { font-size: 16px; margin: 16px; margin-left: 5px; padding: 5px; padding-right: 16px }';
+      var expected = '.rule { font-size: 16px; margin: 5vw; margin-left: 5px; padding: 5px; padding-right: 16px }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          propList: ['*', '!margin-left', '!*padding*', '!font*']
+        }
+      })).process(css).css;
+  
+      expect(processed).toBe(expected);
+    });
+  
+    it('should replace all properties when prop list is not given', function () {
+      var rules = '.rule { margin: 16px; font-size: 15px }';
+      var expected = '.rule { margin: 5vw; font-size: 4.6875vw }';
+      var processed = postcss(mobileToMultiDisplays(basicOptions)).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  });
+
   describe('exclude', function () {
     var rules = '.rule { border: 1px solid #000; font-size: 16px; margin: 1px 10px; }';
     var covered = '.rule { border: 1px solid #000; font-size: 5vw; margin: 1px 3.125vw; }';
