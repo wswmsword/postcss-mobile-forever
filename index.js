@@ -1,5 +1,5 @@
 const postcss = require("postcss");
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder } = require("./src/css-generator");
 
@@ -41,7 +41,7 @@ const defaults = {
   mobileConfig: {
     propList: ['*'],
     fontViewportUnit: "vw",
-    // selectorBlackList: [],
+    selectorBlackList: [],
     // replace: true,
   },
 };
@@ -146,6 +146,9 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
         }
       }
 
+      /** 选择器在黑名单吗 */
+      const blackListedMobileSelector = blacklistedSelector(selectorBlackList, selector);
+
       // 遍历选择器内的 css 属性
       rule.walkDecls(decl => {
         const prop = decl.prop;
@@ -179,6 +182,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             unitPrecision,
             satisfiedMobilePropList,
             fontViewportUnit,
+            blackListedMobileSelector,
           });
         }
       })

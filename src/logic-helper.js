@@ -89,6 +89,15 @@ const createExcludeFunc = (TYPE_REG, TYPE_ARY) => (exclude, file, regOrAry) => {
   }
 };
 
+
+const blacklistedSelector = (blacklist, selector) => {
+  if (typeof selector !== 'string') return;
+  return blacklist.some((regex) => {
+    if (typeof regex === 'string') return selector.includes(regex);
+    return selector.match(regex);
+  });
+}
+
 module.exports = {
   removeDulplicateDecls,
   mergeRules,
@@ -96,4 +105,5 @@ module.exports = {
   createRegArrayChecker,
   createIncludeFunc,
   createExcludeFunc,
+  blacklistedSelector,
 };

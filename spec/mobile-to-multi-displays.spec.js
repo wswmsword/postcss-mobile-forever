@@ -387,6 +387,47 @@ describe('px-to-viewport', function() {
     });
   });
 
+  describe('selectorBlackList', function () {
+    it('should ignore selectors in the selector black list', function () {
+      var rules = '.rule { font-size: 15px } .rule2 { font-size: 15px }';
+      var expected = '.rule { font-size: 4.6875vw } .rule2 { font-size: 15px }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          selectorBlackList: ['.rule2']
+        }
+      })).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  
+    it('should ignore every selector with `body$`', function () {
+      var rules = 'body { font-size: 16px; } .class-body$ { font-size: 16px; } .simple-class { font-size: 16px; }';
+      var expected = 'body { font-size: 5vw; } .class-body$ { font-size: 16px; } .simple-class { font-size: 5vw; }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          selectorBlackList: ['body$']
+        }
+      })).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  
+    it('should only ignore exactly `body`', function () {
+      var rules = 'body { font-size: 16px; } .class-body { font-size: 16px; } .simple-class { font-size: 16px; }';
+      var expected = 'body { font-size: 16px; } .class-body { font-size: 5vw; } .simple-class { font-size: 5vw; }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          selectorBlackList: [/^body$/]
+        }
+      })).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  });
+
   describe('unitPrecision', function () {
     it('should replace using a decimal of 2 places', function () {
       var expected = '.rule { font-size: 4.69vw }';

@@ -80,6 +80,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   unitPrecision,
   satisfiedMobilePropList,
   fontViewportUnit,
+  blackListedMobileSelector,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -104,7 +105,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const is1px = pass1px && pxNum === 1;
       const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : "vw";
 
-      if (enabledMobile && satisfiedMobilePropList)
+      if (enabledMobile && satisfiedMobilePropList && !blackListedMobileSelector)
         mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), mobileUnit);
       if (enabledDesktop)
         desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
@@ -115,7 +116,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     }
 
     const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
-    if (enabledMobile && book && satisfiedMobilePropList) {
+    if (enabledMobile && book && satisfiedMobilePropList && !blackListedMobileSelector) {
       mobileVal = mobileVal.concat(tailChunk);
       decl.value = mobileVal;
     }
