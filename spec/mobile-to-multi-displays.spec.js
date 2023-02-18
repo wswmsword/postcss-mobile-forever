@@ -351,13 +351,6 @@ describe('px-to-viewport', function() {
 
   describe('viewportWidth', function() {
     it('should should replace using 320px by default', function() {
-      var basicOptions = {
-        viewportWidth: 320,
-        disableDesktop: true,
-        disableLandscape: true,
-        enableMobile: true,
-        unitPrecision: 5,
-      };
       var expected = '.rule { font-size: 4.6875vw }';
       var processed = postcss(mobileToMultiDisplays(basicOptions)).process(basicCSS).css;
   
@@ -379,6 +372,20 @@ describe('px-to-viewport', function() {
     })
   });
 
+  describe('fontViewportUnit', function() {
+    it('should replace only font-size using unit from options', function() {
+      var rules = '.rule { margin-top: 15px; font-size: 8px; }';
+      var expected = '.rule { margin-top: 4.6875vw; font-size: 2.5vmax; }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          fontViewportUnit: "vmax",
+        }
+      })).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  });
 
   describe('unitPrecision', function () {
     it('should replace using a decimal of 2 places', function () {

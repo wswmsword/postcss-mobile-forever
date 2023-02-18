@@ -42,7 +42,7 @@ const defaults = {
   /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
   mobileConfig: {
     propList: ['*'],
-    // fontViewportUnit: "vw",
+    fontViewportUnit: "vw",
     // selectorBlackList: [],
     // replace: true,
   },
@@ -180,6 +180,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             decl,
             unitPrecision,
             satisfiedMobilePropList,
+            fontViewportUnit,
           });
         }
       })
@@ -284,6 +285,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   decl,
   unitPrecision,
   satisfiedMobilePropList,
+  fontViewportUnit,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -306,9 +308,10 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const pxNum = Number(pxContent.slice(0, -2)); // 数字
       const pxUnit = pxContent.slice(-2); // 单位
       const is1px = pass1px && pxNum === 1;
+      const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : "vw";
 
       if (enabledMobile && satisfiedMobilePropList)
-        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), is1px ? pxUnit : "vw");
+        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), mobileUnit);
       if (enabledDesktop)
         desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
       if (enabledLandscape)
