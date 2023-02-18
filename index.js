@@ -1,5 +1,6 @@
 const postcss = require("postcss");
 const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
+const { removeDulplicateDecls, mergeRules, round, createRegArrayChecker, createIncludeFunc, createExcludeFunc } = require("./helpers");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
@@ -20,7 +21,7 @@ const defaults = {
   /** 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
   xAxisBreakPoint: 640,
   /** 页面最外层 class 选择器 */
-  rootClass: 'root-class',
+  rootClass: "root-class",
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -42,94 +43,14 @@ const defaults = {
 const TYPE_REG = "regex";
 const TYPE_ARY = "array";
 
-/** 取小数后一位的四舍五入 */
-const round = (number, precision) => Math.round(+number + 'e' + precision) / Math.pow(10, precision);
-
 /** 检查是否是正则类型或包含正则的数组 */
-const checkRegExpOrArray = (options, optionName) => {
-  const obj2Str = val => Object.prototype.toString.call(val);
-  const option = options[optionName];
-  if (!option) return null;
-  if (obj2Str(option) === '[object RegExp]') return TYPE_REG;
-  if (obj2Str(option) === '[object Array]') {
-    let bad = false;
-    for (let i = 0; i < option.length; ++ i) {
-      if (obj2Str(option[i]) !== '[object RegExp]') {
-        bad = true;
-        break;
-      }
-    }
-    if (!bad) return TYPE_ARY;
-  }
-  throw new Error('options.' + optionName + ' should be RegExp or Array of RegExp.');
-}
+const checkRegExpOrArray = createRegArrayChecker(TYPE_REG, TYPE_ARY);
 
-/** 移除重复属性 */
-const removeDulplicateDecls = (node) => {
-  node.walkRules(rule => {
-    const walked = { props: [], propNodes: [] }
-    rule.walkDecls(decl => {
-      const prop = decl.prop;
-      const i = walked.props.indexOf(prop);
-      if (i > -1) {
-        const important = decl.important;
-        const prevImportant = walked.propNodes[i].important;
-        if (important || (!important && !prevImportant)) {
-          walked.propNodes[i].remove();
-          walked.propNodes[i] = decl;
-        }
-      } else {
-        walked.props.push(prop);
-        walked.propNodes.push(decl);
-      }
-    });
-  });
-};
+/** 如果不包含，则返回 true，不转换 */
+const hasNoIncludeFile = createIncludeFunc(TYPE_REG, TYPE_ARY);
 
-/** 合并相同名称的选择器 */
-const mergeRules = (node) => {
-	const walked = { rules: [], selectors: [] };
-	node.walkRules(rule => {
-		const i = walked.selectors.indexOf(rule.selector);
-		if (i > -1) {
-			walked.rules[i].append(rule.nodes);
-			rule.remove();
-		} else {
-			walked.rules.push(rule);
-			walked.selectors.push(rule.selector);
-		}
-	});
-};
-
-const hasNoIncludeFile = (include, file, regOrAry) => {
-  if (include && file) {
-    if (regOrAry === TYPE_REG) {
-      if (!include.test(file)) return true;
-    }
-    if (regOrAry === TYPE_ARY) {
-      let book = false;
-      for (let i = 0; i < include.length; ++ i) {
-        if(include[i].test(file)) {
-          book = true;
-          break;
-        }
-      }
-      if (!book) return true;
-    }
-  }
-};
-
-const hasExcludeFile = (exclude, file, regOrAry) => {
-  if (exclude && file) {
-    if (regOrAry === TYPE_REG) {
-      if (exclude.test(file)) return true;
-    }
-    if (regOrAry === TYPE_ARY) {
-      for (let i = 0; i < exclude.length; ++ i)
-        if (exclude[i].test(file)) return true;
-    }
-  }
-};
+/** 如果排除，则返回 true，不转换 */
+const hasExcludeFile = createExcludeFunc(TYPE_REG, TYPE_ARY);
 
 /**
  * 视口类型可以分为 3 种，分别是移动端竖屏、移动端横屏以及桌面端。
