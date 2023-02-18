@@ -674,4 +674,18 @@ describe('px-to-viewport', function() {
     });
   });
 
+  describe('replace', function () {
+    it('should leave fallback pixel unit with root em value', function () {
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          replace: false,
+        }
+      })).process(basicCSS).css;
+      var expected = '.rule { font-size: 15px; font-size: 4.6875vw }';
+  
+      expect(processed).toBe(expected);
+    });
+  });
+
 });

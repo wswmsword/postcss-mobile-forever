@@ -81,6 +81,8 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   satisfiedMobilePropList,
   fontViewportUnit,
   blackListedMobileSelector,
+  replace,
+  i,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -118,7 +120,10 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
     if (enabledMobile && book && satisfiedMobilePropList && !blackListedMobileSelector) {
       mobileVal = mobileVal.concat(tailChunk);
-      decl.value = mobileVal;
+      if (replace)
+        decl.value = mobileVal;
+      else
+        decl.parent.insertAfter(i, decl.clone({ value: mobileVal }));
     }
     if (enabledDesktop && book) {
       desktopVal = desktopVal.concat(tailChunk);

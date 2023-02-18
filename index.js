@@ -42,7 +42,7 @@ const defaults = {
     propList: ['*'],
     fontViewportUnit: "vw",
     selectorBlackList: [],
-    // replace: true,
+    replace: true,
   },
 };
 
@@ -150,7 +150,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       const blackListedMobileSelector = blacklistedSelector(selectorBlackList, selector);
 
       // 遍历选择器内的 css 属性
-      rule.walkDecls(decl => {
+      rule.walkDecls((decl, i) => {
         const prop = decl.prop;
         const val = decl.value;
 
@@ -183,6 +183,8 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             satisfiedMobilePropList,
             fontViewportUnit,
             blackListedMobileSelector,
+            replace,
+            i,
           });
         }
       })
