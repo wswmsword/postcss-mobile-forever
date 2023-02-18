@@ -48,5 +48,6 @@ module.exports = {
   contentBox: {
     prop: 'box-sizing',
     value: 'content-box',
-  }
+  },
+  demoModeSelector: ".DEMO_MODE::before",
 }

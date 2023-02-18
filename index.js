@@ -1,7 +1,8 @@
 const postcss = require("postcss");
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder } = require("./src/css-generator");
+const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent } = require("./src/css-generator");
+const { demoModeSelector } = require("./src/constants");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
@@ -44,6 +45,8 @@ const defaults = {
     selectorBlackList: [],
     replace: true,
   },
+  /** 添加标识，用于测试 */
+  demoMode: false,
 };
 
 const TYPE_REG = "regex";
@@ -79,7 +82,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
     }
   };
   let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision, mobileConfig } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode } = opts;
   const { propList, fontViewportUnit, selectorBlackList, replace } = mobileConfig;
 
   if (yAxisBreakPoint == null) {
@@ -109,6 +112,8 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       let hasFullPerWidth = false;
       const selector = rule.selector;
       const file = rule.source && rule.source.input.file;
+
+      demoMode && demoModeSelector === selector && appendDemoContent(demoModeSelector, css, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile);
 
       // 包含文件
       if(hasNoIncludeFile(include, file, includeType)) return;

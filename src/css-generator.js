@@ -6,6 +6,28 @@ const {
 const { round } = require("./logic-helper");
 
 const postcss = require("postcss");
+
+function appendDemoContent(selector, css, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile) {
+  if (enableMobile) {
+    css.append(postcss.rule({ selector }).append({
+      prop: "content",
+      value: "'✨Portrait✨'",
+    }));
+  }
+  if (!disableDesktop) {
+    desktopViewAtRule.append(postcss.rule({ selector }).append({
+      prop: "content",
+      value: "'✨Desktop✨'",
+    }));
+  }
+  if (!disableLandscape) {
+    landScapeViewAtRule.append(postcss.rule({ selector }).append({
+      prop: "content",
+      value: "'✨Landscape✨'",
+    }));
+  }
+}
+
 /** 居中最外层选择器，用 margin 居中，有 border */
 function appendMarginCentreRootClassWithBorder(selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
@@ -177,4 +199,5 @@ module.exports = {
   appendStaticWidthFromFullVwWidth,
   appendMediaRadioPxOrReplaceMobileVwFromPx,
   appendMarginCentreRootClassNoBorder,
+  appendDemoContent,
 };
