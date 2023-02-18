@@ -16,7 +16,7 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 简介
 
-通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)，使用本插件生成桌面端和移动端横屏的媒体查询，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。
+通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)，使用本插件生成桌面端和移动端横屏的媒体查询，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。*目前已经集成了 post-px-to-viewport 的转换视口单位的功能，如果需要在移动端竖屏的情况下使用视口（vw）单位，可以打开 enableMobile 属性，无需安装 postcss-px-to-viewport，具体查看“配置参数”一节。*
 
 如何使用：
 - 首先使用本插件，插件会利用源码中移动端设计视图的 px 值，生成桌面端和移动端横屏的媒体查询；
@@ -52,7 +52,7 @@ yarn add -D postcss-mobile-to-multi-displays
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
 | yAxisBreakPoint | number | N | / | 纵向 y 轴断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
 | xAxisBreakPoint | number | N | 640 | 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“简介”一节具体介绍了该值的触发情况 |
-| rootClass | string | N | root-class | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式 |
+| rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
@@ -61,6 +61,11 @@ yarn add -D postcss-mobile-to-multi-displays
 | exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
+| mobileConfig | { propList: string[]; fontViewportUnit: string; selectorBlackList: (string\|RegExp)[]; replace: boolean; } | N | { propList: ['*'], fontViewportUnit: "vw", selectorBlackList: [], replace: true } | 移动端竖屏视口视图的配置，设置 enableMobile 为 true 即可生效，用于部分兼容 postcss-px-to-viewport，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| mobileConfig.propList | string[] | N | ['*'] | 那些属性要替换，那些属性忽略？ |
+| mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
+| mobileConfig.selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
+| mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
 
 下面是默认的配置参数：
 
