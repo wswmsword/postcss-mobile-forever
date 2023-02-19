@@ -39,7 +39,7 @@ module.exports = {
           options: {
             modules: {
               auto: resourcePath => !resourcePath.includes("index.css"),
-              localIdentName: isProdMode ? "[local]" : "[path][name]__[local]",
+              localIdentName: isProdMode ? "[path][name]__[local]" : "[path][name]__[local]",
             },
           }
         }, "postcss-loader"],
