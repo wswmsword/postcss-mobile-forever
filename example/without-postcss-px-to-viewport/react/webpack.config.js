@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 const isProdMode = process.env.NODE_ENV === "production";
 
@@ -38,7 +39,7 @@ module.exports = {
           options: {
             modules: {
               auto: resourcePath => !resourcePath.includes("index.css"),
-              localIdentName: "[path][name]__[local]",
+              localIdentName: isProdMode ? "[local]" : "[path][name]__[local]",
             },
           }
         }, "postcss-loader"],
@@ -47,5 +48,10 @@ module.exports = {
   },
   resolve: {
     extensions: ["*", ".js", ".jsx"],
+  },
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(),
+    ]
   },
 };
