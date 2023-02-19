@@ -1,6 +1,6 @@
 # postcss-mobile-to-multi-displays
 
-在桌面端和移动端横屏展示移动端（竖屏）设计视图。
+在桌面端和移动端横屏展示移动端（竖屏）设计视图。您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/svelte/)，在不同屏幕查看展示效果。
 
 ## 安装
 
@@ -41,7 +41,7 @@ yarn add -D postcss-mobile-to-multi-displays
 	</tr>
 </table>
 
-在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果。
+在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
 
 ## 配置参数
 
