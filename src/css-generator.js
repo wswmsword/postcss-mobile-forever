@@ -104,7 +104,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   fontViewportUnit,
   blackListedMobileSelector,
   replace,
-  i,
 }) {
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
@@ -145,7 +144,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       if (replace)
         decl.value = mobileVal;
       else
-        decl.parent.insertAfter(i, decl.clone({ value: mobileVal }));
+        decl.after(decl.clone({ value: mobileVal }));
     }
     if (enabledDesktop && book) {
       desktopVal = desktopVal.concat(tailChunk);

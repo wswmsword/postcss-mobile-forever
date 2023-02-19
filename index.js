@@ -158,7 +158,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       const blackListedMobileSelector = blacklistedSelector(selectorBlackList, selector);
 
       // 遍历选择器内的 css 属性
-      rule.walkDecls((decl, i) => {
+      rule.walkDecls((decl) => {
         const prop = decl.prop;
         const val = decl.value;
 
@@ -192,7 +192,6 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             fontViewportUnit,
             blackListedMobileSelector,
             replace,
-            i,
           });
         }
       })
