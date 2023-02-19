@@ -105,6 +105,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   blackListedMobileSelector,
   replace,
   result,
+  viewportUnit,
 }) {
   let ignoreMobile = false;
   const prev = decl.prev();
@@ -150,7 +151,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const pxNum = Number(pxContent.slice(0, -2)); // 数字
       const pxUnit = pxContent.slice(-2); // 单位
       const is1px = pass1px && pxNum === 1;
-      const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : "vw";
+      const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : viewportUnit;
 
       if (enabledMobile)
         mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), mobileUnit);

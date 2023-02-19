@@ -772,6 +772,20 @@ describe('px-to-viewport', function() {
   
       expect(processed).toBe(expected);
     });
-  });  
+  });
 
+  describe('viewportUnit', function() {
+    it('should replace using unit from options', function() {
+      var rules = '.rule { margin-top: 15px }';
+      var expected = '.rule { margin-top: 4.6875vh }';
+      var processed = postcss(mobileToMultiDisplays({
+        ...basicOptions,
+        mobileConfig: {
+          viewportUnit: "vh",
+        }
+      })).process(rules).css;
+  
+      expect(processed).toBe(expected);
+    });
+  });
 });

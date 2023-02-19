@@ -41,6 +41,7 @@ const defaults = {
   /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
   mobileConfig: {
     propList: ['*'],
+    viewportUnit: "vw",
     fontViewportUnit: "vw",
     selectorBlackList: [],
     replace: true,
@@ -83,7 +84,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
   };
   let { yAxisBreakPoint } = opts
   const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode } = opts;
-  const { propList, fontViewportUnit, selectorBlackList, replace } = mobileConfig;
+  const { propList, fontViewportUnit, selectorBlackList, replace, viewportUnit } = mobileConfig;
 
   if (yAxisBreakPoint == null) {
     yAxisBreakPoint = desktopWidth
@@ -193,6 +194,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             blackListedMobileSelector,
             replace,
             result,
+            viewportUnit,
           });
         }
       })
