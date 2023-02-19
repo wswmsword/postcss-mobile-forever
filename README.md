@@ -1,6 +1,8 @@
 # postcss-mobile-to-multi-displays
 
-在桌面端和移动端横屏展示移动端（竖屏）设计视图。您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/svelte/)，在不同屏幕查看展示效果。
+在桌面端和移动端横屏展示移动端（竖屏）设计视图。
+
+您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示你，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 ## 安装
 
@@ -16,16 +18,14 @@ yarn add -D postcss-mobile-to-multi-displays
 
 ## 简介
 
-通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)，使用本插件生成桌面端和移动端横屏的媒体查询，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。*目前已经集成了 post-px-to-viewport 的转换视口单位的功能，如果需要在移动端竖屏的情况下使用视口（vw）单位，可以打开 enableMobile 属性，无需安装 postcss-px-to-viewport，具体查看“配置参数”一节。*
+本插件会**生成桌面端和移动端横屏的媒体查询**，通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果。
 
-如何使用：
-- 首先使用本插件，插件会利用源码中移动端设计视图的 px 值，生成桌面端和移动端横屏的媒体查询；
-- 然后使用插件 `postcss-px-to-viewport`，移动端设计视图的 px 值会被转为适合移动端竖屏的可伸缩界面。
+您也可以选择不安装 postcss-px-to-viewport，本插件目前已经集成了 postcss-px-to-viewport 的转换视口单位（vw）的功能，视口转换需要打开 enableMobile 属性，可配置属性和 postcss-px-to-viewport 基本一致，具体请查看“配置参数”一节。
 
 本插件生成的媒体查询期望覆盖：
 - 移动端竖屏，正常使用移动端竖屏视图；
-- 移动端横屏，使用**居中的较小固定宽度**的移动端竖屏视图；
-- 平板、笔记本、桌面端，使用**居中的较大固定宽度**的移动端竖屏视图。
+- 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
+- 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图。
 
 ## 演示效果
 
@@ -63,6 +63,7 @@ yarn add -D postcss-mobile-to-multi-displays
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 | mobileConfig | { propList: string[]; fontViewportUnit: string; selectorBlackList: (string\|RegExp)[]; replace: boolean; } | N | { propList: ['*'], fontViewportUnit: "vw", selectorBlackList: [], replace: true } | 移动端竖屏视口视图的配置，设置 enableMobile 为 true 即可生效，用于部分兼容 postcss-px-to-viewport，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | mobileConfig.propList | string[] | N | ['*'] | 那些属性要替换，那些属性忽略？ |
+| mobileConfig.viewportUnit | number | N | "vw" | 转换成什么视口单位？ |
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
 | mobileConfig.selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
 | mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
