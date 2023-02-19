@@ -113,7 +113,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
       const selector = rule.selector;
       const file = rule.source && rule.source.input.file;
 
-      demoMode && demoModeSelector === selector && appendDemoContent(demoModeSelector, css, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile);
+      demoMode && demoModeSelector === selector && appendDemoContent(demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile);
 
       // 包含文件
       if(hasNoIncludeFile(include, file, includeType)) return;

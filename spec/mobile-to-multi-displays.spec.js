@@ -86,6 +86,28 @@ describe("dynamic viewportWidth", function() {
   });
 });
 
+describe("demoMode", function() {
+  it("should excute demoMode without enableMobile", function() {
+    var options = {
+      demoMode: true,
+    };
+    var input = ".DEMO_MODE::before { o_o: ''; } .l{}"
+    var output = ".DEMO_MODE::before { o_o: ''; } .l{} @media (min-width: 600px) and (min-height: 640px) { .DEMO_MODE::before { content: '✨Desktop✨'; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .DEMO_MODE::before { content: '✨Landscape✨'; } }"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should excute demoMode with enabledMobile", function() {
+    var options = {
+      enableMobile: true,
+      demoMode: true,
+    };
+    var input = ".DEMO_MODE::before {} .l{}"
+    var output = ".DEMO_MODE::before { content: '✨Portrait✨'} .l{} @media (min-width: 600px) and (min-height: 640px) { .DEMO_MODE::before { content: '✨Desktop✨'}} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { .DEMO_MODE::before { content: '✨Landscape✨'}}"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("value parsing", function() {
   it("should not convert values in url()", function() {
     var input = ".rule { background: url(750px.jpg); font-size: 75px; } .l{}";

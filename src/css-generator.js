@@ -7,12 +7,12 @@ const { round } = require("./logic-helper");
 
 const postcss = require("postcss");
 
-function appendDemoContent(selector, css, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile) {
+function appendDemoContent(selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile) {
   if (enableMobile) {
-    css.append(postcss.rule({ selector }).append({
+    rule.append({
       prop: "content",
       value: "'✨Portrait✨'",
-    }));
+    });
   }
   if (!disableDesktop) {
     desktopViewAtRule.append(postcss.rule({ selector }).append({
