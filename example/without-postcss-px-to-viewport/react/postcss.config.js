@@ -7,6 +7,7 @@ module.exports = {
       border: true,
       rootClass: "root-class",
       enableMobile: true,
+      demoMode: true,
     }],
   ],
 };

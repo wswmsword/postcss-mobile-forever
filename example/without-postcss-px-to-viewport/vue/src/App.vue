@@ -2,13 +2,22 @@
 import Card from "./components/Card.vue";
 import CardBack from "./components/CardBack.vue";
 import Item from "./components/Item.vue";
+const title = "Vue Mobile Viewport";
+const letters = ['✨', ' '].concat(title.split(''), '🐰', ' ', '🐱');
 </script>
 
 <template>
   <div class="app-inner-root">
     <div class="top">
-      <Card />
-      <CardBack />
+      <div class="bg-title-wrapper DEMO_MODE">
+        <div class="bg-title">
+          <span v-for="letter, i in letters" :style="{transform: `rotate(${i * 5}deg)`}">{{letter}}</span>
+        </div>
+      </div>
+      <div class="card-wrapper">
+        <Card />
+        <CardBack />
+      </div>
     </div>
     <div class="title-wrapper">
       <h1 class="title">TAROTCARD</h1>
@@ -43,11 +52,53 @@ import Item from "./components/Item.vue";
 }
 
 .top {
+  position: relative;
+}
+
+.bg-title-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  top: 0;
+  height: 170px;
+  padding-bottom: 18px;
+}
+
+.DEMO_MODE::before {
+  content: "✨Portrait✨";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(166, 144, 127);
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.bg-title {
+  color: rgb(166, 144, 127);
+  width: 337px;
+  transform: rotate(-58.5deg);
+  transform-origin: left top;
+  position: relative;
+  left: -7px;
+}
+
+.bg-title span {
+  font: 26px Monaco, MonoSpace;
+  height: 200px;
+  position: absolute;
+  width: 20px;
+  left: 0;
+  top: 0;
+  transform-origin: bottom center;
+}
+
+.card-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   gap: 84px;
-  height: 521px;
 }
 
 .title-wrapper {

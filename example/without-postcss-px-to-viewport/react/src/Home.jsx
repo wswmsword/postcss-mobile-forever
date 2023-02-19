@@ -3,17 +3,25 @@ import CardBack from "./CardBack"
 import Item from "./Item"
 import styles from "./Home.module.css";
 
-const Hello = () => <div className={styles.appInnerRoot}>
-  <div className={styles.top}>
-    <Card />
-    <CardBack />
-  </div>
-  <div className={styles.titleWrapper}>
-    <h1 className={styles.title}>TAROTCARD</h1>
-  </div>
-  <div className={styles.content}>
-    {new Array(12).fill().map(_ => <Item />)}
-  </div>
-</div>
+const Hello = () => {
+  const title = "React Mobile Viewport";
+  const letters = ['✨', ' '].concat(title.split(''), '🐰');
+  const lettersSpan = letters.map((t, i) => <span key={i} style={{ transform: `rotate(${i * 5}deg)` }}>{t}</span>)
+  return <div className={styles.appInnerRoot}>
+    <div className={styles.top}>
+      <div className={styles.bgTitleWrapper + ' ' + styles.DEMO_MODE}><div className={styles.bgTitle}>{lettersSpan}</div></div>
+      <div className={styles.cardWrapper}>
+        <Card />
+        <CardBack />
+      </div>
+    </div>
+    <div className={styles.titleWrapper}>
+      <h1 className={styles.title}>TAROTCARD</h1>
+    </div>
+    <div className={styles.content}>
+      {new Array(12).fill().map((_, i) => <Item key={i} />)}
+    </div>
+  </div>;
+};
 
 export default Hello;

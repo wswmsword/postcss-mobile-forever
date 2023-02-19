@@ -21,11 +21,53 @@
 }
 
 .top {
+  position: relative;
+}
+
+.bgTitleWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  top: 0;
+  height: 170px;
+  padding-bottom: 18px;
+}
+
+.DEMO_MODE::before {
+  content: "✨Portrait✨";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(166, 144, 127);
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.bgTitle {
+  color: rgb(166, 144, 127);
+  width: 337px;
+  transform: rotate(-58.5deg);
+  transform-origin: left top;
+  position: relative;
+  left: -7px;
+}
+
+.bgTitle span {
+  font: 26px Monaco, MonoSpace;
+  height: 200px;
+  position: absolute;
+  width: 20px;
+  left: 0;
+  top: 0;
+  transform-origin: bottom center;
+}
+
+.cardWrapper {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   gap: 84px;
-  height: 521px;
 }
 
 .titleWrapper {
