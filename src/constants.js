@@ -50,4 +50,6 @@ module.exports = {
     value: 'content-box',
   },
   demoModeSelector: ".DEMO_MODE::before",
+  ignoreNextComment: 'px-to-viewport-ignore-next',
+  ignorePrevComment: 'px-to-viewport-ignore',
 }

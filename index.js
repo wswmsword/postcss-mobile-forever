@@ -94,7 +94,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
 
   const satisfyPropList = createPropListMatcher(propList);
 
-  return function(css/* , result */) {
+  return function(css, result) {
     /** 桌面端视图下的媒体查询 */
     let desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px) and (min-height: ${xAxisBreakPoint}px)`, nodes: [] })
     /** 移动端横屏下的媒体查询 */
@@ -192,6 +192,7 @@ module.exports = postcss.plugin("postcss-px-to-media-viewport", function(options
             fontViewportUnit,
             blackListedMobileSelector,
             replace,
+            result,
           });
         }
       })

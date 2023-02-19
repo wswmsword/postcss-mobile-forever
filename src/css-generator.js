@@ -1,4 +1,4 @@
-const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
+const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, ignorePrevComment, ignoreNextComment } = require("./constants");
 const {
   /** 用于匹配字符串形如“数字px”中的“数字” */
   pxMatchReg,
@@ -104,10 +104,34 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   fontViewportUnit,
   blackListedMobileSelector,
   replace,
+  result,
 }) {
+  let ignoreMobile = false;
+  const prev = decl.prev();
+  // prev declaration is ignore conversion comment at same line
+  if (prev && prev.type === 'comment' && prev.text === ignoreNextComment) {
+    // remove comment
+    prev.remove();
+    ignoreMobile = true;
+  }
+  const next = decl.next();
+  if (next && next.type === 'comment') {
+  }
+  // next declaration is ignore conversion comment at same line
+  if (next && next.type === 'comment' && next.text === ignorePrevComment) {
+    if (/\n/.test(next.raws.before)) {
+      result.warn('Unexpected comment /* ' + ignorePrevComment + ' */ must be after declaration at same line.', { node: next });
+    } else {
+      // remove comment
+      next.remove();
+      ignoreMobile = true;
+    }
+  }
+
+
   const enabledDesktop = !disableDesktop;
   const enabledLandscape = !disableLandscape;
-  const enabledMobile = enableMobile;
+  const enabledMobile = enableMobile && satisfiedMobilePropList && !blackListedMobileSelector && !ignoreMobile;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
     let mobileVal = '';
@@ -128,7 +152,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       const is1px = pass1px && pxNum === 1;
       const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : "vw";
 
-      if (enabledMobile && satisfiedMobilePropList && !blackListedMobileSelector)
+      if (enabledMobile)
         mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), mobileUnit);
       if (enabledDesktop)
         desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
@@ -139,7 +163,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     }
 
     const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
-    if (enabledMobile && book && satisfiedMobilePropList && !blackListedMobileSelector) {
+    if (enabledMobile && book) {
       mobileVal = mobileVal.concat(tailChunk);
       if (replace)
         decl.value = mobileVal;
