@@ -32,9 +32,9 @@
   "homepage": "https://github.com/wswmsword/postcss-mobile-to-multi-displays#readme",
   "devDependencies": {
     "jest": "^29.4.2",
-    "postcss": ">=5.0.2"
+    "postcss": "^8.0.0"
   },
   "peerDependencies": {
-    "postcss": ">=5.0.2"
+    "postcss": "^8.0.0"
   }
 }

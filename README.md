@@ -8,12 +8,12 @@
 
 npm 安装：
 ```bash
-npm install postcss-mobile-to-multi-displays --save-dev
+npm install --save-dev postcss postcss-mobile-to-multi-displays
 ```
 
 yarn 安装：
 ```bash
-yarn add -D postcss-mobile-to-multi-displays
+yarn add -D postcss postcss-mobile-to-multi-displays
 ```
 
 ## 简介
@@ -52,7 +52,7 @@ yarn add -D postcss-mobile-to-multi-displays
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
 | yAxisBreakPoint | number | N | / | 纵向 y 轴断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
-| xAxisBreakPoint | number | N | 640 | 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“简介”一节具体介绍了该值的触发情况 |
+| xAxisBreakPoint | number | N | 640 | 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
@@ -127,8 +127,10 @@ npm run start
 	- 低于 X，使用移动端横屏宽度（移动端横屏）
 - 窄于 Y
 	- 横屏
-		- 高于 X，使用移动端横屏宽度（移动端横屏）
-		- 低于 X，使用移动端横屏宽度（移动端横屏）
+		- 宽于 landscapeWidth（425）
+			- 高于 X，使用移动端横屏宽度（移动端横屏）
+			- 低于 X，使用移动端横屏宽度（移动端横屏）
+		- 窄于 landscapeWidth，使用设计图宽度（穿戴设备）
 	- 纵屏
 		- 高于 X，使用设计图宽度（移动端竖屏）
 		- 低于 X，使用设计图宽度（移动端竖屏）
