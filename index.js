@@ -15,10 +15,10 @@ const defaults = {
   desktopWidth: 600,
   /** 移动端横屏宽度 */
   landscapeWidth: 425,
-  /** 纵向 y 轴断点，视图大于这个宽度，则页面使用桌面端宽度 */
-  yAxisBreakPoint: null,
-  /** 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
-  xAxisBreakPoint: 640,
+  /** 宽度断点，视图大于这个宽度，则页面使用桌面端宽度 */
+  minDesktopDisplayWidth: null,
+  /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
+  maxLandscapeDisplayHeight: 640,
   /** 页面最外层 class 选择器 */
   rootClass: "root-class",
   /** 在页面外层展示边框吗 */
@@ -80,12 +80,12 @@ module.exports = (options = {}) => {
       ...optMobileConfig,
     }
   };
-  let { yAxisBreakPoint } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, xAxisBreakPoint, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode } = opts;
+  let { minDesktopDisplayWidth } = opts
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, maxLandscapeDisplayHeight, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode } = opts;
   const { propList, fontViewportUnit, selectorBlackList, replace, viewportUnit } = mobileConfig;
 
-  if (yAxisBreakPoint == null) {
-    yAxisBreakPoint = desktopWidth
+  if (minDesktopDisplayWidth == null) {
+    minDesktopDisplayWidth = desktopWidth
   }
 
   const excludeType = checkRegExpOrArray(opts, "exclude");
@@ -124,13 +124,13 @@ module.exports = (options = {}) => {
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
-          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px) and (min-height: ${xAxisBreakPoint}px)`, nodes: [] })
+          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
           /** 移动端横屏下的媒体查询 */
-          const landscapeMediaStr_1 = `(min-width: ${yAxisBreakPoint}px) and (max-height: ${xAxisBreakPoint}px)`;
-          const landscapeMediaStr_2 = `(max-width: ${yAxisBreakPoint}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
+          const landscapeMediaStr_1 = `(min-width: ${minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
+          const landscapeMediaStr_2 = `(max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${yAxisBreakPoint}px), (orientation: landscape) and (max-width: ${yAxisBreakPoint}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
         },
         Rule(rule) {
           hasFixed = false;

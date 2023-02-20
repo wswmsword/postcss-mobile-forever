@@ -51,8 +51,8 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 | viewportWidth | number\|(file: string, selector: string) => number | N | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| yAxisBreakPoint | number | N | / | 纵向 y 轴断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
-| xAxisBreakPoint | number | N | 640 | 横向 x 轴断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
+| minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
+| maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
@@ -76,8 +76,8 @@ yarn add -D postcss postcss-mobile-to-multi-displays
   "viewportWidth": 750,
   "desktopWidth": 600,
   "landscapeWidth": 425,
-  "yAxisBreakPoint": null,
-  "xAxisBreakPoint": 640,
+  "minDesktopDisplayWidth": null,
+  "maxLandscapeDisplayHeight": 640,
   "rootClass": "root-class",
   "border": false,
   "disableDesktop": false,
@@ -120,20 +120,20 @@ npm run start
 
 本插件会通过两个媒体查询断点创建可以代表桌面端和移动端横屏的媒体查询，然后找到所有的 px 值进行转换，默认情况会把原值转换成两个经过比例计算后的新 px 值，分别对应桌面端和移动端横屏。
 
-两个断点分别是“x 轴断点（X）”和“y 轴断点（Y）”，屏幕的高低（高度）变化触发 x 轴断点，屏幕的宽窄（宽度）变化触发 y 轴断点。下面是触发断点的每种情况，以及和每种情况等效的端口（默认的 x 轴断点是 640px，y 轴断点是 600px）：
+两个断点分别是“宽度断点（X）”和“高度断点（Y）”，屏幕的高低（高度）变化触发高度断点，屏幕的宽窄（宽度）变化触发宽度断点。下面是触发断点的每种情况，以及和每种情况等效的端口（默认的高度断点是 640px，宽度断点是 600px）：
 
-- 宽于 Y（600）
-	- 高于 X（640），使用桌面宽度（平板、笔记本、桌面端）
-	- 低于 X，使用移动端横屏宽度（移动端横屏）
-- 窄于 Y
+- 宽于 X（600）
+	- 高于 Y（640），使用桌面宽度（平板、笔记本、桌面端）
+	- 低于 Y，使用移动端横屏宽度（移动端横屏）
+- 窄于 X
 	- 横屏
 		- 宽于 landscapeWidth（425）
-			- 高于 X，使用移动端横屏宽度（移动端横屏）
-			- 低于 X，使用移动端横屏宽度（移动端横屏）
+			- 高于 Y，使用移动端横屏宽度（移动端横屏）
+			- 低于 Y，使用移动端横屏宽度（移动端横屏）
 		- 窄于 landscapeWidth，使用设计图宽度（穿戴设备）
 	- 纵屏
-		- 高于 X，使用设计图宽度（移动端竖屏）
-		- 低于 X，使用设计图宽度（移动端竖屏）
+		- 高于 Y，使用设计图宽度（移动端竖屏）
+		- 低于 Y，使用设计图宽度（移动端竖屏）
 
 
 下面是使用默认配置的输入输出内容。
