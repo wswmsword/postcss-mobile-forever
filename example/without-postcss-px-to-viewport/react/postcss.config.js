@@ -6,7 +6,6 @@ module.exports = {
       landscapeWidth: 450,
       border: true,
       rootClass: "root-class",
-      enableMobile: true,
       demoMode: true,
     }],
   ],

@@ -7,8 +7,8 @@ const { round } = require("./logic-helper");
 
 const postcss = require("postcss");
 
-function appendDemoContent(selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile) {
-  if (enableMobile) {
+function appendDemoContent(selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
+  if (!disableMobile) {
     rule.append({
       prop: "content",
       value: "'✨Portrait✨'",
@@ -90,7 +90,7 @@ function appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLands
 }
 
 /** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
-function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
+function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   viewportWidth,
   desktopRadio,
   landscapeRadio,
@@ -100,20 +100,20 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   pass1px,
   decl,
   unitPrecision,
-  satisfiedMobilePropList,
+  satisfiedPropList,
   fontViewportUnit,
-  blackListedMobileSelector,
+  blackListedSelector,
   replace,
   result,
   viewportUnit,
 }) {
-  let ignoreMobile = false;
+  let ignore = false;
   const prev = decl.prev();
   // prev declaration is ignore conversion comment at same line
   if (prev && prev.type === 'comment' && prev.text === ignoreNextComment) {
     // remove comment
     prev.remove();
-    ignoreMobile = true;
+    ignore = true;
   }
   const next = decl.next();
   if (next && next.type === 'comment') {
@@ -125,14 +125,14 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
     } else {
       // remove comment
       next.remove();
-      ignoreMobile = true;
+      ignore = true;
     }
   }
 
 
-  const enabledDesktop = !disableDesktop;
-  const enabledLandscape = !disableLandscape;
-  const enabledMobile = enableMobile && satisfiedMobilePropList && !blackListedMobileSelector && !ignoreMobile;
+  const enabledDesktop = !disableDesktop && satisfiedPropList && !blackListedSelector && !ignore;
+  const enabledLandscape = !disableLandscape && satisfiedPropList && !blackListedSelector && !ignore;
+  const enabledMobile = !disableMobile && satisfiedPropList && !blackListedSelector && !ignore;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
     let mobileVal = '';

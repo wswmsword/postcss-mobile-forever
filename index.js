@@ -27,8 +27,8 @@ const defaults = {
   disableDesktop: false,
   /** 不做移动端横屏的适配 */
   disableLandscape: false,
-  /** px 转换为视口单位 */
-  enableMobile: false,
+  /** 不做视口单位转换 */
+  disableMobile: false,
   /** 不转换 1px */
   pass1px: true,
   /** 排除文件 */
@@ -37,12 +37,14 @@ const defaults = {
   include: null,
   /** 单位精确到小数点后几位？ */
   unitPrecision: 3,
+  /** 选择器黑名单列表 */
+  selectorBlackList: [],
+  /** 是否处理某个属性？ */
+  propList: ['*'],
   /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
   mobileConfig: {
-    propList: ['*'],
     viewportUnit: "vw",
     fontViewportUnit: "vw",
-    selectorBlackList: [],
     replace: true,
   },
   /** 添加标识，用于调试 */
@@ -81,8 +83,8 @@ module.exports = (options = {}) => {
     }
   };
   let { minDesktopDisplayWidth } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, enableMobile, maxLandscapeDisplayHeight, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode } = opts;
-  const { propList, fontViewportUnit, selectorBlackList, replace, viewportUnit } = mobileConfig;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, disableMobile, maxLandscapeDisplayHeight, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
+  const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
 
   if (minDesktopDisplayWidth == null) {
     minDesktopDisplayWidth = desktopWidth
@@ -115,7 +117,7 @@ module.exports = (options = {}) => {
       /** 移动端横屏缩放比例 */
       let landscapeRadio = 1;
       /** 选择器在黑名单吗 */
-      let blackListedMobileSelector = null;
+      let blackListedSelector = null;
       /** 是否要跳过不执行 Declaration */
       let brokenRule = false;
       /** 是否添加过调试代码了？ */
@@ -178,7 +180,7 @@ module.exports = (options = {}) => {
             }
           }
 
-          blackListedMobileSelector = blacklistedSelector(selectorBlackList, selector);
+          blackListedSelector = blacklistedSelector(selectorBlackList, selector);
         },
         Declaration(decl) {
           if (brokenRule) return;
@@ -199,9 +201,9 @@ module.exports = (options = {}) => {
           // 转换 px
           if (pxTestReg.test(val)) {
             const important = decl.important;
-            const satisfiedMobilePropList = satisfyPropList(prop);
+            const satisfiedPropList = satisfyPropList(prop);
             // 添加桌面端、移动端媒体查询
-            appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, enableMobile, {
+            appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
               viewportWidth: viewportWidthValue,
               desktopRadio,
               landscapeRadio,
@@ -211,9 +213,9 @@ module.exports = (options = {}) => {
               pass1px,
               decl,
               unitPrecision,
-              satisfiedMobilePropList,
+              satisfiedPropList,
               fontViewportUnit,
-              blackListedMobileSelector,
+              blackListedSelector,
               replace,
               result,
               viewportUnit,
@@ -240,7 +242,7 @@ module.exports = (options = {}) => {
               landScapeViewAtRule,
             })
           }
-          !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, enableMobile), addedDemo = true);
+          !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
         OnceExit(css) {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;

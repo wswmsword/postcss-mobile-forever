@@ -8,9 +8,12 @@ var postcss = require("postcss");
 var mobileToMultiDisplays = require("..");
 
 describe("mobile-to-multi-displays", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   it("should work on the readme example", function() {
     var input = ".root-class { width: 100%; } .class { position: fixed; width: 100%; } .class2 { width: 100vw; height: 30px; }";
-    var output = ".root-class { width: 100%; } .class { position: fixed; width: 100%; } .class2 { width: 100vw; height: 30px; } @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } .class { width: 600px; } .class2 { height: 24px; width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } .class { width: 425px; } .class2 { height: 17px; width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } .class { margin-left: auto !important; margin-right: auto !important; left: 0 !important; right: 0 !important; } }";
+    var output = ".root-class { width: 100%; } .class { position: fixed; width: 100%; } .class2 { width: 100vw; height: 4vw; } @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } .class { width: 600px; } .class2 { height: 24px; width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } .class { width: 425px; } .class2 { height: 17px; width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } .class { margin-left: auto !important; margin-right: auto !important; left: 0 !important; right: 0 !important; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -18,35 +21,35 @@ describe("mobile-to-multi-displays", function() {
   it("should convert px to desktop and landscape radio px", function() {
     var input = ".rule { width: 375px; } .l{}";
     var output = ".rule { width: 375px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 300px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 212.5px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should ignore duplicate rules and props", function() {
     var input = ".rule { width: 500px; } .rule { width: 375px; width: 250px; }";
     var output = ".rule { width: 500px; } .rule { width: 375px; width: 250px; } @media (min-width: 600px) and (min-height: 640px) { .rule { width: 200px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 141.667px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should handle < 1 values", function() {
     var input = ".rule { left: -750px; } .l{}";
     var output = ".rule { left: -750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: -600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: -425px; } }"
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should handle values without a leading 0", function() {
     var input = ".rule { left: .75px; top: -.75px; right: .px; } .l{}";
     var output = ".rule { left: .75px; top: -.75px; right: .px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 0.6px; top: -0.6px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 0.425px; top: -0.425px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("ignore input media queries", function() {
     var input = "@media (min-width: 600px) and (min-height: 640px) { .root-class { width: 100vw; } .class { width: 66px; }}";
     var output = "@media (min-width: 600px) and (min-height: 640px) { .root-class { width: 100vw; } .class { width: 66px; }}";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 });
@@ -54,7 +57,6 @@ describe("mobile-to-multi-displays", function() {
 describe("dynamic viewportWidth", function() {
   var options = {
     viewportWidth: file => file.includes("vant") ? 375 : 750,
-    enableMobile: true,
   };
   it("should use truthy viewportWidth by dynamic viewportWidth", function() {
     var input = ".rule { left: 75px; } .l{}";
@@ -77,7 +79,6 @@ describe("dynamic viewportWidth", function() {
   it("should use viewportWidth number", function() {
     var options = {
       viewportWidth: 375,
-      enableMobile: true,
     };
     var input = ".rule { left: 75px; } .l{}";
     var output = ".rule { left: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 85px; } }"
@@ -90,6 +91,7 @@ describe("demoMode", function() {
   it("should excute demoMode without enableMobile", function() {
     var options = {
       demoMode: true,
+      disableMobile: true,
     };
     var input = ".DEMO_MODE::before { o_o: ''; } .l{}"
     var output = ".DEMO_MODE::before { o_o: ''; } .l{} @media (min-width: 600px) and (min-height: 640px) { .DEMO_MODE::before { content: '✨Desktop✨'; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .DEMO_MODE::before { content: '✨Landscape✨'; } }"
@@ -98,7 +100,6 @@ describe("demoMode", function() {
   });
   it("should excute demoMode with enabledMobile", function() {
     var options = {
-      enableMobile: true,
       demoMode: true,
     };
     var input = ".DEMO_MODE::before {} .l{}"
@@ -109,70 +110,80 @@ describe("demoMode", function() {
 });
 
 describe("value parsing", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   it("should not convert values in url()", function() {
     var input = ".rule { background: url(750px.jpg); font-size: 75px; } .l{}";
     var output = ".rule { background: url(750px.jpg); font-size: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font-size: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font-size: 42.5px; } }"
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should convert value outside url()", function() {
     var input = ".rule { background: left 75px / 7.5px 60% repeat-x url(./star750px); } .l{}";
     var output = ".rule { background: left 75px / 7.5px 60% repeat-x url(./star750px); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { background: left 60px / 6px 60% repeat-x url(./star750px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { background: left 42.5px / 4.25px 60% repeat-x url(./star750px); } }"
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should not convert value end with other words except px", function() {
     var input = ".rule { width: calc(100% - 75px); } .l{}";
     var output = ".rule { width: calc(100% - 75px); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: calc(100% - 60px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: calc(100% - 42.5px); } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should not convert values equal to 1", function() {
     var input = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should not convert value in content property value", function() {
     var input = ".rule::before { content: '75px'; left: 75px; } .l{}";
     var output = ".rule::before { content: '75px'; left: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule::before { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule::before { left: 42.5px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should not convert value in quotes of font property", function() {
     var input = ".rule { font: italic 75px '75px', serif; } .l{}";
     var output = ".rule { font: italic 75px '75px', serif; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font: italic 60px '75px', serif; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font: italic 42.5px '75px', serif; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 });
 
 describe("media queries", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   it("should ignore 1px in media queries", function() {
     var input = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 
   it("should not convert if no px value", function() {
     var input = ".rule { font-size: 1rem; }";
     var output = ".rule { font-size: 1rem; }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
 });
 
 describe("exclude", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   var rules = ".rule { width: 75px; } .l{}";
   var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 42.5px; } }";
   it("when using exclude option, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       exclude: /\/node_modules\//,
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -183,6 +194,7 @@ describe("exclude", function() {
 
   it("when using exclude option, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       exclude: /\/node_modules\//,
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -193,6 +205,7 @@ describe("exclude", function() {
 
   it("when using exclude array, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       exclude: [/\/node_modules\//],
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -203,6 +216,7 @@ describe("exclude", function() {
 
   it("when using exclude array, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       exclude: [/\/node_modules\//],
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -213,10 +227,14 @@ describe("exclude", function() {
 });
 
 describe("include", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   var rules = ".rule { width: 75px; } .l{}";
   var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 42.5px; } }";
   it("when using include option, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: /\/src\//,
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -227,6 +245,7 @@ describe("include", function() {
 
   it("when using include option, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: /\/src\//,
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -237,6 +256,7 @@ describe("include", function() {
 
   it("when using include array, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: [/\/src\//],
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -247,6 +267,7 @@ describe("include", function() {
 
   it("when using include array, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: [/\/src\//],
     };
     var processed = postcss(mobileToMultiDisplays(options)).process(rules, {
@@ -257,10 +278,14 @@ describe("include", function() {
 });
 
 describe("include and exclude", function() {
+  var baseOpts = {
+    disableMobile: true,
+  };
   var rules = ".rule { width: 75px; } .l{}";
   var converted = ".rule { width: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 42.5px; } }";
   it("when using same include and exclude, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: /\/src\//,
       exclude: /\/src\//,
     };
@@ -272,6 +297,7 @@ describe("include and exclude", function() {
 
   it("when using different include and exclude, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: /\/mobile\//,
       exclude: /\/desktop\//,
     };
@@ -283,6 +309,7 @@ describe("include and exclude", function() {
 
   it("when using different include and exclude, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: /\/mobile\//,
       exclude: /\/desktop\//,
     };
@@ -294,6 +321,7 @@ describe("include and exclude", function() {
 
   it("when using same include and exclude array, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: [/\/src\//],
       exclude: [/\/src\//],
     };
@@ -305,6 +333,7 @@ describe("include and exclude", function() {
 
   it("when using different include and exclude array, the style should not be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: [/\/mobile\//],
       exclude: [/\/desktop\//],
     };
@@ -316,6 +345,7 @@ describe("include and exclude", function() {
 
   it("when using different include and exclude array, the style should be overwritten.", function() {
     var options = {
+      ...baseOpts,
       include: [/\/mobile\//],
       exclude: [/\/desktop\//],
     };
@@ -332,7 +362,6 @@ describe('px-to-viewport', function() {
     viewportWidth: 320,
     disableDesktop: true,
     disableLandscape: true,
-    enableMobile: true,
     unitPrecision: 5,
   };
   it('should work on the readme example', function () {
@@ -419,7 +448,6 @@ describe('px-to-viewport', function() {
         viewportWidth: 480,
         disableDesktop: true,
         disableLandscape: true,
-        enableMobile: true,
         unitPrecision: 5,
       };
       var expected = '.rule { font-size: 3.125vw }';
@@ -450,9 +478,7 @@ describe('px-to-viewport', function() {
       var expected = '.rule { font-size: 4.6875vw } .rule2 { font-size: 15px }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          selectorBlackList: ['.rule2']
-        }
+        selectorBlackList: ['.rule2'],
       })).process(rules).css;
   
       expect(processed).toBe(expected);
@@ -463,9 +489,7 @@ describe('px-to-viewport', function() {
       var expected = 'body { font-size: 5vw; } .class-body$ { font-size: 16px; } .simple-class { font-size: 5vw; }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          selectorBlackList: ['body$']
-        }
+        selectorBlackList: ['body$'],
       })).process(rules).css;
   
       expect(processed).toBe(expected);
@@ -476,9 +500,7 @@ describe('px-to-viewport', function() {
       var expected = 'body { font-size: 16px; } .class-body { font-size: 5vw; } .simple-class { font-size: 5vw; }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          selectorBlackList: [/^body$/]
-        }
+        selectorBlackList: [/^body$/],
       })).process(rules).css;
   
       expect(processed).toBe(expected);
@@ -503,9 +525,7 @@ describe('px-to-viewport', function() {
       var expected = '.rule { font-size: 5vw; margin: 5vw; margin-left: 5px; padding: 5px; padding-right: 5vw }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          propList: ['*font*', 'margin*', '!margin-left', '*-right', 'pad']
-        }
+        propList: ['*font*', 'margin*', '!margin-left', '*-right', 'pad']
       })).process(css).css;
   
       expect(processed).toBe(expected);
@@ -516,9 +536,7 @@ describe('px-to-viewport', function() {
       var expected = '.rule { font-size: 16px; margin: 5vw; margin-left: 5px; padding: 5px; padding-right: 16px }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          propList: ['*', '!margin-left', '!*padding*', '!font*']
-        }
+        propList: ['*', '!margin-left', '!*padding*', '!font*']
       })).process(css).css;
   
       expect(processed).toBe(expected);

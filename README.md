@@ -18,9 +18,9 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 
 ## 简介
 
-本插件会**生成桌面端和移动端横屏的媒体查询**，通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），让 *px2vw* 转换视口单位的移动端视图，结合下来，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果，同时保持竖屏时的移动端视图。
+本插件会**转换移动端竖屏的视口单位，生成桌面端和移动端横屏的媒体查询**，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果，同时保持竖屏时的移动端视图。
 
-您也可以选择不安装 *px2vw*，本插件目前已经集成了 *px2vw* 的转换视口单位的功能，视口转换需要打开 enableMobile 属性，可配置属性和 *px2vw* 基本一致，具体请查看“配置参数”一节。
+您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
 
 本插件生成的媒体查询期望覆盖：
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
@@ -57,16 +57,16 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
-| enableMobile | boolean | N | false | 做移动端竖屏适配，把 px 转换为视口单位 vw |
+| disableMobile | boolean | N | false | 不做移动端竖屏适配，把 px 转换为视口单位 vw |
 | pass1px | boolean | N | true | 是否转换 1px？ |
 | exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
-| mobileConfig | { propList: string[]; fontViewportUnit: string; selectorBlackList: (string\|RegExp)[]; replace: boolean; } | N | { propList: ['*'], fontViewportUnit: "vw", selectorBlackList: [], replace: true } | 移动端竖屏视口视图的配置，设置 enableMobile 为 true 即可生效，用于部分兼容 postcss-px-to-viewport，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
-| mobileConfig.propList | string[] | N | ['*'] | 那些属性要替换，那些属性忽略？ |
+| propList | string[] | N | ['*'] | 那些属性要替换，那些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| mobileConfig | { viewportUnit: string; fontViewportUnit: string; replace: boolean; } | N | { viewportUnit: "vw", fontViewportUnit: "vw", replace: true } | 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 |
 | mobileConfig.viewportUnit | number | N | "vw" | 转换成什么视口单位？ |
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
-| mobileConfig.selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
 | mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
 
 下面是默认的配置参数：
@@ -82,16 +82,16 @@ yarn add -D postcss postcss-mobile-to-multi-displays
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
-  "enableMobile": false,
+  "disableMobile": false,
   "pass1px": true,
   "exclude": null,
   "include": null,
   "unitPrecision": 3,
+  "selectorBlackList": [],
+  "propList": ['*'],
   "mobileConfig": {
-    "propList": ['*'],
     "viewportUnit": "vw",
     "fontViewportUnit": "vw",
-    "selectorBlackList": [],
     "replace": true
   }
 }
@@ -170,7 +170,7 @@ npm run start
 
 .class2 {
 	width: 100vw;
-	height: 30px;
+	height: 4vw;
 }
 
 /* 桌面端媒体查询 */
