@@ -89,6 +89,7 @@ yarn add -D postcss-mobile-to-multi-displays
   "unitPrecision": 3,
   "mobileConfig": {
     "propList": ['*'],
+		"viewportUnit": "vw",
     "fontViewportUnit": "vw",
     "selectorBlackList": [],
     "replace": true
@@ -187,7 +188,8 @@ npm run start
 }
 
 /* 移动端媒体查询 */
-@media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (orientation: landscape) { /* 这里的 640 是固定值 */
+@media (min-width: 600px) and (max-height: 640px),
+(max-width: 600px) and (min-width: 425px) and (orientation: landscape) { /* 这里的 640 和 425 是默认值，可自定义 */
 	.root-class {
 		max-width: 425px !important;
 	}
@@ -203,17 +205,18 @@ npm run start
 }
 
 /* 桌面端和移动端公共的媒体查询 */
-@media (min-width: 600px), (orientation: landscape) and (max-width: 600px) {
+@media (min-width: 600px),
+(orientation: landscape) and (max-width: 600px) and (min-width: 425px) {
 	.root-class {
 		margin-left: auto !important;
 		margin-right: auto !important;
 	}
 
 	.class {
-		margin-left: auto;  /* 用于居中 */
-		margin-right: auto; /* 用于居中 */
-		left: 0;            /* 用于居中 */
-		right: 0;           /* 用于居中 */
+		margin-left: auto !important;  /* 用于居中 */
+		margin-right: auto !important; /* 用于居中 */
+		left: 0 !important;            /* 用于居中 */
+		right: 0 !important;           /* 用于居中 */
 	}
 }
 ```
