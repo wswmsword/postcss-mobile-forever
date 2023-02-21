@@ -1,6 +1,6 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent } = require("./src/css-generator");
+const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendLeftRightMediaRadioValueFromPx } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
 
 const {
@@ -108,6 +108,10 @@ module.exports = (options = {}) => {
       let hasFixed = null;
       let hasFullVwWidth = null;
       let hasFullPerWidth = null;
+      /** left 属性 decl  */
+      let leftDecl = null;
+      /** right 属性 decl */
+      let rightDecl = null;
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
@@ -138,6 +142,8 @@ module.exports = (options = {}) => {
           hasFixed = false;
           hasFullVwWidth = false;
           hasFullPerWidth = false;
+          hasLeftProp = hasRightProp = false;
+          leftDecl = rightDecl = null;
           selector = rule.selector;
           const file = rule.source && rule.source.input.file;
 
@@ -197,16 +203,24 @@ module.exports = (options = {}) => {
           if (prop === 'position' && val === 'fixed') {
             hasFixed = true;
           }
-  
+          if (prop === "left") {
+            const important = decl.important;
+            if (leftDecl == null || important || !leftDecl.important)
+              leftDecl = decl;
+            return;
+          }
+          if (prop === "right") {
+            const important = decl.important;
+            if (rightDecl == null || important || !rightDecl.important)
+              rightDecl = decl;
+            return;
+          }
           // 转换 px
           if (pxTestReg.test(val)) {
             const important = decl.important;
             const satisfiedPropList = satisfyPropList(prop);
             // 添加桌面端、移动端媒体查询
             appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
-              viewportWidth: viewportWidthValue,
-              desktopRadio,
-              landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
               important,
@@ -219,6 +233,23 @@ module.exports = (options = {}) => {
               replace,
               result,
               viewportUnit,
+              convertMobile: (pxNum, pxUnit) => {
+                const fontProp = prop.includes("font");
+                const is1px = pass1px && pxNum === 1;
+                const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
+                const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+                return `${n}${mobileUnit}`
+              },
+              convertDesktop: pxNum => {
+                const is1px = pass1px && pxNum === 1;
+                const n = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision);
+                return `${n}px`;
+              },
+              convertLandscape: pxNum => {
+                const is1px = pass1px && pxNum === 1;
+                const n = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision);
+                return `${n}px`;
+              },
             });
           }
         },
@@ -241,6 +272,46 @@ module.exports = (options = {}) => {
               desktopViewAtRule,
               landScapeViewAtRule,
             })
+          }
+          if (leftDecl) {
+            const satisfiedPropList = satisfyPropList(leftDecl.prop);
+            appendLeftRightMediaRadioValueFromPx(selector, leftDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+              viewportWidth: viewportWidthValue,
+              desktopRadio,
+              landscapeRadio,
+              desktopViewAtRule,
+              landScapeViewAtRule,
+              pass1px,
+              unitPrecision,
+              satisfiedPropList,
+              fontViewportUnit,
+              blackListedSelector,
+              replace,
+              result,
+              viewportUnit,
+              desktopWidth,
+              landscapeWidth
+            });
+          }
+          if (rightDecl) {
+            const satisfiedPropList = satisfyPropList(rightDecl.prop);
+            appendLeftRightMediaRadioValueFromPx(selector, rightDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+              viewportWidth: viewportWidthValue,
+              desktopRadio,
+              landscapeRadio,
+              desktopViewAtRule,
+              landScapeViewAtRule,
+              pass1px,
+              unitPrecision,
+              satisfiedPropList,
+              fontViewportUnit,
+              blackListedSelector,
+              replace,
+              result,
+              viewportUnit,
+              desktopWidth,
+              landscapeWidth
+            });
           }
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },

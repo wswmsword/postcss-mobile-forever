@@ -89,11 +89,67 @@ function appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLands
   }
 }
 
-/** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
-function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+/** 转换属性 left 和 right 的媒体查询值 */
+function appendLeftRightMediaRadioValueFromPx(selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
   desktopRadio,
   landscapeRadio,
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  pass1px,
+  unitPrecision,
+  satisfiedPropList,
+  fontViewportUnit,
+  blackListedSelector,
+  replace,
+  result,
+  viewportUnit,
+  desktopWidth,
+  landscapeWidth
+}) {
+  const prop = decl.prop;
+  const val = decl.value;
+  const important = decl.important;
+  appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+    viewportWidth,
+    desktopRadio,
+    landscapeRadio,
+    desktopViewAtRule,
+    landScapeViewAtRule,
+    important,
+    pass1px,
+    decl,
+    unitPrecision,
+    satisfiedPropList,
+    fontViewportUnit,
+    blackListedSelector,
+    replace,
+    result,
+    viewportUnit,
+    convertMobile: (pxNum, pxUnit) => {
+      const fontProp = prop.includes("font");
+      const is1px = pass1px && pxNum === 1;
+      const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
+      const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+      return `${n}${mobileUnit}`
+    },
+    convertDesktop: pxNum => {
+      const is1px = pass1px && pxNum === 1;
+      const roundedCalc = is1px ? 1 : round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)
+      const roundedPx = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision)
+      return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
+    },
+    convertLandscape: pxNum => {
+      const is1px = pass1px && pxNum === 1;
+      const roundedCalc = is1px ? 1 : round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
+      const roundedPx = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision)
+      return isFixed ? `calc(50vw - ${roundedCalc})` : `${roundedPx}px`
+    },
+  });
+}
+
+/** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
+function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   desktopViewAtRule,
   landScapeViewAtRule,
   important,
@@ -106,6 +162,9 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   replace,
   result,
   viewportUnit,
+  convertLandscape,
+  convertDesktop,
+  convertMobile,
 }) {
   const ignore = hasIgnoreComments(decl, result);
 
@@ -119,23 +178,9 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       enabledDesktop,
       enabledLandscape,
       viewportUnit, fontViewportUnit, pass1px, unitPrecision,
-      convertMobile: (pxNum, pxUnit) => {
-        const fontProp = prop.includes("font");
-        const is1px = pass1px && pxNum === 1;
-        const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
-        const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
-        return `${n}${mobileUnit}`
-      },
-      convertDesktop: pxNum => {
-        const is1px = pass1px && pxNum === 1;
-        const n = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision);
-        return `${n}px`;
-      },
-      convertLandscape: pxNum => {
-        const is1px = pass1px && pxNum === 1;
-        const n = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision);
-        return `${n}px`;
-      },
+      convertMobile,
+      convertDesktop,
+      convertLandscape,
     });
 
     if (enabledMobile) {
@@ -195,4 +240,5 @@ module.exports = {
   appendMediaRadioPxOrReplaceMobileVwFromPx,
   appendMarginCentreRootClassNoBorder,
   appendDemoContent,
+  appendLeftRightMediaRadioValueFromPx,
 };

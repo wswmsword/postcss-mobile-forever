@@ -41,7 +41,7 @@ describe("mobile-to-multi-displays", function() {
 
   it("should handle values without a leading 0", function() {
     var input = ".rule { left: .75px; top: -.75px; right: .px; } .l{}";
-    var output = ".rule { left: .75px; top: -.75px; right: .px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 0.6px; top: -0.6px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 0.425px; top: -0.425px; } }";
+    var output = ".rule { left: .75px; top: -.75px; right: .px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: -0.6px; left: 0.6px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: -0.425px; left: 0.425px; } }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
