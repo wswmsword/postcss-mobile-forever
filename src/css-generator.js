@@ -52,27 +52,42 @@ function appendMarginCentreRootClassWithBorder(selector, disableDesktop, disable
 }
 
 /** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */
-function appendFixedFullWidthCentre(selector, disableDesktop, disableLandscape, {
-  desktopWidth,
-  landscapeWidth,
-  desktopViewAtRule,
-  landScapeViewAtRule,
-  sharedAtRult,
-}) {
-  if (!disableDesktop && !disableLandscape) {
-    // 桌面端和移动端横屏
-    desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
-    landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
-    sharedAtRult.append(postcss.rule({ selector }).append(marginL, marginR, left, right));
-  } else if (disableDesktop && !disableLandscape) {
-    // 仅移动端横屏
-    landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth), marginL, marginR, left, right));
-  } else if (disableLandscape && !disableDesktop) {
-    // 仅桌面端
-    desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth), marginL, marginR, left, right));
+const appendFixedFullWidthCentre = () => {
+  let widthCentreRule = null;
+  return (selector, disableDesktop, disableLandscape, {
+    desktopWidth,
+    landscapeWidth,
+    desktopViewAtRule,
+    landScapeViewAtRule,
+    sharedAtRult,
+  }) => {
+    if (!disableDesktop && !disableLandscape) {
+      // 桌面端和移动端横屏
+      desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
+      landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
+      if (widthCentreRule == null) {
+        widthCentreRule = postcss.rule({ selector });
+        sharedAtRult.append(widthCentreRule.append(marginL, marginR, left, right));
+      } else {
+        widthCentreRule.selector += ', ' + selector;
+      }
+    } else if (disableDesktop && !disableLandscape) {
+      // 仅移动端横屏
+      if (widthCentreRule == null) {
+        widthCentreRule = postcss.rule({ selector });
+        landScapeViewAtRule.append(widthCentreRule.append(width(landscapeWidth), marginL, marginR, left, right));
+      } else
+        widthCentreRule.selector += ', ' + selector;
+    } else if (disableLandscape && !disableDesktop) {
+      // 仅桌面端
+      if (widthCentreRule == null) {
+        widthCentreRule = postcss.rule({ selector });
+        desktopViewAtRule.append(widthCentreRule.append(width(desktopWidth), marginL, marginR, left, right));
+      } else
+        widthCentreRule.selector += ', ' + selector;
+    }
   }
-
-}
+};
 
 /** 100vw 转换为固定宽度（预期的桌面端和移动端横屏宽度） */
 function appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLandscape, {

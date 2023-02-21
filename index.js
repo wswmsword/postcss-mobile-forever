@@ -126,9 +126,10 @@ module.exports = (options = {}) => {
       let brokenRule = false;
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
-
+      let appendFixedFullWidthCentre_inited = null;
       return {
         Once(_, postcss) {
+          appendFixedFullWidthCentre_inited = appendFixedFullWidthCentre();
           /** 桌面端视图下的媒体查询 */
           desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
           /** 移动端横屏下的媒体查询 */
@@ -137,6 +138,7 @@ module.exports = (options = {}) => {
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
           sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+          
         },
         Rule(rule) {
           hasFixed = false;
@@ -257,7 +259,7 @@ module.exports = (options = {}) => {
           if (hasFixed && (hasFullPerWidth || hasFullVwWidth)) {
             // 将同一选择器中的 `position: fixed; width: 100%`
             // 转换为 `position: fixed; width: ???px; margin-left: auto; margin-right: auto; left: 0; right: 0;`
-            appendFixedFullWidthCentre(selector, disableDesktop, disableLandscape, {
+            appendFixedFullWidthCentre_inited(selector, disableDesktop, disableLandscape, {
               desktopWidth,
               landscapeWidth,
               desktopViewAtRule,

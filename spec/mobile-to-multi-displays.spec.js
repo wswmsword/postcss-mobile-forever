@@ -54,6 +54,36 @@ describe("mobile-to-multi-displays", function() {
   });
 });
 
+describe("shared full width centre style", function() {
+  it("should combine dulplicate style", function() {
+    var input = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
+    var output = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; } @media (min-width: 600px) and (min-height: 640px) { .rule { width: 600px; } .rule2 { width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 425px; } .rule2 { width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule, .rule2 { margin-left: auto !important; margin-right: auto !important; left: 0 !important; right: 0 !important; } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should combine dulplicate style when diable desktop", function() {
+    var input = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
+    var output = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule, .rule2 { width: 425px; margin-left: auto !important; margin-right: auto !important; left: 0 !important; right: 0 !important; } }"
+    var processed = postcss(mobileToMultiDisplays({ disableDesktop: true })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should combine dulplicate style when diable landscape", function() {
+    var input = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
+    var output = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; } @media (min-width: 600px) and (min-height: 640px) { .rule, .rule2 { width: 600px; margin-left: auto !important; margin-right: auto !important; left: 0 !important; right: 0 !important; } }"
+    var processed = postcss(mobileToMultiDisplays({ disableLandscape: true })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not combine when diable desktop and landscape", function() {
+    var input = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
+    var output = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
+    var processed = postcss(mobileToMultiDisplays({ disableLandscape: true, disableDesktop: true })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("fixed position in media queries", function() {
   it("use calc to calculate the left property", function() {
     var input = ".rule { left: 75px; top: 75px; position: fixed; } .l{}";
