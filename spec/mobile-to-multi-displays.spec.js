@@ -54,6 +54,27 @@ describe("mobile-to-multi-displays", function() {
   });
 });
 
+describe("fixed position in media queries", function() {
+  it("use calc to calculate the left property", function() {
+    var input = ".rule { left: 75px; top: 75px; position: fixed; } .l{}";
+    var output = ".rule { left: 10vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50vw - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50vw - 170px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("use calc to calculate the right property", function() {
+    var input = ".rule { right: 75px; top: 75px; position: fixed; } .l{}";
+    var output = ".rule { right: 10vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; right: calc(50vw - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; right: calc(50vw - 170px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("use calc to calculate left and right property", function(){
+    var input = ".rule { right: 75px; left: 150px; top: 75px; position: fixed; } .l{}";
+    var output = ".rule { right: 10vw; left: 20vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50vw - 180px); right: calc(50vw - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50vw - 127.5px); right: calc(50vw - 170px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("dynamic viewportWidth", function() {
   var options = {
     viewportWidth: file => file.includes("vant") ? 375 : 750,
