@@ -143,7 +143,7 @@ function appendLeftRightMediaRadioValueFromPx(selector, decl, disableDesktop, di
       const is1px = pass1px && pxNum === 1;
       const roundedCalc = is1px ? 1 : round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
       const roundedPx = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision)
-      return isFixed ? `calc(50vw - ${roundedCalc})` : `${roundedPx}px`
+      return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
     },
   });
 }
