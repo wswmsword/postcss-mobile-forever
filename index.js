@@ -129,7 +129,7 @@ module.exports = (options = {}) => {
       let appendFixedFullWidthCentre_inited = null;
       return {
         Once(_, postcss) {
-          appendFixedFullWidthCentre_inited = appendFixedFullWidthCentre();
+          appendFixedFullWidthCentre_inited = appendFixedFullWidthCentre(postcss);
           /** 桌面端视图下的媒体查询 */
           desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
           /** 移动端横屏下的媒体查询 */
@@ -140,7 +140,7 @@ module.exports = (options = {}) => {
           sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
           
         },
-        Rule(rule) {
+        Rule(rule, postcss) {
           hasFixed = false;
           hasFullVwWidth = false;
           hasFullPerWidth = false;
@@ -169,7 +169,7 @@ module.exports = (options = {}) => {
           if (selector === `.${rootClass}`) {
             if (border) {
               const c = '#eee';
-              appendMarginCentreRootClassWithBorder(selector, disableDesktop, disableLandscape, {
+              appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
                 desktopViewAtRule,
                 landScapeViewAtRule,
                 sharedAtRult,
@@ -178,7 +178,7 @@ module.exports = (options = {}) => {
                 borderColor: c,
               })
             } else {
-              appendMarginCentreRootClassNoBorder(selector, disableDesktop, disableLandscape, {
+              appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
                 desktopViewAtRule,
                 landScapeViewAtRule,
                 sharedAtRult,
@@ -190,7 +190,7 @@ module.exports = (options = {}) => {
 
           blackListedSelector = blacklistedSelector(selectorBlackList, selector);
         },
-        Declaration(decl) {
+        Declaration(decl, postcss) {
           if (brokenRule) return;
           const prop = decl.prop;
           const val = decl.value;
@@ -222,7 +222,7 @@ module.exports = (options = {}) => {
             const important = decl.important;
             const satisfiedPropList = satisfyPropList(prop);
             // 添加桌面端、移动端媒体查询
-            appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+            appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
               desktopViewAtRule,
               landScapeViewAtRule,
               important,
@@ -255,7 +255,7 @@ module.exports = (options = {}) => {
             });
           }
         },
-        RuleExit(rule) {
+        RuleExit(rule, postcss) {
           if (hasFixed && (hasFullPerWidth || hasFullVwWidth)) {
             // 将同一选择器中的 `position: fixed; width: 100%`
             // 转换为 `position: fixed; width: ???px; margin-left: auto; margin-right: auto; left: 0; right: 0;`
@@ -268,7 +268,7 @@ module.exports = (options = {}) => {
             })
           } else if (hasFullVwWidth) {
             // 100vw 的宽度转换为固定宽度
-            appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLandscape, {
+            appendStaticWidthFromFullVwWidth(postcss, selector, disableDesktop, disableLandscape, {
               desktopWidth,
               landscapeWidth,
               desktopViewAtRule,
@@ -277,7 +277,7 @@ module.exports = (options = {}) => {
           }
           if (leftDecl) {
             const satisfiedPropList = satisfyPropList(leftDecl.prop);
-            appendLeftRightMediaRadioValueFromPx(selector, leftDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+            appendLeftRightMediaRadioValueFromPx(postcss, selector, leftDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
               viewportWidth: viewportWidthValue,
               desktopRadio,
               landscapeRadio,
@@ -297,7 +297,7 @@ module.exports = (options = {}) => {
           }
           if (rightDecl) {
             const satisfiedPropList = satisfyPropList(rightDecl.prop);
-            appendLeftRightMediaRadioValueFromPx(selector, rightDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+            appendLeftRightMediaRadioValueFromPx(postcss, selector, rightDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
               viewportWidth: viewportWidthValue,
               desktopRadio,
               landscapeRadio,
@@ -315,7 +315,7 @@ module.exports = (options = {}) => {
               landscapeWidth
             });
           }
-          !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
+          !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
         OnceExit(css) {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;

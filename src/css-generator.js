@@ -5,9 +5,7 @@ const {
   round,
 } = require("./logic-helper");
 
-const postcss = require("postcss");
-
-function appendDemoContent(selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
+function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
   if (!disableMobile) {
     rule.append({
       prop: "content",
@@ -29,7 +27,7 @@ function appendDemoContent(selector, rule, desktopViewAtRule, landScapeViewAtRul
 }
 
 /** 居中最外层选择器，用 margin 居中，有 border */
-function appendMarginCentreRootClassWithBorder(selector, disableDesktop, disableLandscape, {
+function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRult,
@@ -52,7 +50,7 @@ function appendMarginCentreRootClassWithBorder(selector, disableDesktop, disable
 }
 
 /** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */
-const appendFixedFullWidthCentre = () => {
+const appendFixedFullWidthCentre = (postcss) => {
   let widthCentreRule = null;
   return (selector, disableDesktop, disableLandscape, {
     desktopWidth,
@@ -90,7 +88,7 @@ const appendFixedFullWidthCentre = () => {
 };
 
 /** 100vw 转换为固定宽度（预期的桌面端和移动端横屏宽度） */
-function appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLandscape, {
+function appendStaticWidthFromFullVwWidth(postcss, selector, disableDesktop, disableLandscape, {
   desktopWidth,
   landscapeWidth,
   desktopViewAtRule,
@@ -105,7 +103,7 @@ function appendStaticWidthFromFullVwWidth(selector, disableDesktop, disableLands
 }
 
 /** 转换属性 left 和 right 的媒体查询值 */
-function appendLeftRightMediaRadioValueFromPx(selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
+function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
   desktopRadio,
   landscapeRadio,
@@ -125,7 +123,7 @@ function appendLeftRightMediaRadioValueFromPx(selector, decl, disableDesktop, di
   const prop = decl.prop;
   const val = decl.value;
   const important = decl.important;
-  appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+  appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
     desktopRadio,
     landscapeRadio,
@@ -164,7 +162,7 @@ function appendLeftRightMediaRadioValueFromPx(selector, decl, disableDesktop, di
 }
 
 /** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
-function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   desktopViewAtRule,
   landScapeViewAtRule,
   important,
@@ -226,7 +224,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
 }
 
 /** 居中最外层选择器，margin 居中，无 border */
-function appendMarginCentreRootClassNoBorder(selector, disableDesktop, disableLandscape, {
+function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRult,
