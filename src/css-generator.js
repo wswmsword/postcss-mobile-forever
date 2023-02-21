@@ -2,6 +2,7 @@ const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, conten
 const {
   convertPropValue,
   hasIgnoreComments,
+  round,
 } = require("./logic-helper");
 
 const postcss = require("postcss");
@@ -118,9 +119,23 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
       enabledDesktop,
       enabledLandscape,
       viewportUnit, fontViewportUnit, pass1px, unitPrecision,
-      convertMobile: pxNum => pxNum * 100 / viewportWidth,
-      convertDesktop: pxNum => pxNum * desktopRadio,
-      convertLandscape: pxNum => pxNum * landscapeRadio,
+      convertMobile: (pxNum, pxUnit) => {
+        const fontProp = prop.includes("font");
+        const is1px = pass1px && pxNum === 1;
+        const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
+        const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+        return `${n}${mobileUnit}`
+      },
+      convertDesktop: pxNum => {
+        const is1px = pass1px && pxNum === 1;
+        const n = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision);
+        return `${n}px`;
+      },
+      convertLandscape: pxNum => {
+        const is1px = pass1px && pxNum === 1;
+        const n = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision);
+        return `${n}px`;
+      },
     });
 
     if (enabledMobile) {

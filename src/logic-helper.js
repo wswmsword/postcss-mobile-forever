@@ -131,7 +131,6 @@ const convertPropValue = (prop, val, {
   enabledMobile,
   enabledDesktop,
   enabledLandscape,
-  viewportUnit, fontViewportUnit, pass1px, unitPrecision,
   convertMobile,
   convertDesktop,
   convertLandscape,
@@ -142,7 +141,6 @@ const convertPropValue = (prop, val, {
 
   let mached = null;
   let lastIndex = 0;
-  const fontProp = prop.includes("font");
   while(mached = pxMatchReg.exec(val)) {
     const pxContent = mached[2];
     if (pxContent == null || pxContent === "0px") continue;
@@ -150,15 +148,13 @@ const convertPropValue = (prop, val, {
     const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
     const pxNum = Number(pxContent.slice(0, -2)); // 数字
     const pxUnit = pxContent.slice(-2); // 单位
-    const is1px = pass1px && pxNum === 1;
-    const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
 
     if (convertMobile && enabledMobile)
-      mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(convertMobile(pxNum), unitPrecision), mobileUnit);
+      mobileVal = mobileVal.concat(chunk, convertMobile(pxNum, pxUnit));
     if (convertDesktop && enabledDesktop)
-      desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(convertDesktop(pxNum), unitPrecision), "px");
+      desktopVal = desktopVal.concat(chunk, convertDesktop(pxNum));
     if (convertLandscape && enabledLandscape)
-      landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(convertLandscape(pxNum), unitPrecision), "px");
+      landscapeVal = landscapeVal.concat(chunk, convertLandscape(pxNum));
 
     lastIndex = pxMatchReg.lastIndex;
   }
