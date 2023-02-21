@@ -1,3 +1,5 @@
+const { pxMatchReg } = require("./regexs");
+
 /** 移除重复属性 */
 const removeDulplicateDecls = (node) => {
   node.walkRules(rule => {
@@ -98,6 +100,51 @@ const blacklistedSelector = (blacklist, selector) => {
   });
 }
 
+const convertPropValue = (prop, val, {
+  enabledMobile,
+  enabledDesktop,
+  enabledLandscape,
+  viewportUnit, fontViewportUnit, pass1px, unitPrecision,
+  convertMobile,
+  convertDesktop,
+  convertLandscape,
+}) => {
+  let mobileVal = '';
+  let desktopVal = '';
+  let landscapeVal = '';
+
+  let mached = null;
+  let lastIndex = 0;
+  const fontProp = prop.includes("font");
+  while(mached = pxMatchReg.exec(val)) {
+    const pxContent = mached[2];
+    if (pxContent == null || pxContent === "0px") continue;
+    const beforePxContent = mached[1] || '';
+    const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
+    const pxNum = Number(pxContent.slice(0, -2)); // 数字
+    const pxUnit = pxContent.slice(-2); // 单位
+    const is1px = pass1px && pxNum === 1;
+    const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+
+    if (convertMobile && enabledMobile)
+      mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(convertMobile(pxNum), unitPrecision), mobileUnit);
+    if (convertDesktop && enabledDesktop)
+      desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(convertDesktop(pxNum), unitPrecision), "px");
+    if (convertLandscape && enabledLandscape)
+      landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(convertLandscape(pxNum), unitPrecision), "px");
+
+    lastIndex = pxMatchReg.lastIndex;
+  }
+
+  const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
+
+  return {
+    mobile: enabledMobile ? mobileVal.concat(tailChunk) : val,
+    desktop: enabledDesktop ? desktopVal.concat(tailChunk) : val,
+    landscape: enabledLandscape ? landscapeVal.concat(tailChunk) : val,
+  }
+};
+
 module.exports = {
   removeDulplicateDecls,
   mergeRules,
@@ -106,4 +153,5 @@ module.exports = {
   createIncludeFunc,
   createExcludeFunc,
   blacklistedSelector,
+  convertPropValue,
 };

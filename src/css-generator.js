@@ -1,9 +1,7 @@
 const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, ignorePrevComment, ignoreNextComment } = require("./constants");
 const {
-  /** 用于匹配字符串形如“数字px”中的“数字” */
-  pxMatchReg,
-} = require("./regexs");
-const { round } = require("./logic-helper");
+  convertPropValue,
+} = require("./logic-helper");
 
 const postcss = require("postcss");
 
@@ -135,58 +133,36 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   const enabledMobile = !disableMobile && satisfiedPropList && !blackListedSelector && !ignore;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
-    let mobileVal = '';
-    let desktopVal = '';
-    let landscapeVal = '';
+    const { mobile, desktop, landscape } = convertPropValue(prop, val, {
+      enabledMobile,
+      enabledDesktop,
+      enabledLandscape,
+      viewportUnit, fontViewportUnit, pass1px, unitPrecision,
+      convertMobile: pxNum => pxNum * 100 / viewportWidth,
+      convertDesktop: pxNum => pxNum * desktopRadio,
+      convertLandscape: pxNum => pxNum * landscapeRadio,
+    });
 
-    let mached = null;
-    let lastIndex = 0;
-    let book = false; // 标记
-    while(mached = pxMatchReg.exec(val)) {
-      const pxContent = mached[2];
-      if (pxContent == null || pxContent === "0px") continue;
-      book = true;
-      const beforePxContent = mached[1] || '';
-      const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
-      const pxNum = Number(pxContent.slice(0, -2)); // 数字
-      const pxUnit = pxContent.slice(-2); // 单位
-      const is1px = pass1px && pxNum === 1;
-      const mobileUnit = is1px ? pxUnit : prop.includes("font") ? fontViewportUnit : viewportUnit;
-
-      if (enabledMobile)
-        mobileVal = mobileVal.concat(chunk, is1px ? 1 : round(Number(pxNum * 100 / viewportWidth), unitPrecision), mobileUnit);
-      if (enabledDesktop)
-        desktopVal = desktopVal.concat(chunk, is1px ? 1 : round(Number(pxNum * desktopRadio), unitPrecision), "px");
-      if (enabledLandscape)
-        landscapeVal = landscapeVal.concat(chunk, is1px ? 1 : round(Number(pxNum * landscapeRadio), unitPrecision), "px");
-
-      lastIndex = pxMatchReg.lastIndex;
-    }
-
-    const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
-    if (enabledMobile && book) {
-      mobileVal = mobileVal.concat(tailChunk);
+    if (enabledMobile) {
       if (replace)
-        decl.value = mobileVal;
+        decl.value = mobile;
       else
-        decl.after(decl.clone({ value: mobileVal }));
+        decl.after(decl.clone({ value: mobile }));
     }
-    if (enabledDesktop && book) {
-      desktopVal = desktopVal.concat(tailChunk);
-      if (val !== desktopVal) {
+    if (enabledDesktop) {
+      if (val !== desktop) {
         desktopViewAtRule.append(postcss.rule({ selector }).append({
           prop: prop, // 属性
-          value: desktopVal, // 替换 px 比例计算后的值
+          value: desktop, // 替换 px 比例计算后的值
           important, // 值的尾部有 important 则添加
         }));
       }
     }
-    if (enabledLandscape && book) {
-      landscapeVal = landscapeVal.concat(tailChunk);
-      if (val !== landscapeVal) {
+    if (enabledLandscape) {
+      if (val !== landscape) {
         landScapeViewAtRule.append(postcss.rule({ selector }).append({
           prop,
-          value: landscapeVal,
+          value: landscape,
           important,
         }));
       }
