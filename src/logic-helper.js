@@ -1,4 +1,5 @@
 const { pxMatchReg } = require("./regexs");
+const { ignorePrevComment, ignoreNextComment } = require("./constants");
 
 /** 移除重复属性 */
 const removeDulplicateDecls = (node) => {
@@ -100,6 +101,32 @@ const blacklistedSelector = (blacklist, selector) => {
   });
 }
 
+/** 是否有忽略转换的注释？ */
+const hasIgnoreComments = (decl, result) => {
+  let ignore = false;
+  const prev = decl.prev();
+  // prev declaration is ignore conversion comment at same line
+  if (prev && prev.type === 'comment' && prev.text === ignoreNextComment) {
+    // remove comment
+    prev.remove();
+    ignore = true;
+  }
+  const next = decl.next();
+  if (next && next.type === 'comment') {
+  }
+  // next declaration is ignore conversion comment at same line
+  if (next && next.type === 'comment' && next.text === ignorePrevComment) {
+    if (/\n/.test(next.raws.before)) {
+      result.warn('Unexpected comment /* ' + ignorePrevComment + ' */ must be after declaration at same line.', { node: next });
+    } else {
+      // remove comment
+      next.remove();
+      ignore = true;
+    }
+  }
+  return ignore;
+};
+
 const convertPropValue = (prop, val, {
   enabledMobile,
   enabledDesktop,
@@ -154,4 +181,5 @@ module.exports = {
   createExcludeFunc,
   blacklistedSelector,
   convertPropValue,
+  hasIgnoreComments,
 };

@@ -1,6 +1,7 @@
-const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, ignorePrevComment, ignoreNextComment } = require("./constants");
+const { width, marginL, marginR, left, right, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
 const {
   convertPropValue,
+  hasIgnoreComments,
 } = require("./logic-helper");
 
 const postcss = require("postcss");
@@ -105,28 +106,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(selector, prop, val, disableD
   result,
   viewportUnit,
 }) {
-  let ignore = false;
-  const prev = decl.prev();
-  // prev declaration is ignore conversion comment at same line
-  if (prev && prev.type === 'comment' && prev.text === ignoreNextComment) {
-    // remove comment
-    prev.remove();
-    ignore = true;
-  }
-  const next = decl.next();
-  if (next && next.type === 'comment') {
-  }
-  // next declaration is ignore conversion comment at same line
-  if (next && next.type === 'comment' && next.text === ignorePrevComment) {
-    if (/\n/.test(next.raws.before)) {
-      result.warn('Unexpected comment /* ' + ignorePrevComment + ' */ must be after declaration at same line.', { node: next });
-    } else {
-      // remove comment
-      next.remove();
-      ignore = true;
-    }
-  }
-
+  const ignore = hasIgnoreComments(decl, result);
 
   const enabledDesktop = !disableDesktop && satisfiedPropList && !blackListedSelector && !ignore;
   const enabledLandscape = !disableLandscape && satisfiedPropList && !blackListedSelector && !ignore;
