@@ -29,6 +29,7 @@
 			<Item />
 		{/each}
 	</div>
+  <button class="back-to-top">TOP</button>
 </div>
 
 <style>
@@ -137,5 +138,28 @@
   row-gap: 56px;
   margin: 0 auto;
   padding-bottom: 88px;
+}
+
+.back-to-top {
+  padding: 0;
+  width: 64px;
+  height: 64px;
+  border: none;
+  background-color: rgb(219, 191, 139);
+  box-sizing: border-box;
+  border-radius: 18px;
+  position: fixed;
+  bottom: 58px;
+  right: 36px;
+  cursor: pointer;
+  transition: background-color .3s;
+  color: rgb(164, 144, 127);
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.back-to-top:active {
+  background-color: rgb(230, 210, 153);
+  transition: background-color .1s;
 }
 </style>
