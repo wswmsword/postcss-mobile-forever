@@ -148,7 +148,7 @@ const convertPropValue = (prop, val, {
   const _isPx = px => px === "px";
   while(mached = pxVwMatchReg.exec(val)) {
     const matchedContent = mached[2];
-    if (matchedContent == null || matchedContent === "0px") continue;
+    if (matchedContent == null) continue;
     const beforePxContent = mached[1] || '';
     const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
     const number = Number(matchedContent.slice(0, -2)); // 数字
@@ -163,14 +163,14 @@ const convertPropValue = (prop, val, {
     }
     if (convertDesktop && enabledDesktop) {
       if (isPx)
-        desktopVal = desktopVal.concat(chunk, convertDesktop(number));
+        desktopVal = desktopVal.concat(chunk, convertDesktop(number, lengthUnit));
       else if (isVw) {
         desktopVal = desktopVal.concat(chunk, round(desktopWidth / 100 * number, unitPrecision), "px");
       }
     }
     if (convertLandscape && enabledLandscape) {
       if (isPx)
-        landscapeVal = landscapeVal.concat(chunk, convertLandscape(number));
+        landscapeVal = landscapeVal.concat(chunk, convertLandscape(number, lengthUnit));
       else if (isVw)
         landscapeVal = landscapeVal.concat(chunk, round(landscapeWidth / 100 * number, unitPrecision), "px");
     }

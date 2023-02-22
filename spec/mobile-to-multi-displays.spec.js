@@ -82,6 +82,12 @@ describe("fixed position in media queries", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+  it("should convert fixed left 0", function() {
+    var input = ".rule { left: 0px; top: 75px; position: fixed; } .l{}";
+    var output = ".rule { left: 0px; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50vw - 300px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50vw - 212.5px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("dynamic viewportWidth", function() {

@@ -143,7 +143,7 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
       const fontProp = prop.includes("font");
       const n = round(pxNum * 100 / viewportWidth, unitPrecision)
       const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-      return `${n}${mobileUnit}`
+      return pxNum === 0 ? `0${pxUnit}` : `${n}${mobileUnit}`;
     },
     convertDesktop: pxNum => {
       const roundedCalc = round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)

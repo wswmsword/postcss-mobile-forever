@@ -240,15 +240,15 @@ module.exports = (options = {}) => {
                 const fontProp = prop.includes("font");
                 const n = round(pxNum * 100 / viewportWidth, unitPrecision)
                 const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-                return `${n}${mobileUnit}`
+                return pxNum === 0 ? `0${pxUnit}` : `${n}${mobileUnit}`;
               },
-              convertDesktop: pxNum => {
+              convertDesktop: (pxNum, unit) => {
                 const n = round(pxNum * desktopRadio, unitPrecision);
-                return `${n}px`;
+                return pxNum === 0 ? `0${unit}` : `${n}px`;
               },
-              convertLandscape: pxNum => {
+              convertLandscape: (pxNum, unit) => {
                 const n = round(pxNum * landscapeRadio, unitPrecision);
-                return `${n}px`;
+                return pxNum === 0 ? `0${unit}` : `${n}px`;
               },
             });
           }
