@@ -148,12 +148,12 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
     convertDesktop: pxNum => {
       const roundedCalc = round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)
       const roundedPx = round(pxNum * desktopRadio, unitPrecision)
-      return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
+      return isFixed ? `calc(50% - ${roundedCalc}px)` : `${roundedPx}px` // 百分号可以解决 vw 的桌面端浏览器滚动条宽度问题
     },
     convertLandscape: pxNum => {
       const roundedCalc = round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
       const roundedPx = round(pxNum * landscapeRadio, unitPrecision)
-      return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
+      return isFixed ? `calc(50% - ${roundedCalc}px)` : `${roundedPx}px`
     },
   });
 }
