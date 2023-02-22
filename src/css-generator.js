@@ -139,6 +139,8 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
     replace,
     result,
     viewportUnit,
+    desktopWidth,
+    landscapeWidth,
     convertMobile: (pxNum, pxUnit) => {
       const fontProp = prop.includes("font");
       const is1px = pass1px && pxNum === 1;
@@ -166,19 +168,19 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   desktopViewAtRule,
   landScapeViewAtRule,
   important,
-  pass1px,
   decl,
-  unitPrecision,
   satisfiedPropList,
-  fontViewportUnit,
   blackListedSelector,
   replace,
   result,
-  viewportUnit,
   convertLandscape,
   convertDesktop,
   convertMobile,
+  desktopWidth,
+  landscapeWidth,
+  unitPrecision,
 }) {
+  decl.book = true;
   const ignore = hasIgnoreComments(decl, result);
 
   const enabledDesktop = !disableDesktop && satisfiedPropList && !blackListedSelector && !ignore;
@@ -190,17 +192,19 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       enabledMobile,
       enabledDesktop,
       enabledLandscape,
-      viewportUnit, fontViewportUnit, pass1px, unitPrecision,
       convertMobile,
       convertDesktop,
       convertLandscape,
+      desktopWidth,
+      landscapeWidth,
+      unitPrecision,
     });
 
     if (enabledMobile) {
       if (replace)
         decl.value = mobile;
       else
-        decl.after(decl.clone({ value: mobile }));
+        decl.after(decl.clone({ value: mobile, book: true, }));
     }
     if (enabledDesktop) {
       if (val !== desktop) {

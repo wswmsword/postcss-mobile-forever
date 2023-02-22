@@ -6,6 +6,7 @@ const { demoModeSelector } = require("./src/constants");
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
   pxTestReg,
+  pxVwTestReg,
 } = require("./src/regexs");
 
 const defaults = {
@@ -192,6 +193,7 @@ module.exports = (options = {}) => {
         },
         Declaration(decl, postcss) {
           if (brokenRule) return;
+          if (decl.book) return;
           const prop = decl.prop;
           const val = decl.value;
   
@@ -218,7 +220,7 @@ module.exports = (options = {}) => {
             return;
           }
           // 转换 px
-          if (pxTestReg.test(val)) {
+          if (pxVwTestReg.test(val)) {
             const important = decl.important;
             const satisfiedPropList = satisfyPropList(prop);
             // 添加桌面端、移动端媒体查询
@@ -235,6 +237,8 @@ module.exports = (options = {}) => {
               replace,
               result,
               viewportUnit,
+              desktopWidth,
+              landscapeWidth,
               convertMobile: (pxNum, pxUnit) => {
                 const fontProp = prop.includes("font");
                 const is1px = pass1px && pxNum === 1;

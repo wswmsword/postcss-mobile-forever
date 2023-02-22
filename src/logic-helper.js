@@ -1,4 +1,4 @@
-const { pxMatchReg } = require("./regexs");
+const { pxVwMatchReg } = require("./regexs");
 const { ignorePrevComment, ignoreNextComment } = require("./constants");
 
 /** 移除重复属性 */
@@ -134,6 +134,9 @@ const convertPropValue = (prop, val, {
   convertMobile,
   convertDesktop,
   convertLandscape,
+  desktopWidth,
+  landscapeWidth,
+  unitPrecision,
 }) => {
   let mobileVal = '';
   let desktopVal = '';
@@ -141,22 +144,38 @@ const convertPropValue = (prop, val, {
 
   let mached = null;
   let lastIndex = 0;
-  while(mached = pxMatchReg.exec(val)) {
-    const pxContent = mached[2];
-    if (pxContent == null || pxContent === "0px") continue;
+  const _isVw = vw => vw === "vw";
+  const _isPx = px => px === "px";
+  while(mached = pxVwMatchReg.exec(val)) {
+    const matchedContent = mached[2];
+    if (matchedContent == null || matchedContent === "0px" || matchedContent === "100vw") continue;
     const beforePxContent = mached[1] || '';
     const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
-    const pxNum = Number(pxContent.slice(0, -2)); // 数字
-    const pxUnit = pxContent.slice(-2); // 单位
+    const number = Number(matchedContent.slice(0, -2)); // 数字
+    const lengthUnit = matchedContent.slice(-2); // 单位
+    const isPx = _isPx(lengthUnit);
+    const isVw = _isVw(lengthUnit);
+    if (convertMobile && enabledMobile) {
+      if (isPx)
+        mobileVal = mobileVal.concat(chunk, convertMobile(number, lengthUnit));
+      else if (isVw)
+        mobileVal = mobileVal.concat(chunk, matchedContent);
+    }
+    if (convertDesktop && enabledDesktop) {
+      if (isPx)
+        desktopVal = desktopVal.concat(chunk, convertDesktop(number));
+      else if (isVw) {
+        desktopVal = desktopVal.concat(chunk, round(desktopWidth / 100 * number, unitPrecision), "px");
+      }
+    }
+    if (convertLandscape && enabledLandscape) {
+      if (isPx)
+        landscapeVal = landscapeVal.concat(chunk, convertLandscape(number));
+      else if (isVw)
+        landscapeVal = landscapeVal.concat(chunk, round(landscapeWidth / 100 * number, unitPrecision), "px");
+    }
 
-    if (convertMobile && enabledMobile)
-      mobileVal = mobileVal.concat(chunk, convertMobile(pxNum, pxUnit));
-    if (convertDesktop && enabledDesktop)
-      desktopVal = desktopVal.concat(chunk, convertDesktop(pxNum));
-    if (convertLandscape && enabledLandscape)
-      landscapeVal = landscapeVal.concat(chunk, convertLandscape(pxNum));
-
-    lastIndex = pxMatchReg.lastIndex;
+    lastIndex = pxVwMatchReg.lastIndex;
   }
 
   const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串

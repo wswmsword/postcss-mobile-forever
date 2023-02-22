@@ -54,6 +54,15 @@ describe("mobile-to-multi-displays", function() {
   });
 });
 
+describe("transform vw to media query px", function() {
+  it("should convert width viewport unit", function() {
+    var input = ".rule { width: 75vw; } .l{}"
+    var output = ".rule { width: 75vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 450px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 318.75px; } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("shared full width centre style", function() {
   it("should combine dulplicate style", function() {
     var input = ".rule { position: fixed; width: 100vw; } .rule2 { position: fixed; width: 100vw; }"
