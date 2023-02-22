@@ -193,7 +193,7 @@ module.exports = (options = {}) => {
         },
         Declaration(decl, postcss) {
           if (brokenRule) return;
-          if (decl.book) return;
+          if (decl.book) return; // 被标记过
           const prop = decl.prop;
           const val = decl.value;
   
@@ -260,7 +260,7 @@ module.exports = (options = {}) => {
           }
         },
         RuleExit(rule, postcss) {
-          if (hasFixed && (hasFullPerWidth || hasFullVwWidth)) {
+          if (hasFixed && (hasFullPerWidth)) {
             // 将同一选择器中的 `position: fixed; width: 100%`
             // 转换为 `position: fixed; width: ???px; margin-left: auto; margin-right: auto; left: 0; right: 0;`
             appendFixedFullWidthCentre_inited(selector, disableDesktop, disableLandscape, {
@@ -269,14 +269,6 @@ module.exports = (options = {}) => {
               desktopViewAtRule,
               landScapeViewAtRule,
               sharedAtRult,
-            })
-          } else if (hasFullVwWidth) {
-            // 100vw 的宽度转换为固定宽度
-            appendStaticWidthFromFullVwWidth(postcss, selector, disableDesktop, disableLandscape, {
-              desktopWidth,
-              landscapeWidth,
-              desktopViewAtRule,
-              landScapeViewAtRule,
             })
           }
           if (leftDecl) {

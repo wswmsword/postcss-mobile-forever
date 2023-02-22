@@ -148,7 +148,7 @@ const convertPropValue = (prop, val, {
   const _isPx = px => px === "px";
   while(mached = pxVwMatchReg.exec(val)) {
     const matchedContent = mached[2];
-    if (matchedContent == null || matchedContent === "0px" || matchedContent === "100vw") continue;
+    if (matchedContent == null || matchedContent === "0px") continue;
     const beforePxContent = mached[1] || '';
     const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
     const number = Number(matchedContent.slice(0, -2)); // 数字
