@@ -34,7 +34,7 @@ import Item from "./components/Item.vue";
   position: absolute;
   width: 696px;
   height: calc(100% - 80px);
-  border: 1px solid rgb(252, 227, 160);
+  border: 1px solid rgb(252, 227, 160); /* px-to-viewport-ignore */
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
