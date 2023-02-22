@@ -30,8 +30,6 @@ const defaults = {
   disableLandscape: false,
   /** 不做视口单位转换 */
   disableMobile: false,
-  /** 不转换 1px */
-  pass1px: true,
   /** 排除文件 */
   exclude: null,
   /** 包含文件 */
@@ -84,7 +82,7 @@ module.exports = (options = {}) => {
     }
   };
   let { minDesktopDisplayWidth } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, disableMobile, maxLandscapeDisplayHeight, pass1px, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, disableMobile, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
 
   if (minDesktopDisplayWidth == null) {
@@ -228,7 +226,6 @@ module.exports = (options = {}) => {
               desktopViewAtRule,
               landScapeViewAtRule,
               important,
-              pass1px,
               decl,
               unitPrecision,
               satisfiedPropList,
@@ -241,19 +238,16 @@ module.exports = (options = {}) => {
               landscapeWidth,
               convertMobile: (pxNum, pxUnit) => {
                 const fontProp = prop.includes("font");
-                const is1px = pass1px && pxNum === 1;
-                const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
-                const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+                const n = round(pxNum * 100 / viewportWidth, unitPrecision)
+                const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                 return `${n}${mobileUnit}`
               },
               convertDesktop: pxNum => {
-                const is1px = pass1px && pxNum === 1;
-                const n = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision);
+                const n = round(pxNum * desktopRadio, unitPrecision);
                 return `${n}px`;
               },
               convertLandscape: pxNum => {
-                const is1px = pass1px && pxNum === 1;
-                const n = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision);
+                const n = round(pxNum * landscapeRadio, unitPrecision);
                 return `${n}px`;
               },
             });
@@ -279,7 +273,6 @@ module.exports = (options = {}) => {
               landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
-              pass1px,
               unitPrecision,
               satisfiedPropList,
               fontViewportUnit,
@@ -299,7 +292,6 @@ module.exports = (options = {}) => {
               landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
-              pass1px,
               unitPrecision,
               satisfiedPropList,
               fontViewportUnit,

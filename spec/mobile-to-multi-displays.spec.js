@@ -165,7 +165,7 @@ describe("value parsing", function() {
   });
 
   it("should not convert values equal to 1", function() {
-    var input = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{}";
+    var input = ".rule { border: 1px solid white; /* px-to-viewport-ignore */ left: 1px; /* px-to-viewport-ignore */ top: 75px; } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
@@ -191,7 +191,7 @@ describe("media queries", function() {
     disableMobile: true,
   };
   it("should ignore 1px in media queries", function() {
-    var input = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
+    var input = ".rule { border: 1px solid white; /* px-to-viewport-ignore */ left: 1px; /* px-to-viewport-ignore */ top: 1px; /* px-to-viewport-ignore */ background: left 1px / 1px 60% repeat-x url(./star750px); /* px-to-viewport-ignore */ } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
@@ -395,7 +395,7 @@ describe('px-to-viewport', function() {
     unitPrecision: 5,
   };
   it('should work on the readme example', function () {
-    var input = 'h1 { margin: 0 0 20px; font-size: 32px; line-height: 2; letter-spacing: 1px; }';
+    var input = 'h1 { margin: 0 0 20px; font-size: 32px; line-height: 2; letter-spacing: 1px; /* px-to-viewport-ignore */ }';
     var output = 'h1 { margin: 0 0 6.25vw; font-size: 10vw; line-height: 2; letter-spacing: 1px; }';
     var processed = postcss(mobileToMultiDisplays(basicOptions)).process(input).css;
 
@@ -583,7 +583,7 @@ describe('px-to-viewport', function() {
 
   describe('exclude', function () {
     var rules = '.rule { border: 1px solid #000; font-size: 16px; margin: 1px 10px; }';
-    var covered = '.rule { border: 1px solid #000; font-size: 5vw; margin: 1px 3.125vw; }';
+    var covered = '.rule { border: 0.3125vw solid #000; font-size: 5vw; margin: 0.3125vw 3.125vw; }';
     it('when using regex at the time, the style should not be overwritten.', function () {
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
@@ -631,7 +631,7 @@ describe('px-to-viewport', function() {
   
   describe('include', function () {
     var rules = '.rule { border: 1px solid #000; font-size: 16px; margin: 1px 10px; }';
-    var covered = '.rule { border: 1px solid #000; font-size: 5vw; margin: 1px 3.125vw; }';
+    var covered = '.rule { border: 0.3125vw solid #000; font-size: 5vw; margin: 0.3125vw 3.125vw; }';
     it('when using regex at the time, the style should not be overwritten.', function () {
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
@@ -679,7 +679,7 @@ describe('px-to-viewport', function() {
   
   describe('include-and-exclude', function () {
     var rules = '.rule { border: 1px solid #000; font-size: 16px; margin: 1px 10px; }';
-    var covered = '.rule { border: 1px solid #000; font-size: 5vw; margin: 1px 3.125vw; }';
+    var covered = '.rule { border: 0.3125vw solid #000; font-size: 5vw; margin: 0.3125vw 3.125vw; }';
   
     it('when using regex at the time, the style should not be overwritten.', function () {
       var processed = postcss(mobileToMultiDisplays({
@@ -732,7 +732,7 @@ describe('px-to-viewport', function() {
   
   describe('regex', function () {
     var rules = '.rule { border: 1px solid #000; font-size: 16px; margin: 1px 10px; }';
-    var covered = '.rule { border: 1px solid #000; font-size: 5vw; margin: 1px 3.125vw; }';
+    var covered = '.rule { border: 0.3125vw solid #000; font-size: 5vw; margin: 0.3125vw 3.125vw; }';
   
     it('when using regex at the time, the style should not be overwritten.', function () {
       var processed = postcss(mobileToMultiDisplays({

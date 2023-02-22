@@ -58,7 +58,6 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
 | disableMobile | boolean | N | false | 不做移动端竖屏适配，把 px 转换为视口单位 vw |
-| pass1px | boolean | N | true | 是否转换 1px？ |
 | exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
@@ -83,7 +82,6 @@ yarn add -D postcss postcss-mobile-to-multi-displays
   "disableDesktop": false,
   "disableLandscape": false,
   "disableMobile": false,
-  "pass1px": true,
   "exclude": null,
   "include": null,
   "unitPrecision": 3,
@@ -185,7 +183,7 @@ npm run start
 
 	.class2 {
 		width: 600px; /* 100vw -> 600px */
-		height: 24.000px; /* 600/750*30=24，600 是默认的桌面端预期宽度，750 是默认的设计图宽度 */
+		height: 24px; /* 600/750*30=24，600 是默认的桌面端预期宽度，750 是默认的设计图宽度 */
 	}
 }
 
@@ -202,7 +200,7 @@ npm run start
 	
 	.class2 {
 		width: 425px; /* 100vw -> 425px */
-		height: 17.000px; /* 425/750*30=17 */
+		height: 17px; /* 425/750*30=17 */
 	}
 }
 
@@ -274,4 +272,5 @@ npm run start
 
 相关链接：
 - [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
-- [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器。
+- [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器；
+- [What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)，罗列了百分比取宽度的属性。

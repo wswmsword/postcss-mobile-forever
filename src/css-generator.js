@@ -109,7 +109,6 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
   landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
-  pass1px,
   unitPrecision,
   satisfiedPropList,
   fontViewportUnit,
@@ -130,7 +129,6 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
     desktopViewAtRule,
     landScapeViewAtRule,
     important,
-    pass1px,
     decl,
     unitPrecision,
     satisfiedPropList,
@@ -143,21 +141,18 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
     landscapeWidth,
     convertMobile: (pxNum, pxUnit) => {
       const fontProp = prop.includes("font");
-      const is1px = pass1px && pxNum === 1;
-      const n = is1px ? 1 : round(pxNum * 100 / viewportWidth, unitPrecision)
-      const mobileUnit = is1px ? pxUnit : fontProp ? fontViewportUnit : viewportUnit;
+      const n = round(pxNum * 100 / viewportWidth, unitPrecision)
+      const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
       return `${n}${mobileUnit}`
     },
     convertDesktop: pxNum => {
-      const is1px = pass1px && pxNum === 1;
-      const roundedCalc = is1px ? 1 : round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)
-      const roundedPx = is1px ? 1 : round(pxNum * desktopRadio, unitPrecision)
+      const roundedCalc = round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)
+      const roundedPx = round(pxNum * desktopRadio, unitPrecision)
       return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
     },
     convertLandscape: pxNum => {
-      const is1px = pass1px && pxNum === 1;
-      const roundedCalc = is1px ? 1 : round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
-      const roundedPx = is1px ? 1 : round(pxNum * landscapeRadio, unitPrecision)
+      const roundedCalc = round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
+      const roundedPx = round(pxNum * landscapeRadio, unitPrecision)
       return isFixed ? `calc(50vw - ${roundedCalc}px)` : `${roundedPx}px`
     },
   });
