@@ -118,6 +118,12 @@ describe("fixed position in media queries", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+  it("should convert fixed px containing block prop except left and right", function() {
+    var input = ".rule { position: fixed; width: 10vw; margin: 75px; } .l{}";
+    var output = ".rule { position: fixed; width: 10vw; margin: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { margin: 60px; width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { margin: 42.5px; width: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("dynamic viewportWidth", function() {

@@ -108,8 +108,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             return `calc(50% + ${roundedCalc}px)`;
           } else
             return `${number}${unit}`;
-        } else
-          return `${round(desktopWidth * number / 100, unitPrecision)}px`;
+        } else {
+          if (unit === "px") {
+            const roundedPx = round(number * desktopRadio, unitPrecision);
+            return number === 0 ? `0${unit}` : `${roundedPx}px`;
+          } else
+            return `${round(desktopWidth * number / 100, unitPrecision)}px`;
+        }
       } else {
         if (unit === "vw" || unit === "%")
           return `${round(desktopWidth * number / 100, unitPrecision)}px`;
@@ -131,8 +136,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             return `calc(50% + ${roundedCalc}px)`;
           } else
             return `${number}${unit}`;
-        } else
-          return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+        } else {
+          if (unit === "px") {
+            const roundedPx = round(number * landscapeRadio, unitPrecision);
+            return number === 0 ? `0${unit}` : `${roundedPx}px`;
+          } else
+            return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+        }
       } else {
         if (unit === "vw" || unit === "%")
           return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
