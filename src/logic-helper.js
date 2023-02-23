@@ -1,5 +1,13 @@
-const { pxVwMatchReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment } = require("./constants");
+const { unitContentMatchReg, unitContentWithPercReg } = require("./regexs");
+const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp } = require("./constants");
+
+/** 创建 fixed 时依赖宽度的属性 map */
+const createFixedContainingBlockDecls = () => {
+  const mapArray = fixedContainingBlockWidthProp.reduce((prev, cur) => {
+    return prev.concat([[cur, null]]);
+  }, []);
+  return new Map(mapArray);
+}
 
 /** 移除重复属性 */
 const removeDulplicateDecls = (node) => {
@@ -127,6 +135,7 @@ const hasIgnoreComments = (decl, result) => {
   return ignore;
 };
 
+/** 获取匹配的数字和单位，转换 */
 const convertPropValue = (prop, val, {
   enabledMobile,
   enabledDesktop,
@@ -134,48 +143,30 @@ const convertPropValue = (prop, val, {
   convertMobile,
   convertDesktop,
   convertLandscape,
-  desktopWidth,
-  landscapeWidth,
-  unitPrecision,
+  matchPercentage,
 }) => {
   let mobileVal = '';
   let desktopVal = '';
   let landscapeVal = '';
 
-  let mached = null;
+  let matched = null;
   let lastIndex = 0;
-  const _isVw = vw => vw === "vw";
-  const _isPx = px => px === "px";
-  while(mached = pxVwMatchReg.exec(val)) {
-    const matchedContent = mached[2];
-    if (matchedContent == null) continue;
-    const beforePxContent = mached[1] || '';
-    const chunk = val.slice(lastIndex, mached.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
-    const number = Number(matchedContent.slice(0, -2)); // 数字
-    const lengthUnit = matchedContent.slice(-2); // 单位
-    const isPx = _isPx(lengthUnit);
-    const isVw = _isVw(lengthUnit);
-    if (convertMobile && enabledMobile) {
-      if (isPx)
-        mobileVal = mobileVal.concat(chunk, convertMobile(number, lengthUnit));
-      else if (isVw)
-        mobileVal = mobileVal.concat(chunk, matchedContent);
-    }
-    if (convertDesktop && enabledDesktop) {
-      if (isPx)
-        desktopVal = desktopVal.concat(chunk, convertDesktop(number, lengthUnit));
-      else if (isVw) {
-        desktopVal = desktopVal.concat(chunk, round(desktopWidth / 100 * number, unitPrecision), "px");
-      }
-    }
-    if (convertLandscape && enabledLandscape) {
-      if (isPx)
-        landscapeVal = landscapeVal.concat(chunk, convertLandscape(number, lengthUnit));
-      else if (isVw)
-        landscapeVal = landscapeVal.concat(chunk, round(landscapeWidth / 100 * number, unitPrecision), "px");
-    }
+  const reg = matchPercentage ? unitContentWithPercReg : unitContentMatchReg;
+  while(matched = reg.exec(val)) {
+    const numberStr = matched[2];
+    if (numberStr == null) continue;
+    const beforePxContent = matched[1] || '';
+    const chunk = val.slice(lastIndex, matched.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
+    const number = Number(numberStr); // 数字
+    const lengthUnit = matched[3]; // 单位
+    if (convertMobile && enabledMobile)
+      mobileVal = mobileVal.concat(chunk, convertMobile(number, lengthUnit));
+    if (convertDesktop && enabledDesktop)
+      desktopVal = desktopVal.concat(chunk, convertDesktop(number, lengthUnit));
+    if (convertLandscape && enabledLandscape)
+      landscapeVal = landscapeVal.concat(chunk, convertLandscape(number, lengthUnit));
 
-    lastIndex = pxVwMatchReg.lastIndex;
+    lastIndex = reg.lastIndex;
   }
 
   const tailChunk = val.slice(lastIndex, val.length); // 最后一次匹配到结尾的字符串
@@ -197,4 +188,5 @@ module.exports = {
   blacklistedSelector,
   convertPropValue,
   hasIgnoreComments,
+  createFixedContainingBlockDecls,
 };

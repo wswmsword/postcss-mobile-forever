@@ -1,11 +1,10 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMarginCentreRootClassWithBorder, appendFixedFullWidthCentre, appendStaticWidthFromFullVwWidth, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendLeftRightMediaRadioValueFromPx } = require("./src/css-generator");
+const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
-  pxTestReg,
   pxVwTestReg,
 } = require("./src/regexs");
 
@@ -105,12 +104,6 @@ module.exports = (options = {}) => {
 
 
       let hasFixed = null;
-      let hasFullVwWidth = null;
-      let hasFullPerWidth = null;
-      /** left 属性 decl  */
-      let leftDecl = null;
-      /** right 属性 decl */
-      let rightDecl = null;
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
@@ -125,10 +118,9 @@ module.exports = (options = {}) => {
       let brokenRule = false;
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
-      let appendFixedFullWidthCentre_inited = null;
+      let containingBlockDeclsMap = null;
       return {
         Once(_, postcss) {
-          appendFixedFullWidthCentre_inited = appendFixedFullWidthCentre(postcss);
           /** 桌面端视图下的媒体查询 */
           desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
           /** 移动端横屏下的媒体查询 */
@@ -141,10 +133,6 @@ module.exports = (options = {}) => {
         },
         Rule(rule, postcss) {
           hasFixed = false;
-          hasFullVwWidth = false;
-          hasFullPerWidth = false;
-          hasLeftProp = hasRightProp = false;
-          leftDecl = rightDecl = null;
           selector = rule.selector;
           const file = rule.source && rule.source.input.file;
 
@@ -152,6 +140,8 @@ module.exports = (options = {}) => {
           if(hasNoIncludeFile(include, file, includeType)) return brokenRule = true;
           // 排除文件
           if(hasExcludeFile(exclude, file, excludeType)) return brokenRule = true;
+          // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
+          if (rule.parent.params) return brokenRule = true;
 
           // 是否动态视图宽度？
           const isDynamicViewportWidth = typeof viewportWidth === "function";
@@ -160,9 +150,6 @@ module.exports = (options = {}) => {
           desktopRadio = desktopWidth / viewportWidthValue;
           /** 移动端横屏缩放比例 */
           landscapeRadio = landscapeWidth / viewportWidthValue;
-
-          // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
-          if (rule.parent.params) return brokenRule = true;
 
           // 设置页面最外层 class 的最大宽度，并居中
           if (selector === `.${rootClass}`) {
@@ -188,6 +175,7 @@ module.exports = (options = {}) => {
           }
 
           blackListedSelector = blacklistedSelector(selectorBlackList, selector);
+          containingBlockDeclsMap = createFixedContainingBlockDecls();
         },
         Declaration(decl, postcss) {
           if (brokenRule) return;
@@ -195,26 +183,15 @@ module.exports = (options = {}) => {
           const prop = decl.prop;
           const val = decl.value;
   
-          // 判断是否存在 fixed 和 100% 的情况
-          if (prop === 'width' && val === '100%') {
-            hasFullPerWidth = true;
-          }
-          if (prop === 'width' && val === '100vw') {
-            hasFullVwWidth = true;
-          }
-          if (prop === 'position' && val === 'fixed') {
+          if (prop === "position" && val === "fixed") {
             hasFixed = true;
           }
-          if (prop === "left") {
+          // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
+          if (containingBlockDeclsMap.has(prop)) {
             const important = decl.important;
-            if (leftDecl == null || important || !leftDecl.important)
-              leftDecl = decl;
-            return;
-          }
-          if (prop === "right") {
-            const important = decl.important;
-            if (rightDecl == null || important || !rightDecl.important)
-              rightDecl = decl;
+            const mapDecl = containingBlockDeclsMap.get(prop);
+            if (mapDecl == null || important || !mapDecl.important)
+              containingBlockDeclsMap.set(prop, decl);
             return;
           }
           // 转换 px
@@ -236,38 +213,42 @@ module.exports = (options = {}) => {
               viewportUnit,
               desktopWidth,
               landscapeWidth,
-              convertMobile: (pxNum, pxUnit) => {
-                const fontProp = prop.includes("font");
-                const n = round(pxNum * 100 / viewportWidth, unitPrecision)
-                const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-                return pxNum === 0 ? `0${pxUnit}` : `${n}${mobileUnit}`;
+              matchPercentage: false,
+              convertMobile: (number, unit) => {
+                if (unit === "px") {
+                  const fontProp = prop.includes("font");
+                  const n = round(number * 100 / viewportWidth, unitPrecision)
+                  const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+                  return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
+                } else
+                  return `${number}${unit}`;
               },
-              convertDesktop: (pxNum, unit) => {
-                const n = round(pxNum * desktopRadio, unitPrecision);
-                return pxNum === 0 ? `0${unit}` : `${n}px`;
+              convertDesktop: (number, unit) => {
+                if (unit === "vw")
+                  return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+                else if (unit === "px") {
+                  const n = round(number * desktopRadio, unitPrecision);
+                  return number === 0 ? `0${unit}` : `${n}px`;
+                } else
+                  return `${number}${unit}`;
               },
-              convertLandscape: (pxNum, unit) => {
-                const n = round(pxNum * landscapeRadio, unitPrecision);
-                return pxNum === 0 ? `0${unit}` : `${n}px`;
+              convertLandscape: (number, unit) => {
+                if (unit === "vw")
+                  return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+                else if (unit === "px") {
+                  const n = round(number * landscapeRadio, unitPrecision);
+                  return number === 0 ? `0${unit}` : `${n}px`;
+                } else
+                  return `${number}${unit}`;
               },
             });
           }
         },
         RuleExit(rule, postcss) {
-          if (hasFixed && (hasFullPerWidth)) {
-            // 将同一选择器中的 `position: fixed; width: 100%`
-            // 转换为 `position: fixed; width: ???px; margin-left: auto; margin-right: auto; left: 0; right: 0;`
-            appendFixedFullWidthCentre_inited(selector, disableDesktop, disableLandscape, {
-              desktopWidth,
-              landscapeWidth,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              sharedAtRult,
-            })
-          }
-          if (leftDecl) {
-            const satisfiedPropList = satisfyPropList(leftDecl.prop);
-            appendLeftRightMediaRadioValueFromPx(postcss, selector, leftDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+          containingBlockDeclsMap && containingBlockDeclsMap.forEach((decl, prop) => {
+            if (decl == null) return;
+            const satisfiedPropList = satisfyPropList(prop);
+            appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
               viewportWidth: viewportWidthValue,
               desktopRadio,
               landscapeRadio,
@@ -283,26 +264,7 @@ module.exports = (options = {}) => {
               desktopWidth,
               landscapeWidth
             });
-          }
-          if (rightDecl) {
-            const satisfiedPropList = satisfyPropList(rightDecl.prop);
-            appendLeftRightMediaRadioValueFromPx(postcss, selector, rightDecl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
-              viewportWidth: viewportWidthValue,
-              desktopRadio,
-              landscapeRadio,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              unitPrecision,
-              satisfiedPropList,
-              fontViewportUnit,
-              blackListedSelector,
-              replace,
-              result,
-              viewportUnit,
-              desktopWidth,
-              landscapeWidth
-            });
-          }
+          })
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
         OnceExit(css) {

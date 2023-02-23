@@ -49,61 +49,8 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
   }
 }
 
-/** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */
-const appendFixedFullWidthCentre = (postcss) => {
-  let widthCentreRule = null;
-  return (selector, disableDesktop, disableLandscape, {
-    desktopWidth,
-    landscapeWidth,
-    desktopViewAtRule,
-    landScapeViewAtRule,
-    sharedAtRult,
-  }) => {
-    if (!disableDesktop && !disableLandscape) {
-      // 桌面端和移动端横屏
-      desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
-      landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
-      if (widthCentreRule == null) {
-        widthCentreRule = postcss.rule({ selector });
-        sharedAtRult.append(widthCentreRule.append(marginL, marginR, left, right));
-      } else {
-        widthCentreRule.selector += ', ' + selector;
-      }
-    } else if (disableDesktop && !disableLandscape) {
-      // 仅移动端横屏
-      if (widthCentreRule == null) {
-        widthCentreRule = postcss.rule({ selector });
-        landScapeViewAtRule.append(widthCentreRule.append(width(landscapeWidth), marginL, marginR, left, right));
-      } else
-        widthCentreRule.selector += ', ' + selector;
-    } else if (disableLandscape && !disableDesktop) {
-      // 仅桌面端
-      if (widthCentreRule == null) {
-        widthCentreRule = postcss.rule({ selector });
-        desktopViewAtRule.append(widthCentreRule.append(width(desktopWidth), marginL, marginR, left, right));
-      } else
-        widthCentreRule.selector += ', ' + selector;
-    }
-  }
-};
-
-/** 100vw 转换为固定宽度（预期的桌面端和移动端横屏宽度） */
-function appendStaticWidthFromFullVwWidth(postcss, selector, disableDesktop, disableLandscape, {
-  desktopWidth,
-  landscapeWidth,
-  desktopViewAtRule,
-  landScapeViewAtRule,
-}) {
-  if (!disableDesktop) {
-    desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
-  }
-  if (!disableLandscape) {
-    landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
-  }
-}
-
-/** 转换属性 left 和 right 的媒体查询值 */
-function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
+/** 转换受 fixed 影响的属性的媒体查询值 */
+function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
   desktopRadio,
   landscapeRadio,
@@ -122,6 +69,7 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
   const prop = decl.prop;
   const val = decl.value;
   const important = decl.important;
+  const leftOrRight = prop === "left" || prop === "right";
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
     desktopRadio,
@@ -139,21 +87,55 @@ function appendLeftRightMediaRadioValueFromPx(postcss, selector, decl, disableDe
     viewportUnit,
     desktopWidth,
     landscapeWidth,
-    convertMobile: (pxNum, pxUnit) => {
-      const fontProp = prop.includes("font");
-      const n = round(pxNum * 100 / viewportWidth, unitPrecision)
-      const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-      return pxNum === 0 ? `0${pxUnit}` : `${n}${mobileUnit}`;
+    matchPercentage: isFixed,
+    convertMobile: (number, unit) => {
+      if (unit === "px") {
+        const fontProp = prop.includes("font");
+        const n = round(number * 100 / viewportWidth, unitPrecision)
+        const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+        return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
+      } else
+        return `${number}${unit}`
     },
-    convertDesktop: pxNum => {
-      const roundedCalc = round(desktopWidth / 2 - pxNum * desktopRadio, unitPrecision)
-      const roundedPx = round(pxNum * desktopRadio, unitPrecision)
-      return isFixed ? `calc(50% - ${roundedCalc}px)` : `${roundedPx}px` // 百分号可以解决 vw 的桌面端浏览器滚动条宽度问题
+    convertDesktop: (number, unit) => {
+      if (isFixed) {
+        if (leftOrRight) {
+          if (unit === "%" || unit === "vw" || unit === "px") {
+            const roundedCalc = round(desktopWidth / 2 - number * desktopRadio, unitPrecision)
+            return `calc(50% - ${roundedCalc}px)`;
+          } else
+            return `${number}${unit}`;
+        } else
+          return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+      } else {
+        if (unit === "vw" || unit === "%")
+          return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+        else if (unit === "px") {
+          const roundedPx = round(number * desktopRadio, unitPrecision);
+          return number === 0 ? `0${unit}` : `${roundedPx}px`;
+        } else
+          return `${number}${unit}`;
+      }
     },
-    convertLandscape: pxNum => {
-      const roundedCalc = round(landscapeWidth / 2 - pxNum * landscapeRadio, unitPrecision)
-      const roundedPx = round(pxNum * landscapeRadio, unitPrecision)
-      return isFixed ? `calc(50% - ${roundedCalc}px)` : `${roundedPx}px`
+    convertLandscape: (number, unit) => {
+      if (isFixed) {
+        if (leftOrRight) {
+          if (unit === "%" || unit === "vw" || unit === "px") {
+            const roundedCalc = round(landscapeWidth / 2 - number * landscapeRadio, unitPrecision)
+            return `calc(50% - ${roundedCalc}px)`;
+          } else
+            return `${number}${unit}`;
+        } else
+          return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+      } else {
+        if (unit === "vw" || unit === "%")
+          return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+        else if (unit === "px") {
+          const roundedPx = round(number * landscapeRadio, unitPrecision);
+          return number === 0 ? `0${unit}` : `${roundedPx}px`;
+        } else
+          return `${number}${unit}`;
+      }
     },
   });
 }
@@ -174,6 +156,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   desktopWidth,
   landscapeWidth,
   unitPrecision,
+  matchPercentage,
 }) {
   decl.book = true;
   const ignore = hasIgnoreComments(decl, result);
@@ -193,6 +176,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       desktopWidth,
       landscapeWidth,
       unitPrecision,
+      matchPercentage,
     });
 
     if (enabledMobile) {
@@ -247,10 +231,61 @@ function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, 
 
 module.exports = {
   appendMarginCentreRootClassWithBorder,
-  appendFixedFullWidthCentre,
-  appendStaticWidthFromFullVwWidth,
   appendMediaRadioPxOrReplaceMobileVwFromPx,
   appendMarginCentreRootClassNoBorder,
   appendDemoContent,
-  appendLeftRightMediaRadioValueFromPx,
+  appendConvertedFixedContainingBlockDecls,
 };
+
+/** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */
+// const appendFixedFullWidthCentre = (postcss) => {
+//   let widthCentreRule = null;
+//   return (selector, disableDesktop, disableLandscape, {
+//     desktopWidth,
+//     landscapeWidth,
+//     desktopViewAtRule,
+//     landScapeViewAtRule,
+//     sharedAtRult,
+//   }) => {
+//     if (!disableDesktop && !disableLandscape) {
+//       // 桌面端和移动端横屏
+//       desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
+//       landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
+//       if (widthCentreRule == null) {
+//         widthCentreRule = postcss.rule({ selector });
+//         sharedAtRult.append(widthCentreRule.append(marginL, marginR, left, right));
+//       } else {
+//         widthCentreRule.selector += ', ' + selector;
+//       }
+//     } else if (disableDesktop && !disableLandscape) {
+//       // 仅移动端横屏
+//       if (widthCentreRule == null) {
+//         widthCentreRule = postcss.rule({ selector });
+//         landScapeViewAtRule.append(widthCentreRule.append(width(landscapeWidth), marginL, marginR, left, right));
+//       } else
+//         widthCentreRule.selector += ', ' + selector;
+//     } else if (disableLandscape && !disableDesktop) {
+//       // 仅桌面端
+//       if (widthCentreRule == null) {
+//         widthCentreRule = postcss.rule({ selector });
+//         desktopViewAtRule.append(widthCentreRule.append(width(desktopWidth), marginL, marginR, left, right));
+//       } else
+//         widthCentreRule.selector += ', ' + selector;
+//     }
+//   }
+// };
+
+/** 100vw 转换为固定宽度（预期的桌面端和移动端横屏宽度） */
+// function appendStaticWidthFromFullVwWidth(postcss, selector, disableDesktop, disableLandscape, {
+//   desktopWidth,
+//   landscapeWidth,
+//   desktopViewAtRule,
+//   landScapeViewAtRule,
+// }) {
+//   if (!disableDesktop) {
+//     desktopViewAtRule.append(postcss.rule({ selector }).append(width(desktopWidth)));
+//   }
+//   if (!disableLandscape) {
+//     landScapeViewAtRule.append(postcss.rule({ selector }).append(width(landscapeWidth)));
+//   }
+// }
