@@ -6,11 +6,22 @@
 
 ## [Unreleased]
 
-### Fixed
-- 修复桌面端和移动端横屏的 fixed 定位元素定位至视图外的问题；
-- 合并相同样式的居中全宽的选择器；
-- 在桌面端和移动端横屏将 vw 全部替换为 px；
-- 在桌面端和移动端横屏将 fixed 定位的宽度相关的百分比属性全部替换为 px。
+### Added
+- 添加自定义注释的内容，如 `/* my-cur-line-ignore */` 用于忽略转换注释所在行；
+- 新增桌面端或移动端横屏空白区域填充内容，如在左右空白区域放置原视图内的部分信息；
+- 处理不带单位的纯数字，如 0；
+- 添加属性用于设置高度限制。
+
+## [2.1.0] - 2023-02-23
+
+### Changed
+- 移除 pass1px 属性。
+
+### Added
+- 非移动端竖屏，fixed 定位的百分比元素可正常定位至视图内；
+- 非移动端竖屏，fixed 定位的视口单位元素可正常定位至视图内；
+- 非移动端竖屏，视口单位转换为 px；
+- 添加注释 `/* not-root-containing-block */`，非移动端竖屏，对于 fixed 定位的元素，非根部包含块的选择器使用该注释进行标记，否则默认元素的包含块为浏览器窗口（visual viewport）。
 
 ## [2.0.0] - 2023-02-20
 
@@ -24,7 +35,7 @@
 
 ### Added
 - 添加属性 mobileConfig.viewportUnit 用于移动端竖屏；
-- 添加 `/* px-to-viewport-ignore */` 和 `/* px-to-viewport-ignore-next */`；
+- 添加 `/* px-to-viewport-ignore */` 和 `/* px-to-viewport-ignore-next */`。
 
 ### Fixed
 - 修复穿戴设备屏幕上的显示效果。
@@ -43,7 +54,7 @@
 
 ### Added
 - 添加移动端竖屏转换视口单位功能；
-- 添加属性 unitPrecision 用于精确小数点；
+- 添加属性 unitPrecision 用于精确小数点。
 
 ### Fixed
 - 修复完善正则匹配，不匹配 url、单引号、双引号里的值。
