@@ -64,19 +64,19 @@ describe("transform vw to media query px", function() {
 });
 
 describe("fixed position in media queries", function() {
-  it("use calc to calculate the left property", function() {
+  it("should convert left px property", function() {
     var input = ".rule { left: 75px; top: 75px; position: fixed; } .l{}";
     var output = ".rule { left: 10vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50% - 170px); } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
-  it("use calc to calculate the right property", function() {
+  it("should convert right px property", function() {
     var input = ".rule { right: 75px; top: 75px; position: fixed; } .l{}";
     var output = ".rule { right: 10vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; right: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; right: calc(50% - 170px); } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
-  it("use calc to calculate left and right property", function(){
+  it("should convert fixed left and right px property", function(){
     var input = ".rule { right: 75px; left: 150px; top: 75px; position: fixed; } .l{}";
     var output = ".rule { right: 10vw; left: 20vw; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50% - 180px); right: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50% - 127.5px); right: calc(50% - 170px); } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
@@ -85,6 +85,30 @@ describe("fixed position in media queries", function() {
   it("should convert fixed left 0", function() {
     var input = ".rule { left: 0px; top: 75px; position: fixed; } .l{}";
     var output = ".rule { left: 0px; top: 10vw; position: fixed; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; left: calc(50% - 300px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; left: calc(50% - 212.5px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert fixed percentage prop", function() {
+    var input = ".rule { position: fixed; width: 100%; left: 50%; } .l{}"
+    var output = ".rule { position: fixed; width: 100%; left: 50%; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% + 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% + 212.5px); width: 425px; } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert fixed vw prop", function() {
+    var input = ".rule { position: fixed; width: 100vw; left: 50vw; } .l{}"
+    var output = ".rule { position: fixed; width: 100vw; left: 50vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% + 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% + 212.5px); width: 425px; } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should not convert when percentage prop without fixed position", function() {
+    var input = ".rule { width: 100%; left: 50%; } .l{}"
+    var output = ".rule { width: 100%; left: 50%; } .l{}"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should not convert fixed percentage props that is not containing block", function() {
+    var input = ".rule { position: fixed; background-size: 50%; } .l{}";
+    var output = ".rule { position: fixed; background-size: 50%; } .l{}";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
