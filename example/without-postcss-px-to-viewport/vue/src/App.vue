@@ -8,24 +8,26 @@ const letters = ['✨', ' '].concat(title.split(''), '🐰', ' ', '🐱');
 
 <template>
   <div class="app-inner-root">
-    <div class="top">
-      <div class="bg-title-wrapper DEMO_MODE">
-        <div class="bg-title">
-          <span v-for="letter, i in letters" :style="{transform: `rotate(${i * 5}deg)`}">{{letter}}</span>
+    <main class="main">
+      <div class="top">
+        <div class="bg-title-wrapper DEMO_MODE">
+          <div class="bg-title">
+            <span v-for="letter, i in letters" :style="{transform: `rotate(${i * 5}deg)`}">{{letter}}</span>
+          </div>
+        </div>
+        <div class="card-wrapper">
+          <Card />
+          <CardBack />
         </div>
       </div>
-      <div class="card-wrapper">
-        <Card />
-        <CardBack />
+      <div class="title-wrapper">
+        <h1 class="title">TAROTCARD</h1>
       </div>
-    </div>
-    <div class="title-wrapper">
-      <h1 class="title">TAROTCARD</h1>
-    </div>
-    <div class="content">
-      <Item v-for="_ in 12" />
-    </div>
-    <button class="back-to-top">TOP</button>
+      <div class="content">
+        <Item v-for="_ in 12" />
+      </div>
+      <button class="back-to-top">TOP</button>
+    </main>
   </div>
 </template>
 
@@ -34,12 +36,16 @@ const letters = ['✨', ' '].concat(title.split(''), '🐰', ' ', '🐱');
   width: 100%;
   background-color: black;
   min-height: 100vh;
+}
+
+.main {
+  width: 100%;
   position: relative;
   padding: 40px 27px;
   box-sizing: border-box;
 }
 
-.app-inner-root::before {
+.main::before {
   content: "";
   position: absolute;
   width: 696px;
@@ -147,8 +153,8 @@ const letters = ['✨', ' '].concat(title.split(''), '🐰', ' ', '🐱');
   box-sizing: border-box;
   border-radius: 18px;
   position: fixed;
-  bottom: 58px;
-  right: 36px;
+  bottom: 78px;
+  right: 32px;
   cursor: pointer;
   transition: background-color .3s;
   color: rgb(164, 144, 127);

@@ -2,12 +2,16 @@
   width: 100%;
   background-color: black;
   min-height: 100vh;
+}
+
+.main {
+  width: 100%;
   position: relative;
   padding: 40px 27px;
   box-sizing: border-box;
 }
 
-.appInnerRoot::before {
+.main::before {
   content: "";
   position: absolute;
   width: 696px;
@@ -115,8 +119,8 @@
   box-sizing: border-box;
   border-radius: 18px;
   position: fixed;
-  bottom: 58px;
-  right: 36px;
+  bottom: 78px;
+  right: 32px;
   cursor: pointer;
   transition: background-color .3s;
   color: rgb(164, 144, 127);

@@ -8,28 +8,30 @@
 </script>
 
 <div class="app-inner-root">
-	<div class="top">
-    <div class="bg-title-wrapper DEMO_MODE">
-      <div class="bg-title">
-        {#each letters as letter, i}
-          <span style="transform: rotate({i * 5}deg)">{letter}</span>
-        {/each}
+  <main class="main">
+    <div class="top">
+      <div class="bg-title-wrapper DEMO_MODE">
+        <div class="bg-title">
+          {#each letters as letter, i}
+            <span style="transform: rotate({i * 5}deg)">{letter}</span>
+          {/each}
+        </div>
+      </div>
+      <div class="card-wrapper">
+        <Card />
+        <CardBack />
       </div>
     </div>
-    <div class="card-wrapper">
-      <Card />
-      <CardBack />
+    <div class="title-wrapper">
+      <h1 class="title">TAROTCARD</h1>
     </div>
-	</div>
-	<div class="title-wrapper">
-		<h1 class="title">TAROTCARD</h1>
-	</div>
-	<div class="content">
-		{#each items as _}
-			<Item />
-		{/each}
-	</div>
-  <button class="back-to-top">TOP</button>
+    <div class="content">
+      {#each items as _}
+        <Item />
+      {/each}
+    </div>
+    <button class="back-to-top">TOP</button>
+  </main>
 </div>
 
 <style>
@@ -37,12 +39,16 @@
   width: 100%;
   background-color: black;
   min-height: 100vh;
+}
+
+.main {
+  width: 100%;
   position: relative;
   padding: 40px 27px;
   box-sizing: border-box;
 }
 
-.app-inner-root::before {
+.main::before {
   content: "";
   position: absolute;
   width: 696px;
@@ -149,8 +155,8 @@
   box-sizing: border-box;
   border-radius: 18px;
   position: fixed;
-  bottom: 58px;
-  right: 36px;
+  bottom: 78px;
+  right: 32px;
   cursor: pointer;
   transition: background-color .3s;
   color: rgb(164, 144, 127);
