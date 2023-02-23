@@ -68,6 +68,11 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
 | mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
 
+标记注释：
+- `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是最外层元素；
+- `/* px-to-viewport-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
+- `/* px-to-viewport-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换。
+
 下面是默认的配置参数：
 
 ```json
@@ -134,8 +139,8 @@ npm run start
 		- 低于 Y，使用设计图宽度（移动端竖屏）
 
 
-关于转换至桌面端和移动端横屏时，对于定位为 fixed 的元素，并且百分比值受[包含块（Containing Block）](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)影响的属性，下面列出了这些值的计算方法（这里假设包含块为浏览器视口，*暂未考虑其它情况*）：
-- 属性是除了 left 和 right 的属性，单位使用 vw 或 百分号（%），
+关于转换至桌面端和移动端横屏时，对于定位为 fixed 的元素，并且百分比值受[包含块（Containing Block）](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)影响的属性，下面列出了这些值的计算方法（插件默认 fixed 定位的元素的包含块为浏览器窗口（visual viewport），如果需要满足其它情况，请查看“注意事项”一节）：
+- 属性是除了 left 和 right 的属性，单位使用 vw 或百分号（%），
 	- 计算方式为 `idealClientWidth / 100 * number`；
 - 属性是除了 left 和 right 的属性，单位使用 px，
 	- 计算方式为 `idealClientWidth / viewportWidth * number`；
@@ -144,9 +149,7 @@ npm run start
 - 属性为 left 或 right，单位使用 px，
 	- 计算方式为 `calc(50% - (idealClientWidth / 2 - number * idealClientWidth / viewportWidth)px)`。
 
-<!-- 如果考虑其它情况，left 或 right 为 vw 和 px 时改变，百分号保持原值，非 left 和 right，vw 和 px 改变，百分号保持原值不变 -->
-
-注意：
+下面是关于上面表达式的一些解释：
 - idealClientWidth（理想客户端宽度）是属性表中的 desktopWidth 或 landscapeWidth；
 - viewportWidth 即属性表中的 viewportWidth；
 - number 即属性值里的长度数字；
@@ -252,12 +255,22 @@ npm run start
 
 `root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
-对于包含块，暂时“未考虑的其它情况”为下面的情况，这些情况都是作用在离 fixed 元素最近的父级元素上的（除了这些情况，fixed 元素的包含块就是浏览器视口了，这也是大多数情况）：
+对于包含块，插件默认的处理方式不能处理下面的情况，如果某个情况设置在祖先元素上，那么当前定位为 fixed 元素的包含块就是那个祖先元素，而插件默认所有的 fixed 元素的包含块是浏览器窗口（visual viewport）：
 - transform 或 perspective 的值不是 none；
 - will-change 的值是 transform 或 perspective；
 - filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
 - contain 的值是 paint（例如：contain: paint;）；
 - backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
+
+如果希望插件处理 fixed 定位元素的非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
+
+```css
+/* not-root-containing-block */
+.class {
+	position: fixed;
+	left: 50%;
+}
+```
 
 本插件的目标是在不同尺寸的屏幕上展示**合适**的视图，而**非准确**地识别具体的设备平台，并把视图应用到对应设备上。
 
