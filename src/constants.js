@@ -56,9 +56,9 @@ module.exports = {
   /** position fixed 时依赖屏幕宽度的属性，https://jameshfisher.com/2019/12/29/what-are-css-percentages/ */
   fixedContainingBlockWidthProp: [
     "left", "right",
-    "margin-bottom", "margin-left", "margin-right", "margin-top", "margin",
+    "margin", "margin-bottom", "margin-left", "margin-right", "margin-top",
     "max-width", "min-width",
-    "padding-bottom", "padding-left", "padding-right", "padding-top", "padding",
+    "padding", "padding-bottom", "padding-left", "padding-right", "padding-top",
     "shape-margin",
     "text-indent",
     "width"
