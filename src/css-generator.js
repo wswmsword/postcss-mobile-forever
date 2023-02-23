@@ -100,16 +100,19 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     convertDesktop: (number, unit) => {
       if (isFixed) {
         if (leftOrRight) {
-          if (unit === "%" || unit === "vw" || unit === "px") {
+          if (unit === "px") {
             const roundedCalc = round(desktopWidth / 2 - number * desktopRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
+          } else if (unit === "%" || unit === "vw") {
+            const roundedCalc = round(desktopWidth * number / 100, unitPrecision)
+            return `calc(50% + ${roundedCalc}px)`;
           } else
             return `${number}${unit}`;
         } else
-          return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+          return `${round(desktopWidth * number / 100, unitPrecision)}px`;
       } else {
         if (unit === "vw" || unit === "%")
-          return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+          return `${round(desktopWidth * number / 100, unitPrecision)}px`;
         else if (unit === "px") {
           const roundedPx = round(number * desktopRadio, unitPrecision);
           return number === 0 ? `0${unit}` : `${roundedPx}px`;
@@ -120,9 +123,12 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     convertLandscape: (number, unit) => {
       if (isFixed) {
         if (leftOrRight) {
-          if (unit === "%" || unit === "vw" || unit === "px") {
+          if (unit === "px") {
             const roundedCalc = round(landscapeWidth / 2 - number * landscapeRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
+          } else if (unit === "%" || unit === "vw") {
+            const roundedCalc = round(landscapeWidth * number / 100, unitPrecision)
+            return `calc(50% + ${roundedCalc}px)`;
           } else
             return `${number}${unit}`;
         } else
