@@ -1,6 +1,6 @@
 # postcss-mobile-to-multi-displays
 
-在桌面端和移动端横屏展示移动端（竖屏）设计视图，确保移动端视图在每种屏幕的可访问性。
+在桌面端和移动端横屏展示移动端（竖屏）设计视图，确保移动端视图处处可访问。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-to-multi-displays/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示你，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
@@ -18,9 +18,9 @@ yarn add -D postcss postcss-mobile-to-multi-displays
 
 ## 简介
 
-本插件会**转换移动端竖屏的视口单位，生成桌面端和移动端横屏的媒体查询**，移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果，同时保持竖屏时的移动端视图。
+本插件会**转换视口单位适配移动端竖屏，生成媒体查询（限制最大宽度）适配桌面端和移动端横屏**，最终移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果，同时保持竖屏时的移动端视图。
 
-您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
+> 您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
 
 本插件生成的媒体查询期望覆盖：
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
@@ -134,6 +134,26 @@ npm run start
 		- 低于 Y，使用设计图宽度（移动端竖屏）
 
 
+关于转换至桌面端和移动端横屏时，对于定位为 fixed 的元素，并且百分比值受[包含块（Containing Block）](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)影响的属性，下面列出了这些值的计算方法（这里假设包含块为浏览器视口，*暂未考虑其它情况*）：
+- 属性是除了 left 和 right 的属性，单位使用 vw 或 百分号（%），
+	- 计算方式为 `idealClientWidth / 100 * number`；
+- 属性是除了 left 和 right 的属性，单位使用 px，
+	- 计算方式为 `idealClientWidth / viewportWidth * number`；
+- 属性为 left 或 right，单位使用 vw 或百分号，
+	- 计算方式为 `calc(50% + (idealClientWidth / 100 * number)px)`；
+- 属性为 left 或 right，单位使用 px，
+	- 计算方式为 `calc(50% - (idealClientWidth / 2 - number * idealClientWidth / viewportWidth)px)`。
+
+<!-- 如果考虑其它情况，left 或 right 为 vw 和 px 时改变，百分号保持原值，非 left 和 right，vw 和 px 改变，百分号保持原值不变 -->
+
+注意：
+- idealClientWidth（理想客户端宽度）是属性表中的 desktopWidth 或 landscapeWidth；
+- viewportWidth 即属性表中的 viewportWidth；
+- number 即属性值里的长度数字；
+- 对于包含块，“未考虑的其它情况”请查看“注意事项”一节；
+- 包含块宽度影响的属性，请查看“其它”一节；
+- 以上值的重新计算，目的是保证在非移动端竖屏时的界面和移动端竖屏一致。
+
 下面是使用默认配置的输入输出内容。
 
 输入：
@@ -143,14 +163,12 @@ npm run start
 	width: 100%;
 }
 
-.class {
+.nav {
 	position: fixed;
 	width: 100%;
-}
-
-.class2 {
-	width: 100vw;
-	height: 30px;
+	height: 72px;
+	left: 0;
+	top: 0;
 }
 ```
 
@@ -161,14 +179,12 @@ npm run start
 	width: 100%;
 }
 
-.class {
+.nav {
 	position: fixed;
-	width: 100%;
-}
-
-.class2 {
-	width: 100vw;
-	height: 4vw;
+	width   : 100%;
+	height  : 9.6vw;
+	left    : 0px;
+	top     : 0px;
 }
 
 /* 桌面端媒体查询 */
@@ -177,13 +193,10 @@ npm run start
 		max-width: 600px !important;
 	}
 
-	.class {
-		width: 600px; /* 100% -> 600px */
-	}
-
-	.class2 {
-		width: 600px; /* 100vw -> 600px */
-		height: 24px; /* 600/750*30=24，600 是默认的桌面端预期宽度，750 是默认的设计图宽度 */
+	.nav {
+		height: 57.6px;
+		left  : calc(50% - 300px); /* calc(50% - (600 / 2 - 0 * 600 / 750)px) */
+		width : 600px; /* 100% -> 600px */
 	}
 }
 
@@ -194,13 +207,10 @@ npm run start
 		max-width: 425px !important;
 	}
 
-	.class {
-		width: 425px; /* 100% -> 425px */
-	}
-	
-	.class2 {
-		width: 425px; /* 100vw -> 425px */
-		height: 17px; /* 425/750*30=17 */
+	.nav {
+		height: 40.8px;
+		left  : calc(50% - 212.5px); /* calc(50% - (425 / 2 - 0 * 425 / 750)px) */
+		width : 425px; /* 100% -> 425px */
 	}
 }
 
@@ -210,13 +220,6 @@ npm run start
 	.root-class {
 		margin-left: auto !important;
 		margin-right: auto !important;
-	}
-
-	.class {
-		margin-left: auto !important;  /* 用于居中 */
-		margin-right: auto !important; /* 用于居中 */
-		left: 0 !important;            /* 用于居中 */
-		right: 0 !important;           /* 用于居中 */
 	}
 }
 ```
@@ -245,11 +248,16 @@ npm run start
 
 ## 注意事项
 
-对于样式 `position: fixed; width: 100vw;` 会在非移动端视图中转换成固定宽度的居中样式，转换的前提 `position` 和 `width` 在同一选择器中，所以代码中使用 `fixed` 并且全宽的情况，要注意写在同一选择器中。
-
-由于样式 `position: fixed; width: 100vw;` 会被转换为居中固定宽度的样式，因此会生成居中有关的属性，包括 `margin-left`、`margin-right`、`left`、`right`，这些属性会在对应选择器中被占用。
+属性值为 0 的情况，暂时无法转换媒体查询的值，需要用 0 加单位的形式代替，如 `0px`。
 
 `root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
+
+对于包含块，暂时“未考虑的其它情况”为下面的情况，这些情况都是作用在离 fixed 元素最近的父级元素上的（除了这些情况，fixed 元素的包含块就是浏览器视口了，这也是大多数情况）：
+- transform 或 perspective 的值不是 none；
+- will-change 的值是 transform 或 perspective；
+- filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
+- contain 的值是 paint（例如：contain: paint;）；
+- backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
 
 本插件的目标是在不同尺寸的屏幕上展示**合适**的视图，而**非准确**地识别具体的设备平台，并把视图应用到对应设备上。
 
@@ -270,7 +278,9 @@ npm run start
 配套插件：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport/*](https://github.com/evrone/postcss-px-to-viewport/)
 
+百分比值受包含块（Containing Block）宽度影响的属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
+
 相关链接：
 - [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
 - [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器；
-- [What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)，罗列了百分比取宽度的属性。
+- [What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)，罗列了百分比取包含块（Containing Block）宽度的属性。
