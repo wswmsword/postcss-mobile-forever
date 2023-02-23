@@ -124,6 +124,30 @@ describe("fixed position in media queries", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+  it("should convert not root containing block px value with comment", function() {
+    var input = ".nav { position: fixed; left: 75px; /*not-root-containing-block*/} .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 10vw;} .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px;}} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px;}}";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should ignore not root containing block percentage value with comment", function() {
+    var input = ".nav { position: fixed; left: 75%; /*not-root-containing-block*/} .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 75%;} .b { top: 0px }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert not root containing block vw value with comment", function() {
+    var input = ".nav { position: fixed; left: 10vw; /*not-root-containing-block*/} .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 10vw;} .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px;}} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px;}}";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should ignore not root containing block percentage value with comment, not left and right", function() {
+    var input = ".nav { position: fixed; margin: 75%; /*not-root-containing-block*/} .b { top: 0px }";
+    var output = ".nav { position: fixed; margin: 75%;} .b { top: 0px }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("dynamic viewportWidth", function() {

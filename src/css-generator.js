@@ -3,6 +3,7 @@ const {
   convertPropValue,
   hasIgnoreComments,
   round,
+  hasContainingBlockComment,
 } = require("./logic-helper");
 
 function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
@@ -70,6 +71,8 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   const val = decl.value;
   const important = decl.important;
   const leftOrRight = prop === "left" || prop === "right";
+  /** 有标志非根包含块的注释吗？ */
+  let notRootContainingBlock = false;
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
     desktopRadio,
@@ -101,9 +104,17 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (isFixed) {
         if (leftOrRight) {
           if (unit === "px") {
+            if (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result)))
+              return `${number * desktopRadio}px`;
             const roundedCalc = round(desktopWidth / 2 - number * desktopRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "%" || unit === "vw") {
+            if (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result))) {
+              if (unit === "%")
+                return `${number}%`;
+              if (unit === "vw")
+                return `${round(desktopWidth * number / 100, unitPrecision)}px`
+            }
             const roundedCalc = round(desktopWidth * number / 100, unitPrecision)
             return `calc(50% + ${roundedCalc}px)`;
           } else
@@ -112,8 +123,11 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
           if (unit === "px") {
             const roundedPx = round(number * desktopRadio, unitPrecision);
             return number === 0 ? `0${unit}` : `${roundedPx}px`;
-          } else
+          } else {
+            if (unit === "%" && (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result))))
+              return `${number}${unit}`;
             return `${round(desktopWidth * number / 100, unitPrecision)}px`;
+          }
         }
       } else {
         if (unit === "vw" || unit === "%")
@@ -129,9 +143,17 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (isFixed) {
         if (leftOrRight) {
           if (unit === "px") {
+            if (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result)))
+              return `${number * landscapeRadio}px`;
             const roundedCalc = round(landscapeWidth / 2 - number * landscapeRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "%" || unit === "vw") {
+            if (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result))) {
+              if (unit === "%")
+                return `${number}%`;
+              if (unit === "vw")
+              return `${round(landscapeWidth * number / 100, unitPrecision)}px`
+            }
             const roundedCalc = round(landscapeWidth * number / 100, unitPrecision)
             return `calc(50% + ${roundedCalc}px)`;
           } else
@@ -140,8 +162,11 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
           if (unit === "px") {
             const roundedPx = round(number * landscapeRadio, unitPrecision);
             return number === 0 ? `0${unit}` : `${roundedPx}px`;
-          } else
+          } else {
+            if (unit === "%" && (notRootContainingBlock || (notRootContainingBlock = hasContainingBlockComment(decl, result))))
+              return `${number}${unit}`;
             return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+          }
         }
       } else {
         if (unit === "vw" || unit === "%")

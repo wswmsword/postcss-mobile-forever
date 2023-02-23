@@ -52,6 +52,7 @@ module.exports = {
   demoModeSelector: ".DEMO_MODE::before",
   ignoreNextComment: 'px-to-viewport-ignore-next',
   ignorePrevComment: 'px-to-viewport-ignore',
+  notRootCBComment: "not-root-containing-block",
   /** position fixed 时依赖屏幕宽度的属性，https://jameshfisher.com/2019/12/29/what-are-css-percentages/ */
   fixedContainingBlockWidthProp: [
     "left", "right",

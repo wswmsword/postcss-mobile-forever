@@ -1,5 +1,5 @@
 const { unitContentMatchReg, unitContentWithPercReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp } = require("./constants");
+const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp, notRootCBComment } = require("./constants");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createFixedContainingBlockDecls = () => {
@@ -109,6 +109,23 @@ const blacklistedSelector = (blacklist, selector) => {
   });
 }
 
+const hasContainingBlockComment = (decl, result) => {
+  let next = decl.next();
+  if (next == null) return false;
+  do {
+    if (next.type === 'comment' && next.text === notRootCBComment) {
+      if (/\n/.test(next.raws.before)) {
+        result.warn('Unexpected comment /* ' + notRootCBComment + ' */ must be after declaration at same line.', { node: next });
+      } else {
+        // remove comment
+        next.remove();
+        return true;
+      }
+    }
+  } while(next = next.next())
+  return false;
+}
+
 /** 是否有忽略转换的注释？ */
 const hasIgnoreComments = (decl, result) => {
   let ignore = false;
@@ -120,8 +137,6 @@ const hasIgnoreComments = (decl, result) => {
     ignore = true;
   }
   const next = decl.next();
-  if (next && next.type === 'comment') {
-  }
   // next declaration is ignore conversion comment at same line
   if (next && next.type === 'comment' && next.text === ignorePrevComment) {
     if (/\n/.test(next.raws.before)) {
@@ -189,4 +204,5 @@ module.exports = {
   convertPropValue,
   hasIgnoreComments,
   createFixedContainingBlockDecls,
+  hasContainingBlockComment,
 };
