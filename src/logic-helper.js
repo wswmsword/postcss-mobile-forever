@@ -109,21 +109,18 @@ const blacklistedSelector = (blacklist, selector) => {
   });
 }
 
-const hasContainingBlockComment = (decl, result) => {
-  let next = decl.next();
-  if (next == null) return false;
+/** 选择器前面有非根包含块的注释吗 */
+const hasContainingBlockComment = (rule) => {
+  let prev = rule.prev();
+  if (prev == null) return false;
   do {
-    if (next.type === 'comment' && next.text === notRootCBComment) {
-      if (/\n/.test(next.raws.before)) {
-        result.warn('Unexpected comment /* ' + notRootCBComment + ' */ must be after declaration at same line.', { node: next });
-      } else {
-        // remove comment
-        next.remove();
-        return true;
-      }
+    if (prev && prev.type === 'comment' && prev.text === notRootCBComment) {
+      // remove comment
+      prev.remove();
+      return true;
     }
-  } while(next = next.next())
-  return false;
+    else return false;
+  } while(prev = prev.prev())
 }
 
 /** 是否有忽略转换的注释？ */

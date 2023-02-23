@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
@@ -245,6 +245,11 @@ module.exports = (options = {}) => {
           }
         },
         RuleExit(rule, postcss) {
+          /** 有标志非根包含块的注释吗？ */
+          let notRootContainingBlock = false;
+          if (hasFixed) {
+            notRootContainingBlock = hasContainingBlockComment(rule);
+          }
           containingBlockDeclsMap && containingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
@@ -262,7 +267,8 @@ module.exports = (options = {}) => {
               result,
               viewportUnit,
               desktopWidth,
-              landscapeWidth
+              landscapeWidth,
+              notRootContainingBlock,
             });
           })
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
