@@ -269,6 +269,13 @@ describe("media queries", function() {
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert props in font-face at-rule", function() {
+    var input = "@font-face { font-size: 75px } .rule { font-size: 75px; }";
+    var output = "@font-face { font-size: 75px } .rule { font-size: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .rule { font-size: 60px } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font-size: 42.5px } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("exclude", function() {

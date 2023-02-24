@@ -119,6 +119,8 @@ module.exports = (options = {}) => {
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
       let containingBlockDeclsMap = null;
+      /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
+      let walkedRule = false;
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
@@ -132,6 +134,7 @@ module.exports = (options = {}) => {
           
         },
         Rule(rule, postcss) {
+          walkedRule = true;
           hasFixed = false;
           selector = rule.selector;
           const file = rule.source && rule.source.input.file;
@@ -178,6 +181,7 @@ module.exports = (options = {}) => {
           containingBlockDeclsMap = createFixedContainingBlockDecls();
         },
         Declaration(decl, postcss) {
+          if (!walkedRule) return;
           if (brokenRule) return;
           if (decl.book) return; // 被标记过
           const prop = decl.prop;
@@ -271,6 +275,7 @@ module.exports = (options = {}) => {
               notRootContainingBlock,
             });
           })
+          walkedRule = false;
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
         OnceExit(css) {
