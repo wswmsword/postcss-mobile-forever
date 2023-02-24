@@ -22,7 +22,7 @@
     "postcss": "^8.4.21",
     "postcss-load-config": "^4.0.1",
     "postcss-loader": "^7.0.2",
-    "postcss-mobile-to-multi-displays": "file:../../..",
+    "postcss-mobile-first": "file:../../..",
     "svelte-preprocess": "^5.0.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",

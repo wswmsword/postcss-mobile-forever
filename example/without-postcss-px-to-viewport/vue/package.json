@@ -14,7 +14,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
     "postcss": "^8.4.21",
-    "postcss-mobile-to-multi-displays": "file:../../..",
+    "postcss-mobile-first": "file:../../..",
     "vite": "^4.1.0"
   }
 }

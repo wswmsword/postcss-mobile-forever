@@ -1,5 +1,5 @@
 {
-  "name": "postcss-mobile-to-multi-displays",
+  "name": "postcss-mobile-first",
   "version": "2.1.1",
   "description": "用于在桌面端和移动端横屏展示移动端设计视图的 postcss 插件。",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wswmsword/postcss-mobile-to-multi-displays.git"
+    "url": "git+https://github.com/wswmsword/postcss-mobile-first.git"
   },
   "keywords": [
     "css",
@@ -27,9 +27,9 @@
   "author": "wswmsword",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wswmsword/postcss-mobile-to-multi-displays/issues"
+    "url": "https://github.com/wswmsword/postcss-mobile-first/issues"
   },
-  "homepage": "https://github.com/wswmsword/postcss-mobile-to-multi-displays#readme",
+  "homepage": "https://github.com/wswmsword/postcss-mobile-first#readme",
   "devDependencies": {
     "jest": "^29.4.2",
     "postcss": "^8.0.0"

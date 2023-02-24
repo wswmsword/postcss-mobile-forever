@@ -1,6 +1,6 @@
 module.exports = {
   plugins: [
-    ["postcss-mobile-to-multi-displays", {
+    ["postcss-mobile-first", {
       viewportWidth: 750,
       desktopWidth: 600,
       landscapeWidth: 450,

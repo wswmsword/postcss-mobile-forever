@@ -7,7 +7,7 @@
 var postcss = require("postcss");
 var mobileToMultiDisplays = require("..");
 
-describe("mobile-to-multi-displays", function() {
+describe("mobile-first", function() {
   var baseOpts = {
     disableMobile: true,
   };
