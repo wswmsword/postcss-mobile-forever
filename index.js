@@ -107,7 +107,7 @@ module.exports = (options = {}) => {
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
-      let viewportWidthValue = null;
+      let __viewportWidth = null;
       /** 桌面端缩放比例 */
       let desktopRadio = 1;
       /** 移动端横屏缩放比例 */
@@ -145,11 +145,11 @@ module.exports = (options = {}) => {
 
           // 是否动态视图宽度？
           const isDynamicViewportWidth = typeof viewportWidth === "function";
-          viewportWidthValue = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
+          __viewportWidth = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
           /** 桌面端缩放比例 */
-          desktopRadio = desktopWidth / viewportWidthValue;
+          desktopRadio = desktopWidth / __viewportWidth;
           /** 移动端横屏缩放比例 */
-          landscapeRadio = landscapeWidth / viewportWidthValue;
+          landscapeRadio = landscapeWidth / __viewportWidth;
 
           // 设置页面最外层 class 的最大宽度，并居中
           if (selector === `.${rootClass}`) {
@@ -217,7 +217,7 @@ module.exports = (options = {}) => {
               convertMobile: (number, unit) => {
                 if (unit === "px") {
                   const fontProp = prop.includes("font");
-                  const n = round(number * 100 / viewportWidth, unitPrecision)
+                  const n = round(number * 100 / __viewportWidth, unitPrecision)
                   const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                   return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
                 } else
@@ -254,7 +254,7 @@ module.exports = (options = {}) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
-              viewportWidth: viewportWidthValue,
+              viewportWidth: __viewportWidth,
               desktopRadio,
               landscapeRadio,
               desktopViewAtRule,
