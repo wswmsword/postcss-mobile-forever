@@ -1,8 +1,8 @@
 # Changelog
 该文件记录项目的所有改动。
 
-格式基于 [如何维护更新日志](https://keepachangelog.com/zh-CN/1.0.0/)，
-版本管理基于 [语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。
+格式基于“[如何维护更新日志](https://keepachangelog.com/zh-CN/1.0.0/)”，
+版本管理基于“[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)”。
 
 ## [Unreleased]
 
@@ -13,6 +13,9 @@
 - 添加属性用于设置高度限制；
 - 添加根元素 id 参数；
 - 添加全宽注释用于在桌面端全宽展示部分元素。
+
+### Fixed
+- 修复媒体查询中缩写属性（padding）覆盖媒体查询外非缩写属性（padding-top）问题。
 
 ## [2.1.2] - 2023-02-25
 
