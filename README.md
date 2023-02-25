@@ -1,19 +1,19 @@
-# postcss-mobile-first
+# postcss-mobile-forever
 
 在桌面端和移动端横屏展示移动端（竖屏）设计视图，确保移动端视图处处可访问。
 
-您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-first/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-first/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-first/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示你，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
+您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示你，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 ## 安装
 
 npm 安装：
 ```bash
-npm install --save-dev postcss postcss-mobile-first
+npm install --save-dev postcss postcss-mobile-forever
 ```
 
 yarn 安装：
 ```bash
-yarn add -D postcss postcss-mobile-first
+yarn add -D postcss postcss-mobile-forever
 ```
 
 ## 简介
@@ -109,7 +109,7 @@ npm run test
 
 ## 范例
 
-文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-first` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/) 和 [Vue](https://cn.vuejs.org/) 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
 
 ```bash
 cd example/react/

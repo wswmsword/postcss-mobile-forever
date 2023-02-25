@@ -93,7 +93,7 @@ module.exports = (options = {}) => {
 
   const satisfyPropList = createPropListMatcher(propList);
   return {
-    postcssPlugin: "postcss-mobile-first",
+    postcssPlugin: "postcss-mobile-forever",
     prepare(result) {
       /** 桌面端视图下的媒体查询 */
       let desktopViewAtRule = null;

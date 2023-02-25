@@ -1,5 +1,5 @@
 {
-  "name": "postcss-mobile-first",
+  "name": "postcss-mobile-forever",
   "version": "2.1.2",
   "description": "用于在桌面端和移动端横屏展示移动端设计视图的 postcss 插件。",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wswmsword/postcss-mobile-first.git"
+    "url": "git+https://github.com/wswmsword/postcss-mobile-forever.git"
   },
   "keywords": [
     "css",
@@ -22,14 +22,14 @@
     "mobile",
     "desktop",
     "media-query",
-    "mobile-first"
+    "mobile-forever"
   ],
   "author": "wswmsword",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wswmsword/postcss-mobile-first/issues"
+    "url": "https://github.com/wswmsword/postcss-mobile-forever/issues"
   },
-  "homepage": "https://github.com/wswmsword/postcss-mobile-first#readme",
+  "homepage": "https://github.com/wswmsword/postcss-mobile-forever#readme",
   "devDependencies": {
     "jest": "^29.4.2",
     "postcss": "^8.0.0"

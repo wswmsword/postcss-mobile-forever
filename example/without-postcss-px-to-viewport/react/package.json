@@ -22,7 +22,7 @@
     "mini-css-extract-plugin": "^2.7.2",
     "postcss": "^8.4.21",
     "postcss-loader": "^7.0.2",
-    "postcss-mobile-first": "file:../../..",
+    "postcss-mobile-forever": "file:../../..",
     "style-loader": "^3.3.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
