@@ -2,7 +2,7 @@
 
 在桌面端和移动端横屏展示移动端（竖屏）设计视图，确保移动端视图处处可访问。
 
-您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示你，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
+您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 ## 安装
 
@@ -149,13 +149,17 @@ npm run start
 - 属性为 left 或 right，单位使用 px，
 	- 计算方式为 `calc(50% - (idealClientWidth / 2 - number * idealClientWidth / viewportWidth)px)`。
 
-下面是关于上面表达式的一些解释：
+<details>
+<summary>点击查看关于上述包含块内单位转换的更多解释。</summary>
+
 - idealClientWidth（理想客户端宽度）是属性表中的 desktopWidth 或 landscapeWidth；
 - viewportWidth 即属性表中的 viewportWidth；
 - number 即属性值里的长度数字；
 - 对于包含块，“未考虑的其它情况”请查看“注意事项”一节；
 - 包含块宽度影响的属性，请查看“其它”一节；
-- 以上值的重新计算，目的是保证在非移动端竖屏时的界面和移动端竖屏一致。
+- 以上值的重新计算，目的是保证每个端口的视图完全一致。
+
+</details>
 
 下面是使用默认配置的输入输出内容。
 
