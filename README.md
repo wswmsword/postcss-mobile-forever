@@ -121,25 +121,21 @@ npm run start
 
 ## 原理和输入输出范例
 
-本插件会通过两个媒体查询断点创建可以代表桌面端和移动端横屏的媒体查询，然后找到所有的 px 值进行转换，默认情况会把原值转换成两个经过比例计算后的新 px 值，分别对应桌面端和移动端横屏。
+本插件会创建可以代表桌面端和移动端横屏的两个媒体查询，然后找到所有的 px 值进行转换，默认情况会把原值转换成两个经过比例计算后的新 px 值，分别对应桌面端和移动端横屏。
 
-两个断点分别是“宽度断点（X）”和“高度断点（Y）”，屏幕的高低（高度）变化触发高度断点，屏幕的宽窄（宽度）变化触发宽度断点。下面是触发断点的每种情况，以及和每种情况等效的端口（默认的高度断点是 640px，宽度断点是 600px）：
+媒体查询中有两个重要因素，分别是“屏幕宽度（X）”和“屏幕高度（Y）”，分别对应了屏幕的高低（高度）变化，以及屏幕的宽窄（宽度）变化。下面是媒体查询断点的具体情况，以及和每种情况等效的端口（默认 X 是 640px，Y 是 600px，可通过参数调整）：
 
 - 宽于 X（600）
 	- 高于 Y（640），使用桌面宽度（平板、笔记本、桌面端）
 	- 低于 Y，使用移动端横屏宽度（移动端横屏）
 - 窄于 X
 	- 横屏
-		- 宽于 landscapeWidth（425）
-			- 高于 Y，使用移动端横屏宽度（移动端横屏）
-			- 低于 Y，使用移动端横屏宽度（移动端横屏）
+		- 宽于 landscapeWidth（425），使用移动端横屏宽度（移动端横屏）
 		- 窄于 landscapeWidth，使用设计图宽度（穿戴设备）
-	- 纵屏
-		- 高于 Y，使用设计图宽度（移动端竖屏）
-		- 低于 Y，使用设计图宽度（移动端竖屏）
+	- 纵屏，使用设计图宽度（移动端竖屏）
 
 
-关于转换至桌面端和移动端横屏时，对于定位为 fixed 的元素，并且百分比值受[包含块（Containing Block）](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)影响的属性，下面列出了这些值的计算方法（插件默认 fixed 定位的元素的包含块为浏览器窗口（visual viewport），如果需要满足其它情况，请查看“注意事项”一节）：
+如果元素的长度单位是百分比，那么这个百分比是基于[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)计算的。大部分情况，元素的包含块是它的父级元素，因此插件不需要进行转换，但是当元素处于 fixed 定位时，元素的包含块就可能是根元素 `<html>`（visual viewport），这时的宽度是浏览器宽度，所以插件需要把此时依赖浏览器宽度的属性进行转换，这样不管浏览器宽度怎么变化，视图才能始终居中。下面是具体的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
 - 属性是除了 left 和 right 的属性，单位使用 vw 或百分号（%），
 	- 计算方式为 `idealClientWidth / 100 * number`；
 - 属性是除了 left 和 right 的属性，单位使用 px，
@@ -247,7 +243,7 @@ npm run start
 	</tr>
 </table>
 
-“多抓鱼”官网的最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性（展示效果）。
+“多抓鱼”官网用百分比单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性和展示效果。虽然百分比单位牺牲了一点“完美还原度”，但是从灵活度和代码轻量的角度看，是个不错的选择。
 
 这样适配：
 - 保证内容可用，不会出现视口单位导致的“大屏大字”问题；
@@ -302,4 +298,5 @@ npm run start
 相关链接：
 - [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
 - [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器；
-- [What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)，罗列了百分比取包含块（Containing Block）宽度的属性。
+- [What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)，罗列了百分比取包含块（Containing Block）宽度的属性；
+- [CSS 的简写属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)，罗列了所有的简写属性。
