@@ -1,5 +1,12 @@
-const { unitContentMatchReg, unitContentWithPercReg } = require("./regexs");
+const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp, notRootCBComment } = require("./constants");
+/** 单独处理 0 的情况，让 0 经过转换后一定变化 */
+const dynamicZero = (num, numStr) => {
+  if (num === 0) {
+    return numStr === '0' ? `.0` : `${numStr}0`;
+  }
+  return num;
+};
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createFixedContainingBlockDecls = () => {
@@ -163,7 +170,7 @@ const convertPropValue = (prop, val, {
 
   let matched = null;
   let lastIndex = 0;
-  const reg = matchPercentage ? unitContentWithPercReg : unitContentMatchReg;
+  const reg = matchPercentage ? fixedUnitContentReg : unitContentMatchReg;
   while(matched = reg.exec(val)) {
     const numberStr = matched[2];
     if (numberStr == null) continue;
@@ -172,11 +179,11 @@ const convertPropValue = (prop, val, {
     const number = Number(numberStr); // 数字
     const lengthUnit = matched[3]; // 单位
     if (convertMobile && enabledMobile)
-      mobileVal = mobileVal.concat(chunk, convertMobile(number, lengthUnit));
+      mobileVal = mobileVal.concat(chunk, convertMobile(number, lengthUnit, numberStr));
     if (convertDesktop && enabledDesktop)
-      desktopVal = desktopVal.concat(chunk, convertDesktop(number, lengthUnit));
+      desktopVal = desktopVal.concat(chunk, convertDesktop(number, lengthUnit, numberStr));
     if (convertLandscape && enabledLandscape)
-      landscapeVal = landscapeVal.concat(chunk, convertLandscape(number, lengthUnit));
+      landscapeVal = landscapeVal.concat(chunk, convertLandscape(number, lengthUnit, numberStr));
 
     lastIndex = reg.lastIndex;
   }
@@ -202,4 +209,5 @@ module.exports = {
   hasIgnoreComments,
   createFixedContainingBlockDecls,
   hasContainingBlockComment,
+  dynamicZero,
 };

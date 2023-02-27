@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment, dynamicZero } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
@@ -229,23 +229,31 @@ module.exports = (options = {}) => {
                 } else
                   return `${number}${unit}`;
               },
-              convertDesktop: (number, unit) => {
+              convertDesktop: (number, unit, numberStr) => {
+                // 处理 0
+                const dznn = numberStr => number => dynamicZero(number, numberStr);
+                const dzn = dznn(numberStr);
+
                 if (unit === "vw")
-                  return `${round(desktopWidth / 100 * number, unitPrecision)}px`;
+                  return `${dzn(round(desktopWidth / 100 * number, unitPrecision))}px`;
                 else if (unit === "px") {
                   const n = round(number * desktopRadio, unitPrecision);
-                  return number === 0 ? `0${unit}` : `${n}px`;
+                  return `${dzn(n)}px`;
                 } else
-                  return `${number}${unit}`;
+                  return `${dzn(number)}${unit}`;
               },
-              convertLandscape: (number, unit) => {
+              convertLandscape: (number, unit, numberStr) => {
+                // 处理 0
+                const dznn = numberStr => number => dynamicZero(number, numberStr);
+                const dzn = dznn(numberStr);
+
                 if (unit === "vw")
-                  return `${round(landscapeWidth / 100 * number, unitPrecision)}px`;
+                  return `${dzn(round(landscapeWidth / 100 * number, unitPrecision))}px`;
                 else if (unit === "px") {
                   const n = round(number * landscapeRadio, unitPrecision);
-                  return number === 0 ? `0${unit}` : `${n}px`;
+                  return `${dzn(n)}px`;
                 } else
-                  return `${number}${unit}`;
+                  return `${dzn(number)}${unit}`;
               },
             });
           }

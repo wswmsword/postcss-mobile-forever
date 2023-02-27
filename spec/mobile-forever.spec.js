@@ -12,8 +12,8 @@ describe("mobile-forever", function() {
     disableMobile: true,
   };
   it("should work on the readme example", function() {
-    var input = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0px; top: 0px; }";
-    var output = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0px; top: 0px; } @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } .nav { height: 57.6px; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } .nav { height: 40.8px; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } }";
+    var input = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
+    var output = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } .nav { height: 57.6px; top: .0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } .nav { height: 40.8px; top: .0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -151,25 +151,25 @@ describe("fixed position in media queries", function() {
   });
   it("should convert not root containing block px value with comment", function() {
     var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75px; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } }";
+    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
   it("should ignore not root containing block percentage value with comment", function() {
     var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75%; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 75%; } .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
   it("should convert not root containing block vw value with comment", function() {
     var input = "/*not-root-containing-block*/.nav { position: fixed; left: 10vw; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } }";
+    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
   it("should ignore not root containing block percentage value with comment, not left and right", function() {
     var input = "/*not-root-containing-block*/.nav { position: fixed; margin: 75%; } .b { top: 0px }";
-    var output = ".nav { position: fixed; margin: 75%; } .b { top: 0px }";
+    var output = ".nav { position: fixed; margin: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -273,6 +273,13 @@ describe("value parsing", function() {
     var input = ".rule { font: italic 75px '75px', serif; } .l{}";
     var output = ".rule { font: italic 75px '75px', serif; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font: italic 60px '75px', serif; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font: italic 42.5px '75px', serif; } }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should handle value without unit", function() {
+    var input = ".rule { padding: 75px; padding-bottom: 0; } .l{}";
+    var output = ".rule { padding: 10vw; padding-bottom: 0; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { padding: 60px; padding-bottom: .0; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { padding: 42.5px; padding-bottom: .0; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
 });
