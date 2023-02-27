@@ -19,8 +19,10 @@ const defaults = {
   minDesktopDisplayWidth: null,
   /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
   maxLandscapeDisplayHeight: 640,
-  /** 页面最外层 class 选择器 */
+  /** [deprecated] 页面最外层 class 选择器 */
   rootClass: "root-class",
+  /** 页面最外层选择器，如 `#app`、`.root-class` */
+  rootSelector: null,
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -80,13 +82,13 @@ module.exports = (options = {}) => {
       ...optMobileConfig,
     }
   };
-  let { minDesktopDisplayWidth } = opts
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, border, disableDesktop, disableLandscape, disableMobile, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
+
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
 
-  if (minDesktopDisplayWidth == null) {
-    minDesktopDisplayWidth = desktopWidth
-  }
+
+  const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
+  const _rootSelector = rootSelector == null ? `.${rootClass}` : rootSelector;
 
   const excludeType = checkRegExpOrArray(opts, "exclude");
   const includeType = checkRegExpOrArray(opts, "include");
@@ -107,7 +109,7 @@ module.exports = (options = {}) => {
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
-      let __viewportWidth = null;
+      let _viewportWidth = null;
       /** 桌面端缩放比例 */
       let desktopRadio = 1;
       /** 移动端横屏缩放比例 */
@@ -124,13 +126,13 @@ module.exports = (options = {}) => {
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
-          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
+          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
           /** 移动端横屏下的媒体查询 */
-          const landscapeMediaStr_1 = `(min-width: ${minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
-          const landscapeMediaStr_2 = `(max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
+          const landscapeMediaStr_1 = `(min-width: ${_minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
+          const landscapeMediaStr_2 = `(max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
           
         },
         Rule(rule, postcss) {
@@ -148,14 +150,14 @@ module.exports = (options = {}) => {
 
           // 是否动态视图宽度？
           const isDynamicViewportWidth = typeof viewportWidth === "function";
-          __viewportWidth = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
+          _viewportWidth = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
           /** 桌面端缩放比例 */
-          desktopRadio = desktopWidth / __viewportWidth;
+          desktopRadio = desktopWidth / _viewportWidth;
           /** 移动端横屏缩放比例 */
-          landscapeRadio = landscapeWidth / __viewportWidth;
+          landscapeRadio = landscapeWidth / _viewportWidth;
 
           // 设置页面最外层 class 的最大宽度，并居中
-          if (selector === `.${rootClass}`) {
+          if (selector === _rootSelector) {
             if (border) {
               const c = '#eee';
               appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
@@ -165,7 +167,7 @@ module.exports = (options = {}) => {
                 desktopWidth,
                 landscapeWidth,
                 borderColor: c,
-              })
+              });
             } else {
               appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
                 desktopViewAtRule,
@@ -173,7 +175,7 @@ module.exports = (options = {}) => {
                 sharedAtRult,
                 desktopWidth,
                 landscapeWidth,
-              })
+              });
             }
           }
 
@@ -221,7 +223,7 @@ module.exports = (options = {}) => {
               convertMobile: (number, unit) => {
                 if (unit === "px") {
                   const fontProp = prop.includes("font");
-                  const n = round(number * 100 / __viewportWidth, unitPrecision)
+                  const n = round(number * 100 / _viewportWidth, unitPrecision)
                   const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                   return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
                 } else
@@ -258,7 +260,7 @@ module.exports = (options = {}) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
-              viewportWidth: __viewportWidth,
+              viewportWidth: _viewportWidth,
               desktopRadio,
               landscapeRadio,
               desktopViewAtRule,
