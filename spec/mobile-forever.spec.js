@@ -54,6 +54,31 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("rootSelector", function() {
+  var options = { rootSelector: "#app" }
+
+  it("should centre the rootSelector element on page", function() {
+    var input = "#app { color: salmon; } .l{}";
+    var output = "#app { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not centre the selector that different with rootSelector on page", function() {
+    var input = "div#app { color: salmon; } .l{}";
+    var output = "div#app { color: salmon; } .l{}"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should centre the rootClass element on page", function() {
+    var input = ".root-class { color: salmon; } .l{}";
+    var output = ".root-class { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays({ rootClass: "root-class" })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("transform vw to media query px", function() {
   it("should convert width viewport unit", function() {
     var input = ".rule { width: 75vw; } .l{}"
