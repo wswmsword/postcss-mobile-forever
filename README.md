@@ -53,7 +53,8 @@ yarn add -D postcss postcss-mobile-forever
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
 | minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“简介”一节具体介绍了该值的触发情况 |
 | maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式 |
+| rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式，将在下个主版本发布后删除，请使用 rootSelector |
+| rootSelector | string | N | null | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式，优先级高于 rootClass |
 | border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
@@ -83,6 +84,7 @@ yarn add -D postcss postcss-mobile-forever
   "minDesktopDisplayWidth": null,
   "maxLandscapeDisplayHeight": 640,
   "rootClass": "root-class",
+  "rootSelector": null,
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
@@ -252,8 +254,6 @@ npm run start
 - 在非前端适配方案失效时，前端有兜底自适应适配，终端用户仍可访问。
 
 ## 注意事项
-
-属性值为 0 的情况，暂时无法转换媒体查询的值，需要用 0 加单位的形式代替，如 `0px`。
 
 `root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
