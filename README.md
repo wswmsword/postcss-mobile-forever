@@ -186,8 +186,8 @@ npm run start
 	position: fixed;
 	width   : 100%;
 	height  : 9.6vw;
-	left    : 0px;
-	top     : 0px;
+	left    : 0;
+	top     : 0;
 }
 
 /* 桌面端媒体查询 */
@@ -198,6 +198,7 @@ npm run start
 
 	.nav {
 		height: 57.6px;
+		top: .0;
 		left  : calc(50% - 300px); /* calc(50% - (600 / 2 - 0 * 600 / 750)px) */
 		width : 600px; /* 100% -> 600px */
 	}
@@ -212,6 +213,7 @@ npm run start
 
 	.nav {
 		height: 40.8px;
+		top: .0;
 		left  : calc(50% - 212.5px); /* calc(50% - (425 / 2 - 0 * 425 / 750)px) */
 		width : 425px; /* 100% -> 425px */
 	}
