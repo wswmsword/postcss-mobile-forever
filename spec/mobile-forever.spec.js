@@ -282,6 +282,13 @@ describe("value parsing", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should handle fixed value without unit", function() {
+    var input = ".rule { position: fixed; margin: 0 0; padding-bottom: 0; left: 0; border: 0; } .l{}";
+    var output = ".rule { position: fixed; margin: 0 0; padding-bottom: 0; left: 0; border: 0; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border: .0; left: calc(50% - 300px); margin: .0 .0; padding-bottom: .0; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { border: .0; left: calc(50% - 212.5px); margin: .0 .0; padding-bottom: .0; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("media queries", function() {
