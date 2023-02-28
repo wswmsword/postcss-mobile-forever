@@ -1,6 +1,6 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment, dynamicZero } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls } = require("./src/css-generator");
+const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
 
 const {
@@ -150,7 +150,6 @@ module.exports = (options = {}) => {
           hasFixed = false;
           insideMediaQuery = false;
           selector = rule.selector;
-          const file = rule.source && rule.source.input.file;
 
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
           if (rule.parent.params) return insideMediaQuery = true;
@@ -165,25 +164,13 @@ module.exports = (options = {}) => {
 
           // 设置页面最外层 class 的最大宽度，并居中
           if (selector === _rootSelector) {
-            if (border) {
-              const c = '#eee';
-              appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
-                desktopViewAtRule,
-                landScapeViewAtRule,
-                sharedAtRult,
-                desktopWidth,
-                landscapeWidth,
-                borderColor: c,
-              });
-            } else {
-              appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
-                desktopViewAtRule,
-                landScapeViewAtRule,
-                sharedAtRult,
-                desktopWidth,
-                landscapeWidth,
-              });
-            }
+            appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+              desktopViewAtRule,
+              landScapeViewAtRule,
+              sharedAtRult,
+              desktopWidth,
+              landscapeWidth,
+            });
           }
 
           blackListedSelector = blacklistedSelector(selectorBlackList, selector);
@@ -290,7 +277,7 @@ module.exports = (options = {}) => {
               landscapeWidth,
               notRootContainingBlock,
             });
-          })
+          });
           walkedRule = false;
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },

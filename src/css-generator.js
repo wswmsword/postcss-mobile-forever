@@ -27,29 +27,6 @@ function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScape
   }
 }
 
-/** 居中最外层选择器，用 margin 居中，有 border */
-function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
-  desktopViewAtRule,
-  landScapeViewAtRule,
-  sharedAtRult,
-  desktopWidth,
-  landscapeWidth,
-  borderColor,
-}) {
-  if (disableDesktop && !disableLandscape) {
-    // 仅移动端横屏
-    landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth), marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
-  } else if (disableLandscape && !disableDesktop) {
-    // 仅桌面
-    desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth), marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
-  } else if (!disableDesktop && !disableLandscape) {
-    // 桌面和移动端横屏
-    desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth)));
-    landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth)));
-    sharedAtRult.append(postcss.rule({ selector }).append(marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
-  }
-}
-
 /** 转换受 fixed 影响的属性的媒体查询值 */
 function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
@@ -285,6 +262,56 @@ function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, 
   }
 }
 
+/** 居中最外层选择器，用 margin 居中，有 border */
+function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  sharedAtRult,
+  desktopWidth,
+  landscapeWidth,
+  borderColor,
+}) {
+  if (disableDesktop && !disableLandscape) {
+    // 仅移动端横屏
+    landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth), marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
+  } else if (disableLandscape && !disableDesktop) {
+    // 仅桌面
+    desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth), marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
+  } else if (!disableDesktop && !disableLandscape) {
+    // 桌面和移动端横屏
+    desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth)));
+    landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth)));
+    sharedAtRult.append(postcss.rule({ selector }).append(marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
+  }
+}
+
+function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  sharedAtRult,
+  desktopWidth,
+  landscapeWidth,
+}) {
+  if (border) {
+    const c = '#eee';
+    appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
+      desktopViewAtRule,
+      landScapeViewAtRule,
+      sharedAtRult,
+      desktopWidth,
+      landscapeWidth,
+      borderColor: c,
+    });
+  } else {
+    appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
+      desktopViewAtRule,
+      landScapeViewAtRule,
+      sharedAtRult,
+      desktopWidth,
+      landscapeWidth,
+    });
+  }
+}
 
 module.exports = {
   appendMarginCentreRootClassWithBorder,
@@ -292,6 +319,7 @@ module.exports = {
   appendMarginCentreRootClassNoBorder,
   appendDemoContent,
   appendConvertedFixedContainingBlockDecls,
+  appendCentreRoot,
 };
 
 /** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */
