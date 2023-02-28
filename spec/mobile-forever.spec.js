@@ -315,6 +315,13 @@ describe("media queries", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should ignore media queries from source", function() {
+    var input = "@media (min-width: 600px) { .rule { width: 75px; } } .rule2 { width: 75px; }";
+    var output = "@media (min-width: 600px) { .rule { width: 75px; } } .rule2 { width: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .rule2 { width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule2 { width: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("exclude", function() {

@@ -47,6 +47,10 @@ const defaults = {
     fontViewportUnit: "vw",
     replace: true,
   },
+  sideConfig: {
+    selector: null,
+    width: 190,
+  },
   /** 添加标识，用于调试 */
   demoMode: false,
 };
@@ -97,6 +101,12 @@ module.exports = (options = {}) => {
   return {
     postcssPlugin: "postcss-mobile-forever",
     prepare(result) {
+      const file = result.root.source && result.root.source.input.file;
+      // 包含文件
+      if(hasNoIncludeFile(include, file, includeType)) return;
+      // 排除文件
+      if(hasExcludeFile(exclude, file, excludeType)) return;
+
       /** 桌面端视图下的媒体查询 */
       let desktopViewAtRule = null;
       /** 移动端横屏下的媒体查询 */
@@ -116,8 +126,8 @@ module.exports = (options = {}) => {
       let landscapeRadio = 1;
       /** 选择器在黑名单吗 */
       let blackListedSelector = null;
-      /** 是否要跳过不执行 Declaration */
-      let brokenRule = false;
+      /** 是否在媒体查询中 */
+      let insideMediaQuery = false;
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
       let containingBlockDeclsMap = null;
@@ -138,15 +148,12 @@ module.exports = (options = {}) => {
         Rule(rule, postcss) {
           walkedRule = true;
           hasFixed = false;
+          insideMediaQuery = false;
           selector = rule.selector;
           const file = rule.source && rule.source.input.file;
 
-          // 包含文件
-          if(hasNoIncludeFile(include, file, includeType)) return brokenRule = true;
-          // 排除文件
-          if(hasExcludeFile(exclude, file, excludeType)) return brokenRule = true;
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
-          if (rule.parent.params) return brokenRule = true;
+          if (rule.parent.params) return insideMediaQuery = true;
 
           // 是否动态视图宽度？
           const isDynamicViewportWidth = typeof viewportWidth === "function";
@@ -184,7 +191,7 @@ module.exports = (options = {}) => {
         },
         Declaration(decl, postcss) {
           if (!walkedRule) return;
-          if (brokenRule) return;
+          if (insideMediaQuery) return;
           if (decl.book) return; // 被标记过
           const prop = decl.prop;
           const val = decl.value;
@@ -261,9 +268,8 @@ module.exports = (options = {}) => {
         RuleExit(rule, postcss) {
           /** 有标志非根包含块的注释吗？ */
           let notRootContainingBlock = false;
-          if (hasFixed) {
+          if (hasFixed)
             notRootContainingBlock = hasContainingBlockComment(rule);
-          }
           containingBlockDeclsMap && containingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
