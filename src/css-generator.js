@@ -265,8 +265,9 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   desktopWidth,
   landscapeWidth,
 }) {
-  if (border) {
-    const c = '#eee';
+  const hadBorder = !!border;
+  const c = typeof border === "string" ? border : "#eee";
+  if (hadBorder) {
     appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
       desktopViewAtRule,
       landScapeViewAtRule,

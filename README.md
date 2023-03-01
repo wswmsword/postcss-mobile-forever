@@ -55,7 +55,7 @@ yarn add -D postcss postcss-mobile-forever
 | maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | rootClass | string | N | "root-class" | 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式，将在下个主版本发布后删除，请使用 rootSelector |
 | rootSelector | string | N | null | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式，优先级高于 rootClass |
-| border | boolean | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景 |
+| border | boolean|string | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
 | disableDesktop | boolean | N | false | 不做桌面端适配 |
 | disableLandscape | boolean | N | false | 不做移动端横屏适配 |
 | disableMobile | boolean | N | false | 不做移动端竖屏适配，把 px 转换为视口单位 vw |
