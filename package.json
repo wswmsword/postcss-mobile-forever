@@ -1,6 +1,6 @@
 {
   "name": "postcss-mobile-forever",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "用于在桌面端和移动端横屏展示移动端设计视图的 postcss 插件。",
   "main": "index.js",
   "scripts": {
