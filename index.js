@@ -130,7 +130,7 @@ module.exports = (options = {}) => {
       let insideMediaQuery = false;
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
-      let containingBlockDeclsMap = null;
+      let rootContainingBlockDeclsMap = null;
       /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
       let walkedRule = false;
       return {
@@ -174,7 +174,10 @@ module.exports = (options = {}) => {
           }
 
           blackListedSelector = blacklistedSelector(selectorBlackList, selector);
-          containingBlockDeclsMap = createFixedContainingBlockDecls();
+
+          /** 有标志非根包含块的注释吗？ */
+          const notRootContainingBlock = hasContainingBlockComment(rule);
+          rootContainingBlockDeclsMap = notRootContainingBlock ? new Map() : createFixedContainingBlockDecls();
         },
         Declaration(decl, postcss) {
           if (!walkedRule) return;
@@ -187,11 +190,11 @@ module.exports = (options = {}) => {
             hasFixed = true;
           }
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
-          if (containingBlockDeclsMap.has(prop)) {
+          if (rootContainingBlockDeclsMap.has(prop)) {
             const important = decl.important;
-            const mapDecl = containingBlockDeclsMap.get(prop);
+            const mapDecl = rootContainingBlockDeclsMap.get(prop);
             if (mapDecl == null || important || !mapDecl.important)
-              containingBlockDeclsMap.set(prop, decl);
+              rootContainingBlockDeclsMap.set(prop, decl);
             return;
           }
           // 转换 px
@@ -253,11 +256,9 @@ module.exports = (options = {}) => {
           }
         },
         RuleExit(rule, postcss) {
-          /** 有标志非根包含块的注释吗？ */
-          let notRootContainingBlock = false;
-          if (hasFixed)
-            notRootContainingBlock = hasContainingBlockComment(rule);
-          containingBlockDeclsMap && containingBlockDeclsMap.forEach((decl, prop) => {
+          if (!walkedRule) return;
+          if (insideMediaQuery) return;
+          rootContainingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
@@ -275,7 +276,6 @@ module.exports = (options = {}) => {
               viewportUnit,
               desktopWidth,
               landscapeWidth,
-              notRootContainingBlock,
             });
           });
           walkedRule = false;
