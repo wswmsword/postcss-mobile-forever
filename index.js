@@ -187,10 +187,11 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           const prop = decl.prop;
           const val = decl.value;
+
+          if (!satisfyPropList(prop)) return;
   
-          if (prop === "position" && val === "fixed") {
-            hasFixed = true;
-          }
+          if (prop === "position" && val === "fixed") return hasFixed = true;
+
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
           if (rootContainingBlockDeclsMap.has(prop)) {
             const important = decl.important;
@@ -202,7 +203,6 @@ module.exports = (options = {}) => {
           // 转换 px
           if (pxVwTestReg.test(val)) {
             const important = decl.important;
-            const satisfiedPropList = satisfyPropList(prop);
             // 添加桌面端、移动端媒体查询
             appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
               desktopViewAtRule,
@@ -210,7 +210,6 @@ module.exports = (options = {}) => {
               important,
               decl,
               unitPrecision,
-              satisfiedPropList,
               fontViewportUnit,
               replace,
               result,
@@ -262,7 +261,6 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           rootContainingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
-            const satisfiedPropList = satisfyPropList(prop);
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,
@@ -270,7 +268,6 @@ module.exports = (options = {}) => {
               desktopViewAtRule,
               landScapeViewAtRule,
               unitPrecision,
-              satisfiedPropList,
               fontViewportUnit,
               replace,
               result,
