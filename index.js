@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, blacklistedSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment, dynamicZero } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment, dynamicZero } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMarginCentreRootClassWithBorder, appendMediaRadioPxOrReplaceMobileVwFromPx, appendMarginCentreRootClassNoBorder, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
@@ -149,8 +149,11 @@ module.exports = (options = {}) => {
           walkedRule = true;
           hasFixed = false;
           insideMediaQuery = false;
+          blackListedSelector = false;
           selector = rule.selector;
 
+          if (isBlacklistSelector(selectorBlackList, selector))
+            return blackListedSelector = true;
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
           if (rule.parent.params) return insideMediaQuery = true;
 
@@ -173,8 +176,6 @@ module.exports = (options = {}) => {
             });
           }
 
-          blackListedSelector = blacklistedSelector(selectorBlackList, selector);
-
           /** 有标志非根包含块的注释吗？ */
           const notRootContainingBlock = hasContainingBlockComment(rule);
           rootContainingBlockDeclsMap = notRootContainingBlock ? new Map() : createFixedContainingBlockDecls();
@@ -183,6 +184,7 @@ module.exports = (options = {}) => {
           if (!walkedRule) return;
           if (insideMediaQuery) return;
           if (decl.book) return; // 被标记过
+          if (blackListedSelector) return;
           const prop = decl.prop;
           const val = decl.value;
   
@@ -210,7 +212,6 @@ module.exports = (options = {}) => {
               unitPrecision,
               satisfiedPropList,
               fontViewportUnit,
-              blackListedSelector,
               replace,
               result,
               viewportUnit,
@@ -258,6 +259,7 @@ module.exports = (options = {}) => {
         RuleExit(rule, postcss) {
           if (!walkedRule) return;
           if (insideMediaQuery) return;
+          if (blackListedSelector) return;
           rootContainingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
             const satisfiedPropList = satisfyPropList(prop);
@@ -270,7 +272,6 @@ module.exports = (options = {}) => {
               unitPrecision,
               satisfiedPropList,
               fontViewportUnit,
-              blackListedSelector,
               replace,
               result,
               viewportUnit,

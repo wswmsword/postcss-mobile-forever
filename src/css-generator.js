@@ -37,7 +37,6 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   unitPrecision,
   satisfiedPropList,
   fontViewportUnit,
-  blackListedSelector,
   replace,
   result,
   viewportUnit,
@@ -60,7 +59,6 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     unitPrecision,
     satisfiedPropList,
     fontViewportUnit,
-    blackListedSelector,
     replace,
     result,
     viewportUnit,
@@ -160,7 +158,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   important,
   decl,
   satisfiedPropList,
-  blackListedSelector,
   replace,
   result,
   convertLandscape,
@@ -174,9 +171,9 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   decl.book = true;
   const ignore = hasIgnoreComments(decl, result);
 
-  const enabledDesktop = !disableDesktop && satisfiedPropList && !blackListedSelector && !ignore;
-  const enabledLandscape = !disableLandscape && satisfiedPropList && !blackListedSelector && !ignore;
-  const enabledMobile = !disableMobile && satisfiedPropList && !blackListedSelector && !ignore;
+  const enabledDesktop = !disableDesktop && satisfiedPropList && !ignore;
+  const enabledLandscape = !disableLandscape && satisfiedPropList && !ignore;
+  const enabledMobile = !disableMobile && satisfiedPropList && !ignore;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
     const { mobile, desktop, landscape } = convertPropValue(prop, val, {
