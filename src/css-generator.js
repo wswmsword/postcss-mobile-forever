@@ -41,12 +41,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   viewportUnit,
   desktopWidth,
   landscapeWidth,
+  maxDisplayWidth,
 }) {
   const prop = decl.prop;
   const val = decl.value;
   const important = decl.important;
   const leftOrRight = prop === "left" || prop === "right";
-  const dz = dynamicZero;
+  const limitedWidth = maxDisplayWidth != null;
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
     desktopRadio,
@@ -63,10 +64,52 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     desktopWidth,
     landscapeWidth,
     matchPercentage: isFixed,
-    convertMobile: (number, unit) => {
+    convertMobile: (number, unit, numberStr) => {
+      if (limitedWidth) {
+        if (isFixed) {
+          if (leftOrRight) {
+            const maxNRadio = maxDisplayWidth / viewportWidth;
+            if (unit === "px") {
+              const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
+              const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
+              return number === 0 ? `0${unit}` : `calc(50% - min(${calc2}px, ${calc}vw))`;
+            } else if (unit === "vw" || unit === "%") {
+              const calc = 50 - round(maxNRadio * number, unitPrecision);
+              const calc2 = 50 - number;
+              return `calc(50${unit} - min(${calc2}${unit}, ${calc}px))`;
+            } else if (unit === " " || unit === "") {
+              if (number === 0)
+                return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
+              return `${number}${unit}`;
+            } else return `${numberStr}${unit}`;
+          } else {
+            if (unit === "px") {
+              const fontProp = prop.includes("font");
+              const n = round(number * 100 / viewportWidth, unitPrecision);
+              const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+              const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
+              return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+            } else if (unit === "vw" || unit === "%") {
+              const n = round(maxDisplayWidth / 100 * number, unitPrecision);
+              return `min(${n}px, ${numberStr}${unit})`;
+            } else return `${numberStr}${unit}`;
+          }
+        } else {
+          if (unit === "px") {
+            const fontProp = prop.includes("font");
+            const n = round(number * 100 / viewportWidth, unitPrecision);
+            const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+            const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
+            return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+          } else if (unit === "vw") {
+            const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
+            return `min(${numberStr}${unit}, ${maxN}px)`;
+          } else return `${number}${unit}`;
+        }
+      }
       if (unit === "px") {
         const fontProp = prop.includes("font");
-        const n = round(number * 100 / viewportWidth, unitPrecision)
+        const n = round(number * 100 / viewportWidth, unitPrecision);
         const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
         return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
       } else
@@ -259,14 +302,24 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
 }
 
 function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+  rule,
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRult,
   desktopWidth,
   landscapeWidth,
+  maxDisplayWidth,
 }) {
   const hadBorder = !!border;
   const c = typeof border === "string" ? border : "#eee";
+  const limitedWidth = maxDisplayWidth != null;
+  if (limitedWidth) {
+    if (hadBorder) rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
+    else rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(borderL(c)), b(borderR(c)), b(minFullHeight), b(autoHeight), b(contentBox));
+    function b(obj) {
+      return { ...obj, book: 1, };
+    }
+  }
   if (hadBorder) {
     appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
       desktopViewAtRule,

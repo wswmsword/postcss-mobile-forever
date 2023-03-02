@@ -15,6 +15,8 @@ const defaults = {
   desktopWidth: 600,
   /** 移动端横屏宽度 */
   landscapeWidth: 425,
+  /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
+  maxDisplayWidth: null,
   /** 宽度断点，视图大于这个宽度，则页面使用桌面端宽度 */
   minDesktopDisplayWidth: null,
   /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
@@ -87,7 +89,7 @@ module.exports = (options = {}) => {
     }
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList, maxDisplayWidth } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
 
 
@@ -133,6 +135,8 @@ module.exports = (options = {}) => {
       let rootContainingBlockDeclsMap = null;
       /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
       let walkedRule = false;
+      /** 是否限制了最宽宽度？ */
+      let limitedWidth = maxDisplayWidth != null;
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
@@ -168,11 +172,13 @@ module.exports = (options = {}) => {
           // 设置页面最外层 class 的最大宽度，并居中
           if (selector === _rootSelector) {
             appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+              rule,
               desktopViewAtRule,
               landScapeViewAtRule,
               sharedAtRult,
               desktopWidth,
               landscapeWidth,
+              maxDisplayWidth,
             });
           }
 
@@ -217,10 +223,24 @@ module.exports = (options = {}) => {
               desktopWidth,
               landscapeWidth,
               matchPercentage: false,
-              convertMobile: (number, unit) => {
+              convertMobile: (number, unit, numberStr) => {
+                if (limitedWidth) {
+                  if (unit === "px") {
+                    const fontProp = prop.includes("font");
+                    const n = round(number * 100 / _viewportWidth, unitPrecision);
+                    const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+                    const maxN = round(number * maxDisplayWidth / _viewportWidth, unitPrecision);
+                    return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}${unit})`;
+                  } else if (unit === "vw") {
+                    const n = round(maxDisplayWidth / 100 * number, unitPrecision);
+                    return `min(${n}px, ${numberStr}${unit})`;
+                  } else {
+                    return `${number}${unit}`;
+                  }
+                }
                 if (unit === "px") {
                   const fontProp = prop.includes("font");
-                  const n = round(number * 100 / _viewportWidth, unitPrecision)
+                  const n = round(number * 100 / _viewportWidth, unitPrecision);
                   const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                   return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
                 } else
@@ -274,6 +294,7 @@ module.exports = (options = {}) => {
               viewportUnit,
               desktopWidth,
               landscapeWidth,
+              maxDisplayWidth,
             });
           });
           walkedRule = false;
