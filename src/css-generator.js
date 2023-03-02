@@ -72,11 +72,14 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             if (unit === "px") {
               const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
               const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
-              return number === 0 ? `0${unit}` : `calc(50% - min(${calc2}px, ${calc}vw))`;
+              if (number > maxDisplayWidth / 2)
+                return `calc(50% - max(${calc2}px, ${calc}vw))`;
+              else return `calc(50% - min(${calc2}px, ${calc}vw))`;
             } else if (unit === "vw" || unit === "%") {
-              const calc = 50 - round(maxNRadio * number, unitPrecision);
+              const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
               const calc2 = 50 - number;
-              return `calc(50${unit} - min(${calc2}${unit}, ${calc}px))`;
+              if (number < 50) return `calc(50${unit} - min(${calc2}${unit}, ${calc}px))`;
+              else return `calc(50${unit} - max(${calc2}${unit}, ${calc}px))`;
             } else if (unit === " " || unit === "") {
               if (number === 0)
                 return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
@@ -88,10 +91,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
               const n = round(number * 100 / viewportWidth, unitPrecision);
               const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
               const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
-              return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+              if (number > 0)
+                return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+              else return number === 0 ? `0${unit}` : `max(${n}${mobileUnit}, ${maxN}px)`;
             } else if (unit === "vw" || unit === "%") {
               const n = round(maxDisplayWidth / 100 * number, unitPrecision);
-              return `min(${n}px, ${numberStr}${unit})`;
+              if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
+              else return `max(${n}px, ${numberStr}${unit})`;
             } else return `${numberStr}${unit}`;
           }
         } else {
@@ -100,10 +106,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             const n = round(number * 100 / viewportWidth, unitPrecision);
             const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
             const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
-            return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+            if (number > 0)
+              return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
+            else return number === 0 ? `0${unit}` : `max(${n}${mobileUnit}, ${maxN}px)`;
           } else if (unit === "vw") {
             const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
-            return `min(${numberStr}${unit}, ${maxN}px)`;
+            if (number > 0) return `min(${numberStr}${unit}, ${maxN}px)`;
+            else return `max(${numberStr}${unit}, ${maxN}px)`;
           } else return `${number}${unit}`;
         }
       }

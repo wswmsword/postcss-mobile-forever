@@ -230,10 +230,13 @@ module.exports = (options = {}) => {
                     const n = round(number * 100 / _viewportWidth, unitPrecision);
                     const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                     const maxN = round(number * maxDisplayWidth / _viewportWidth, unitPrecision);
-                    return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}${unit})`;
+                    if (number > 0) return `min(${n}${mobileUnit}, ${maxN}${unit})`;
+                    else if (number < 0) return `max(${n}${mobileUnit}, ${maxN}${unit})`;
+                    else `0${unit}`;
                   } else if (unit === "vw") {
                     const n = round(maxDisplayWidth / 100 * number, unitPrecision);
-                    return `min(${n}px, ${numberStr}${unit})`;
+                    if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
+                    else return `max(${n}px, ${numberStr}${unit})`;
                   } else {
                     return `${number}${unit}`;
                   }
