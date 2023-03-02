@@ -134,8 +134,8 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             const roundedCalc = round(desktopWidth / 2 - number * desktopRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "%" || unit === "vw") {
-            const roundedCalc = round(desktopWidth * number / 100, unitPrecision)
-            return `calc(50% + ${roundedCalc}px)`;
+            const roundedCalc = round(desktopWidth / 2 - desktopWidth * number / 100, unitPrecision)
+            return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "" || unit === " ") {
             if (number === 0)
               return `calc(50% - ${desktopWidth / 2}px)`;
@@ -152,7 +152,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             return `${dzn(number)}${unit}`;
         }
       } else {
-        if (unit === "vw" || unit === "%")
+        if (unit === "vw")
           return `${dzn(round(desktopWidth * number / 100, unitPrecision))}px`;
         else if (unit === "px") {
           const roundedPx = round(number * desktopRadio, unitPrecision);
@@ -171,8 +171,8 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             const roundedCalc = round(landscapeWidth / 2 - number * landscapeRadio, unitPrecision)
             return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "%" || unit === "vw") {
-            const roundedCalc = round(landscapeWidth * number / 100, unitPrecision);
-            return `calc(50% + ${roundedCalc}px)`;
+            const roundedCalc = round(landscapeWidth / 2 - landscapeWidth * number / 100, unitPrecision);
+            return `calc(50% - ${roundedCalc}px)`;
           } else if (unit === "" || unit === " ") {
             if (number === 0)
               return `calc(50% - ${landscapeWidth / 2}px)`;
@@ -189,7 +189,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             return `${dzn(number)}${unit}`;
         }
       } else {
-        if (unit === "vw" || unit === "%")
+        if (unit === "vw")
           return `${dzn(round(landscapeWidth / 100 * number, unitPrecision))}px`;
         else if (unit === "px") {
           const roundedPx = round(number * landscapeRadio, unitPrecision);
