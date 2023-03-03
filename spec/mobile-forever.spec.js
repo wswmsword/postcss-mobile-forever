@@ -115,13 +115,13 @@ describe("fixed position in media queries", function() {
   });
   it("should convert fixed percentage prop", function() {
     var input = ".rule { position: fixed; width: 100%; left: 50%; } .l{}"
-    var output = ".rule { position: fixed; width: 100%; left: 50%; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% + 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% + 212.5px); width: 425px; } }"
+    var output = ".rule { position: fixed; width: 100%; left: 50%; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% - 0px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% - 0px); width: 425px; } }"
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
   it("should convert fixed vw prop", function() {
     var input = ".rule { position: fixed; width: 100vw; left: 50vw; } .l{}"
-    var output = ".rule { position: fixed; width: 100vw; left: 50vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% + 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% + 212.5px); width: 425px; } }"
+    var output = ".rule { position: fixed; width: 100vw; left: 50vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% - 0px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% - 0px); width: 425px; } }"
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -139,7 +139,7 @@ describe("fixed position in media queries", function() {
   });
   it("should convert fixed negative vw or percentage prop", function() {
     var input = ".rule { position: fixed; width: 10vw; left: -50%; } .l{}";
-    var output = ".rule { position: fixed; width: 10vw; left: -50%; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% + -300px); width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% + -212.5px); width: 42.5px; } }";
+    var output = ".rule { position: fixed; width: 10vw; left: -50%; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: calc(50% - 600px); width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: calc(50% - 425px); width: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
