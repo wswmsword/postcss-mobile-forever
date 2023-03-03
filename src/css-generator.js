@@ -73,8 +73,8 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
               const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
               const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
               if (number > maxDisplayWidth / 2)
-                return `calc(50% - max(${calc2}px, ${calc}vw))`;
-              else return `calc(50% - min(${calc2}px, ${calc}vw))`;
+                return `calc(50% - max(${calc2}px, ${calc}%))`;
+              else return `calc(50% - min(${calc2}px, ${calc}%))`;
             } else if (unit === "vw" || unit === "%") {
               const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
               const calc2 = 50 - number;
@@ -92,12 +92,14 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
               const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
               const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
               if (number > 0)
-                return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
-              else return number === 0 ? `0${unit}` : `max(${n}${mobileUnit}, ${maxN}px)`;
+                return `min(${n}${mobileUnit}, ${maxN}px)`;
+              else if (number <  0) return `max(${n}${mobileUnit}, ${maxN}px)`;
+              else return "0px";
             } else if (unit === "vw" || unit === "%") {
               const n = round(maxDisplayWidth / 100 * number, unitPrecision);
               if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
-              else return `max(${n}px, ${numberStr}${unit})`;
+              else if (number < 0) return `max(${n}px, ${numberStr}${unit})`;
+              else `0${unit}`;
             } else return `${numberStr}${unit}`;
           }
         } else {
@@ -106,13 +108,14 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             const n = round(number * 100 / viewportWidth, unitPrecision);
             const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
             const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
-            if (number > 0)
-              return number === 0 ? `0${unit}` : `min(${n}${mobileUnit}, ${maxN}px)`;
-            else return number === 0 ? `0${unit}` : `max(${n}${mobileUnit}, ${maxN}px)`;
+            if (number > 0) return `min(${n}${mobileUnit}, ${maxN}px)`;
+            else if (number < 0) return `max(${n}${mobileUnit}, ${maxN}px)`;
+            else return "0px";
           } else if (unit === "vw") {
             const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
-            if (number > 0) return `min(${numberStr}${unit}, ${maxN}px)`;
-            else return `max(${numberStr}${unit}, ${maxN}px)`;
+            if (number > 0) return `min(${numberStr}vw, ${maxN}px)`;
+            else if (number < 0) return `max(${numberStr}vw, ${maxN}px)`;
+            else return "0vw";
           } else return `${number}${unit}`;
         }
       }

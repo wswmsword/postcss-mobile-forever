@@ -103,7 +103,7 @@ module.exports = (options = {}) => {
   return {
     postcssPlugin: "postcss-mobile-forever",
     prepare(result) {
-      const file = result.root.source && result.root.source.input.file;
+      const file = result.root && result.root.source && result.root.source.input.file;
       // 包含文件
       if(hasNoIncludeFile(include, file, includeType)) return;
       // 排除文件
@@ -237,17 +237,14 @@ module.exports = (options = {}) => {
                     const n = round(maxDisplayWidth / 100 * number, unitPrecision);
                     if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
                     else return `max(${n}px, ${numberStr}${unit})`;
-                  } else {
-                    return `${number}${unit}`;
-                  }
+                  } else return `${number}${unit}`;
                 }
                 if (unit === "px") {
                   const fontProp = prop.includes("font");
                   const n = round(number * 100 / _viewportWidth, unitPrecision);
                   const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
                   return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
-                } else
-                  return `${number}${unit}`;
+                } else return `${number}${unit}`;
               },
               convertDesktop: (number, unit, numberStr) => {
                 // 处理 0
