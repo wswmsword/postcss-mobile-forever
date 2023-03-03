@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createFixedContainingBlockDecls, hasContainingBlockComment, dynamicZero } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createFixedContainingBlockDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
@@ -117,7 +117,7 @@ module.exports = (options = {}) => {
       let sharedAtRult = null;
 
 
-      let hasFixed = null;
+      let hadFixed = null;
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
@@ -151,9 +151,10 @@ module.exports = (options = {}) => {
         },
         Rule(rule, postcss) {
           walkedRule = true;
-          hasFixed = false;
+          hadFixed = false;
           insideMediaQuery = false;
           blackListedSelector = false;
+          rootContainingBlockDeclsMap = createFixedContainingBlockDecls();
           selector = rule.selector;
 
           if (isBlacklistSelector(selectorBlackList, selector))
@@ -182,9 +183,12 @@ module.exports = (options = {}) => {
             });
           }
 
-          /** 有标志非根包含块的注释吗？ */
-          const notRootContainingBlock = hasContainingBlockComment(rule);
-          rootContainingBlockDeclsMap = notRootContainingBlock ? new Map() : createFixedContainingBlockDecls();
+          /** 有标志*非根包含块*的注释吗？ */
+          const notRootContainingBlock = hasNoneRootContainingBlockComment(rule);
+          if (notRootContainingBlock) rootContainingBlockDeclsMap = new Map();
+          /** 有标志*根包含块*的注释吗？ */
+          const hadRootContainingBlock = hasRootContainingBlockComment(rule);
+          if (hadRootContainingBlock) hadFixed = true;
         },
         Declaration(decl, postcss) {
           if (!walkedRule) return;
@@ -196,7 +200,7 @@ module.exports = (options = {}) => {
 
           if (!satisfyPropList(prop)) return;
   
-          if (prop === "position" && val === "fixed") return hasFixed = true;
+          if (prop === "position" && val === "fixed") return hadFixed = true;
 
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
           if (rootContainingBlockDeclsMap.has(prop)) {
@@ -281,7 +285,7 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           rootContainingBlockDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
-            appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hasFixed, {
+            appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,
               landscapeRadio,

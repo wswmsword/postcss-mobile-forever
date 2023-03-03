@@ -1,5 +1,5 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp, notRootCBComment } = require("./constants");
+const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp, notRootCBComment, rootCBComment } = require("./constants");
 /** 单独处理 0 的情况，让 0 经过转换后一定变化 */
 const dynamicZero = (num, numStr) => {
   if (num === 0) {
@@ -116,8 +116,22 @@ const isBlacklistSelector = (blacklist, selector) => {
   });
 }
 
+/** 选择器上方有根包含块的注释 */
+const hasRootContainingBlockComment = (rule) => {
+  let prev = rule.prev();
+  if (prev == null) return false;
+  do {
+    if (prev && prev.type === 'comment' && prev.text === rootCBComment) {
+      // remove comment
+      prev.remove();
+      return true;
+    }
+    else return false;
+  } while(prev = prev.prev())
+};
+
 /** 选择器前面有非根包含块的注释吗 */
-const hasContainingBlockComment = (rule) => {
+const hasNoneRootContainingBlockComment = (rule) => {
   let prev = rule.prev();
   if (prev == null) return false;
   do {
@@ -208,6 +222,7 @@ module.exports = {
   convertPropValue,
   hasIgnoreComments,
   createFixedContainingBlockDecls,
-  hasContainingBlockComment,
+  hasNoneRootContainingBlockComment,
   dynamicZero,
+  hasRootContainingBlockComment,
 };
