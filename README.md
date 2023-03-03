@@ -145,14 +145,14 @@ npm run start
 
 桌面端媒体查询类似于：
 
-```
-@media (min-width: 600px) and (min-height: 640px) { .rule { width: 300px; } }
+```css
+@media (min-width: 600px) and (min-height: 640px) { /* ... */ }
 ```
 
 移动端横屏媒体查询类似于：
 
-```
-@media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape)
+```css
+@media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { /* ... */ }
 ```
 
 ---
