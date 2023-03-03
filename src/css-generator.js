@@ -5,6 +5,7 @@ const {
   round,
   dynamicZero,
 } = require("./logic-helper");
+const { varTestReg } = require("./regexs");
 
 function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
   if (!disableMobile) {
@@ -34,6 +35,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
+  sharedAtRult,
   unitPrecision,
   fontViewportUnit,
   replace,
@@ -54,6 +56,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     landscapeRadio,
     desktopViewAtRule,
     landScapeViewAtRule,
+    sharedAtRult,
     important,
     decl,
     unitPrecision,
@@ -208,6 +211,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
 function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   desktopViewAtRule,
   landScapeViewAtRule,
+  sharedAtRult,
   important,
   decl,
   replace,
@@ -265,6 +269,45 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
         }));
       }
     }
+
+    let shouldAppendDesktopVar = false;
+    let shouldAppendLandscape = false;
+    if (enabledDesktop || enabledLandscape) {
+      const tested = varTestReg.test(val);
+      shouldAppendDesktopVar = tested && val === desktop;
+      shouldAppendLandscape = tested && val === landscape;
+    }
+    appendCSSVar(shouldAppendDesktopVar, shouldAppendLandscape, prop, val, important, selector, postcss, {
+      sharedAtRult,
+      desktopViewAtRule,
+      landScapeViewAtRule,
+    });
+  }
+}
+
+function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
+  sharedAtRult,
+  desktopViewAtRule,
+  landScapeViewAtRule,
+}) {
+  if (enabledDesktop && enabledLandscape) {
+    sharedAtRult.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
+  } else if (enabledDesktop) {
+    desktopViewAtRule.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
+  } else if (enabledLandscape) {
+    landScapeViewAtRule.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
   }
 }
 
@@ -359,6 +402,7 @@ module.exports = {
   appendDemoContent,
   appendConvertedFixedContainingBlockDecls,
   appendCentreRoot,
+  appendCSSVar,
 };
 
 /** fixed 的百分百宽度转换为居中的固定宽度（预期的桌面端和移动端横屏宽度） */

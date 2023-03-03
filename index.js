@@ -1,11 +1,11 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createFixedContainingBlockDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createFixedContainingBlockDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot } = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
 const { demoModeSelector } = require("./src/constants");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
-  pxVwTestReg,
+  pxVwTestReg, varTestReg,
 } = require("./src/regexs");
 
 const defaults = {
@@ -217,6 +217,7 @@ module.exports = (options = {}) => {
             appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
               desktopViewAtRule,
               landScapeViewAtRule,
+              sharedAtRult,
               important,
               decl,
               unitPrecision,
@@ -277,6 +278,17 @@ module.exports = (options = {}) => {
                   return `${dzn(number)}${unit}`;
               },
             });
+          } else if (varTestReg.test(val)) {
+            // 可以匹配 val(...) 的部分（css 变量），css 变量直接加入媒体查询
+            const ignore = hasIgnoreComments(decl, result);
+            const enabledDesktop = !disableDesktop && !ignore;
+            const enabledLandscape = !disableLandscape && !ignore;
+
+            appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
+              sharedAtRult,
+              desktopViewAtRule,
+              landScapeViewAtRule,
+            });
           }
         },
         RuleExit(rule, postcss) {
@@ -291,6 +303,7 @@ module.exports = (options = {}) => {
               landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
+              sharedAtRult,
               unitPrecision,
               fontViewportUnit,
               replace,

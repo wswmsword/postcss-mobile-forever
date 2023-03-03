@@ -54,6 +54,41 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("CSS variable", function() {
+  it("should append var() to shared media query when enabled desktop and landscape", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should append var() to desktop media query when enabled desktop", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({ disableLandscape: true })).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should append var() to landscape media query when enabled landscape", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({ disableDesktop: true })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should append val() to shared media query with other props", function() {
+    var input = ".rule { border-bottom: var(--bb); width: 75px; } .l{}";
+    var output = ".rule { border-bottom: var(--bb); width: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert value includes val()", function() {
+    var input = ".rule { padding: 75px var(--bb); } .l{}";
+    var output = ".rule { padding: 10vw var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { padding: 60px var(--bb); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { padding: 42.5px var(--bb); } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("maxDisplayWidth", function() {
   var baseOpts = {
     maxDisplayWidth: 600,
