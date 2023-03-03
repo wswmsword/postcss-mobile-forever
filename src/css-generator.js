@@ -1,4 +1,4 @@
-const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight } = require("./constants");
+const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, lengthProps } = require("./constants");
 const {
   convertPropValue,
   hasIgnoreComments,
@@ -273,9 +273,11 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
     let shouldAppendDesktopVar = false;
     let shouldAppendLandscape = false;
     if (enabledDesktop || enabledLandscape) {
-      const tested = varTestReg.test(val);
-      shouldAppendDesktopVar = tested && val === desktop;
-      shouldAppendLandscape = tested && val === landscape;
+      if (lengthProps.includes(prop)) {
+        const tested = varTestReg.test(val);
+        shouldAppendDesktopVar = tested && val === desktop;
+        shouldAppendLandscape = tested && val === landscape;
+      }
     }
     appendCSSVar(shouldAppendDesktopVar, shouldAppendLandscape, prop, val, important, selector, postcss, {
       sharedAtRult,
