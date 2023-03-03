@@ -344,7 +344,7 @@ npm run start
 - transform 或 perspective 的值不是 none；
 - will-change 的值是 transform 或 perspective；
 - filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
-- contain 的值是 paint（例如：contain: paint;）；
+- contain 的值是 paint（例如：`contain: paint;`）；
 - backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
 
 相关链接：
