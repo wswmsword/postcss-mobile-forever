@@ -197,6 +197,39 @@ describe("rootSelector", function() {
   });
 });
 
+describe("comment", function() {
+  it("should convert none-fixed-position value with root-containing-block comment", function() {
+    var input = "/* root-containing-block */.nav { left: 0; } .l{}";
+    var output = ".nav { left: 0; } .l{} @media (min-width: 600px) and (min-height: 640px) { .nav { left: calc(50% - 300px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: calc(50% - 212.5px); } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert not root containing block px value with comment", function() {
+    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75px; } .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should ignore not root containing block percentage value with comment", function() {
+    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75%; } .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert not root containing block vw value with comment", function() {
+    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 10vw; } .b { top: 0px }";
+    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should ignore not root containing block percentage value with comment, not left and right", function() {
+    var input = "/*not-root-containing-block*/.nav { position: fixed; margin: 75%; } .b { top: 0px }";
+    var output = ".nav { position: fixed; margin: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("transform vw to media query px", function() {
   it("should convert width viewport unit", function() {
     var input = ".rule { width: 75vw; } .l{}"
@@ -264,30 +297,6 @@ describe("fixed position in media queries", function() {
   it("should convert fixed px containing block prop except left and right", function() {
     var input = ".rule { position: fixed; width: 10vw; margin: 75px; } .l{}";
     var output = ".rule { position: fixed; width: 10vw; margin: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { margin: 60px; width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { margin: 42.5px; width: 42.5px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
-    expect(processed).toBe(output);
-  });
-  it("should convert not root containing block px value with comment", function() {
-    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75px; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
-    expect(processed).toBe(output);
-  });
-  it("should ignore not root containing block percentage value with comment", function() {
-    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 75%; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
-    expect(processed).toBe(output);
-  });
-  it("should convert not root containing block vw value with comment", function() {
-    var input = "/*not-root-containing-block*/.nav { position: fixed; left: 10vw; } .b { top: 0px }";
-    var output = ".nav { position: fixed; left: 10vw; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .nav { left: 60px; } .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: 42.5px; } .b { top: .0px; } }";
-    var processed = postcss(mobileToMultiDisplays()).process(input).css;
-    expect(processed).toBe(output);
-  });
-  it("should ignore not root containing block percentage value with comment, not left and right", function() {
-    var input = "/*not-root-containing-block*/.nav { position: fixed; margin: 75%; } .b { top: 0px }";
-    var output = ".nav { position: fixed; margin: 75%; } .b { top: 0px } @media (min-width: 600px) and (min-height: 640px) { .b { top: .0px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .b { top: .0px; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
