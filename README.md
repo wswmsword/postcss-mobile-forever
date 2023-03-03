@@ -1,6 +1,6 @@
 # postcss-mobile-forever
 
-限制视口单位视图的最大宽度，生成桌面端与横屏的媒体查询，让移动端视图处处可访问。
+转换视口单位，并且限制视口的最大宽度，生成桌面端与横屏的媒体查询，让移动端视图处处可访问。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
