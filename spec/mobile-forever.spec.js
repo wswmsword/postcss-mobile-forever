@@ -54,6 +54,124 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("maxDisplayWidth", function() {
+  var baseOpts = {
+    maxDisplayWidth: 600,
+    disableDesktop: true,
+    disableLandscape: true,
+  }
+  it("should convert px to min(vw, px)", function() {
+    var input = ".rule { border-width: 75px; }";
+    var output = ".rule { border-width: min(10vw, 60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert negative px to max(vw, px)", function() {
+    var input = ".rule { border-width: -75px; }";
+    var output = ".rule { border-width: max(-10vw, -60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert vw to min(vw, px)", function() {
+    var input = ".rule { border-width: 10vw; }";
+    var output = ".rule { border-width: min(60px, 10vw); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert negative vw to max(vw, px)", function() {
+    var input = ".rule { border-width: -10vw; }";
+    var output = ".rule { border-width: max(-60px, -10vw); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed left px to calc(50% - min(px, vw))", function() {
+    var input = ".rule { position: fixed; left: 75px; }";
+    var output = ".rule { position: fixed; left: calc(50% - min(240px, 40%)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("shoud convert fixed left px greater than half maxDisplayWidth to calc(50% - max(px, vw))", function() {
+    var input = ".rule { position: fixed; left: 750px; }";
+    var output = ".rule { position: fixed; left: calc(50% - max(-300px, -50%)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed left vw/% to calc(50% - min(%, px))", function() {
+    var input = ".rule { position: fixed; left: 10vw; right: 10%; }";
+    var output = ".rule { position: fixed; left: calc(50vw - min(40vw, 240px)); right: calc(50% - min(40%, 240px)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert fixed left vw/% greater than 50 to calc(50% - max(%, px))", function() {
+    var input = ".rule { position: fixed; left: 100vw; right: 100%; }";
+    var output = ".rule { position: fixed; left: calc(50vw - max(-50vw, -300px)); right: calc(50% - max(-50%, -300px)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed left 0 to calc(50% - min(50%, px))", function() {
+    var input = ".rule { position: fixed; left: 0; }";
+    var output = ".rule { position: fixed; left: calc(50% - min(50%, 300px)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed not-left/right containing-block px to min(vw, px)", function() {
+    var input = ".rule { position: fixed; padding-bottom: 75px; }";
+    var output = ".rule { position: fixed; padding-bottom: min(10vw, 60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert fixed not-left/right containing-block negative px to max(vw, px)", function() {
+    var input = ".rule { position: fixed; padding-bottom: -75px; }";
+    var output = ".rule { position: fixed; padding-bottom: max(-10vw, -60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert fixed not-left/right containing-block 0px", function() {
+    var input = ".rule { position: fixed; padding-bottom: 0px; }";
+    var output = ".rule { position: fixed; padding-bottom: 0px; }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed not-left/right containing-block vw/% to min(px, %)", function() {
+    var input = ".rule { position: fixed; padding-bottom: 10vw; padding-top: 10%; padding-left: 0%; }";
+    var output = ".rule { position: fixed; padding-bottom: min(60px, 10vw); padding-top: min(60px, 10%); padding-left: 0%; }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert containing-block px to min(vw, px)", function() {
+    var input = ".rule { padding-bottom: 75px; }";
+    var output = ".rule { padding-bottom: min(10vw, 60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert containing-block negative px to max(vw, px)", function() {
+    var input = ".rule { padding-bottom: -75px; }";
+    var output = ".rule { padding-bottom: max(-10vw, -60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert containing-block vw to min(vw, px)", function() {
+    var input = ".rule { padding-bottom: 10vw; }";
+    var output = ".rule { padding-bottom: min(10vw, 60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+  it("should convert containing-block negative vw to min(vw, px)", function() {
+    var input = ".rule { padding-bottom: -10vw; }";
+    var output = ".rule { padding-bottom: max(-10vw, -60px); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("rootSelector", function() {
   var options = { rootSelector: "#app" }
 
