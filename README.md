@@ -1,6 +1,6 @@
 # postcss-mobile-forever
 
-转换视口单位，并且限制视口的最大宽度，生成桌面端与横屏的媒体查询，让移动端视图处处可访问。
+一款 PostCSS 插件，用于转换视口单位，限制视图最大宽度，生成屏幕媒体查询，让移动端视图处处可访问。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
@@ -18,11 +18,11 @@ yarn add -D postcss postcss-mobile-forever
 
 ## 简介
 
-本插件会**转换视口单位适配移动端竖屏，限制视口单位的最大宽度，生成媒体查询适配桌面端和移动端横屏**，最终移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得在非移动端竖屏的设备上也具备良好的展示效果，同时保持竖屏时的移动端视图。
+本插件会**把 px 转换成视口单位适配移动端竖屏，限制视口单位的最大宽度，生成媒体查询适配桌面端和移动端横屏**，最终移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得每种设备上的移动端视图，兼具良好的展示效果。
 
 > 您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
 
-本插件生成的媒体查询期望覆盖：
+通过插件生成的媒体查询，期望覆盖：
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
 - 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
 - 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
@@ -63,18 +63,14 @@ yarn add -D postcss postcss-mobile-forever
 | exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
-| propList | string[] | N | ['*'] | 那些属性要替换，那些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | mobileConfig | { viewportUnit: string; fontViewportUnit: string; replace: boolean; } | N | { viewportUnit: "vw", fontViewportUnit: "vw", replace: true } | 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 |
 | mobileConfig.viewportUnit | number | N | "vw" | 转换成什么视口单位？ |
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
 | mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
 
-标记注释：
-- `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
-- `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
-- `/* px-to-viewport-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
-- `/* px-to-viewport-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换。
+> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询。
 
 下面是默认的配置参数：
 
@@ -104,6 +100,12 @@ yarn add -D postcss postcss-mobile-forever
   }
 }
 ```
+
+标记注释：
+- `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
+- `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
+- `/* px-to-viewport-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
+- `/* px-to-viewport-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换。
 
 ## 单元测试
 
