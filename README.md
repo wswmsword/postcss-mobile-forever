@@ -71,6 +71,7 @@ yarn add -D postcss postcss-mobile-forever
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 | propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
 | mobileConfig | { viewportUnit: string; fontViewportUnit: string; replace: boolean; } | N | { viewportUnit: "vw", fontViewportUnit: "vw", replace: true } | 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 |
 | mobileConfig.viewportUnit | number | N | "vw" | 转换成什么视口单位？ |
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
@@ -98,6 +99,7 @@ yarn add -D postcss postcss-mobile-forever
   "include": null,
   "unitPrecision": 3,
   "selectorBlackList": [],
+  "rootContainingBlockSelectorList": [],
   "propList": ['*'],
   "mobileConfig": {
     "viewportUnit": "vw",
