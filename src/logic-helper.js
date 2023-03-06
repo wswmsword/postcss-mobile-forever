@@ -1,5 +1,5 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment, fixedContainingBlockWidthProp, notRootCBComment, rootCBComment } = require("./constants");
+const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment } = require("./constants");
 /** 单独处理 0 的情况，让 0 经过转换后一定变化 */
 const dynamicZero = (num, numStr) => {
   if (num === 0) {
@@ -9,8 +9,8 @@ const dynamicZero = (num, numStr) => {
 };
 
 /** 创建 fixed 时依赖宽度的属性 map */
-const createFixedContainingBlockDecls = () => {
-  const mapArray = fixedContainingBlockWidthProp.reduce((prev, cur) => {
+const createContainingBlockWidthDecls = () => {
+  const mapArray = containingBlockWidthProps.reduce((prev, cur) => {
     return prev.concat([[cur, null]]);
   }, []);
   return new Map(mapArray);
@@ -221,7 +221,7 @@ module.exports = {
   isBlacklistSelector,
   convertPropValue,
   hasIgnoreComments,
-  createFixedContainingBlockDecls,
+  createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment,
   dynamicZero,
   hasRootContainingBlockComment,

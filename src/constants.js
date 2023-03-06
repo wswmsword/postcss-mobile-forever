@@ -55,7 +55,7 @@ module.exports = {
   notRootCBComment: "not-root-containing-block",
   rootCBComment: "root-containing-block",
   /** position fixed 时依赖屏幕宽度的属性，https://jameshfisher.com/2019/12/29/what-are-css-percentages/ */
-  fixedContainingBlockWidthProp: [
+  containingBlockWidthProps: [
     "left", "right",
     "margin", "margin-bottom", "margin-left", "margin-right", "margin-top",
     "max-width", "min-width",
