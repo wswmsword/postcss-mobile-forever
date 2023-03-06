@@ -1,5 +1,7 @@
 # postcss-mobile-forever
 
+<img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
+
 一款 PostCSS 插件，用于转换视口单位，限制视图最大宽度，生成屏幕媒体查询，让移动端视图处处可访问。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
@@ -21,12 +23,16 @@ yarn add -D postcss postcss-mobile-forever
 本插件会**把 px 转换成视口单位适配移动端竖屏，限制视口单位的最大宽度，生成媒体查询适配桌面端和移动端横屏**，最终移动端设计视图会按照小版心布局，居中展示在桌面端和移动端横屏，使得每种设备上的移动端视图，兼具良好的展示效果。
 
 > 您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
+<details>
+<summary>
+通过插件生成的媒体查询，期望覆盖手机、平板、笔记本，以及竖屏或横屏的各种屏幕。
+</summary>
 
-通过插件生成的媒体查询，期望覆盖：
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
 - 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
 - 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
 - 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
+</details>
 
 ## 演示效果
 
@@ -70,7 +76,7 @@ yarn add -D postcss postcss-mobile-forever
 | mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
 | mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
 
-> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询。
+> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
 下面是默认的配置参数：
 
@@ -180,7 +186,7 @@ npm run start
 	- 计算方式为 `calc(50% - (idealClientWidth / 2 - number * idealClientWidth / viewportWidth)px)`。
 
 <details>
-<summary>点击查看关于上述包含块内单位转换的更多解释。</summary>
+<summary>查看关于上述包含块内单位转换的更多解释。</summary>
 
 - idealClientWidth（理想客户端宽度）是属性表中的 desktopWidth 或 landscapeWidth；
 - viewportWidth 即属性表中的 viewportWidth；
@@ -268,7 +274,7 @@ npm run start
 
 ## 注意事项
 
-`root-class` 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
+rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
 默认情况，插件会把所有 fixed 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
 
@@ -280,9 +286,9 @@ npm run start
 }
 ```
 
-对于 fixed 定位元素的包含块是祖先元素，而不是根元素（浏览器窗口，visual viewport）的条件，请查看“其它”一节。
+> 对于 fixed 定位元素的包含块是祖先元素，而不是根元素（浏览器窗口，visual viewport）的条件，请查看“其它”一节。
 
-对于包含块，如果 `position: fixed;` 和 `left: 0;` 不在同一选择器，可以在需要重新计算的选择器上标记注释 `/* root-containing-block */`，例如：
+对于包含块，如果 `position: fixed;` 和 `left: 0;` 不在同一选择器，可以在需要重新计算的选择器上标记注释 `/* root-containing-block */`，例如（另一个方法是设置 `rootContainingBlockSelectorList` 参数）：
 
 ```css
 .position {
@@ -297,6 +303,8 @@ npm run start
 	border-radius: 9px;
 }
 ```
+
+插件暂时不支持转换和包含块的 `logical-width`、`logical-height`、`block-size`、`inline-size` 有关的属性。
 
 插件转换的是选择器中的属性的值，不转换 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的属性，例如 `@font-face` 中的属性。
 
@@ -338,7 +346,9 @@ npm run start
 
 ## 其它
 
-配套插件：postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport/*](https://github.com/evrone/postcss-px-to-viewport/)
+配套插件：
+- postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)
+- postcss-extract-media-query，[https://github.com/SassNinja/postcss-extract-media-query](https://github.com/SassNinja/postcss-extract-media-query)
 
 百分比值受包含块（Containing Block）宽度影响的属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
 
