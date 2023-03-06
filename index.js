@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isBlacklistSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
 const { demoModeSelector, lengthProps } = require("./src/constants");
@@ -43,16 +43,18 @@ const defaults = {
   selectorBlackList: [],
   /** 是否处理某个属性？ */
   propList: ['*'],
+  /** 包含块是根元素的选择器列表 */
+  rootContainingBlockSelectorList: [],
   /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
   mobileConfig: {
     viewportUnit: "vw",
     fontViewportUnit: "vw",
     replace: true,
   },
-  sideConfig: {
-    selector: null,
-    width: 190,
-  },
+  // sideConfig: {
+  //   selector: null,
+  //   width: 190,
+  // },
   /** 添加标识，用于调试 */
   demoMode: false,
 };
@@ -89,7 +91,7 @@ module.exports = (options = {}) => {
     }
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, propList, maxDisplayWidth } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
 
 
@@ -158,7 +160,7 @@ module.exports = (options = {}) => {
           containingBlockWidthDeclsMap = createContainingBlockWidthDecls();
           selector = rule.selector;
 
-          if (isBlacklistSelector(selectorBlackList, selector))
+          if (isSelector(selectorBlackList, selector))
             return blackListedSelector = true;
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
           if (rule.parent.params) return insideMediaQuery = true;
@@ -188,7 +190,7 @@ module.exports = (options = {}) => {
           const notRootContainingBlock = hasNoneRootContainingBlockComment(rule);
           if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
           /** 有标志*根包含块*的注释吗？ */
-          const hadRootContainingBlock = hasRootContainingBlockComment(rule);
+          const hadRootContainingBlock = hasRootContainingBlockComment(rule) || isSelector(rootContainingBlockSelectorList, selector);
           if (hadRootContainingBlock) hadFixed = true;
         },
         Declaration(decl, postcss) {

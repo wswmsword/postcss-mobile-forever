@@ -54,6 +54,47 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("rootContainingBlockSelectorList", function() {
+  it("should convert selector string", function() {
+    var input = ".abc { left: 75px; } .def { left: 75px; }";
+    var output = ".abc { left: 10vw; } .def { left: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .abc { left: calc(50% - 240px); } .def { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .abc { left: calc(50% - 170px); } .def { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootContainingBlockSelectorList: [".abc"],
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert selector regex", function() {
+    var input = ".abc { left: 75px; } .def { left: 75px; }";
+    var output = ".abc { left: 10vw; } .def { left: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .abc { left: calc(50% - 240px); } .def { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .abc { left: calc(50% - 170px); } .def { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootContainingBlockSelectorList: [/bc$/],
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert percentage", function() {
+    var input = ".abc { left: 0; bottom: 0; width: 100%; } .def { left: 75px; }";
+    var output = ".abc { left: 0; bottom: 0; width: 100%; } .def { left: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .abc { bottom: .0; left: calc(50% - 300px); width: 600px; } .def { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .abc { bottom: .0; left: calc(50% - 212.5px); width: 425px; } .def { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootContainingBlockSelectorList: [/bc$/],
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert when enabled maxDisplayWidth", function() {
+    var input = ".abc { left: 75px; } .def { left: 75px; }";
+    var output = ".abc { left: calc(50% - min(240px, 40%)); } .def { left: min(10vw, 60px); }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootContainingBlockSelectorList: [/bc$/],
+      disableDesktop: true,
+      disableLandscape: true,
+      maxDisplayWidth: 600,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("CSS variable", function() {
   it("should append var() to shared media query when enabled desktop and landscape", function() {
     var input = ".rule { border-bottom: var(--bb); } .l{}";

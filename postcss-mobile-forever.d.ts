@@ -55,6 +55,9 @@ declare namespace mobileForever {
     /** 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) */
     selectorBlackList?: (string | RegExp)[]
 
+    /** 包含块是根元素的选择器列表 */
+    rootContainingBlockSelectorList?: (string | RegExp)[]
+
     /** 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 */
     mobileConfig?: mobileConfig
   }

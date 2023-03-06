@@ -108,9 +108,9 @@ const createExcludeFunc = (TYPE_REG, TYPE_ARY) => (exclude, file, regOrAry) => {
 };
 
 
-const isBlacklistSelector = (blacklist, selector) => {
+const isSelector = (list, selector) => {
   if (typeof selector !== 'string') return;
-  return blacklist.some((regex) => {
+  return list.some((regex) => {
     if (typeof regex === 'string') return selector.includes(regex);
     return selector.match(regex);
   });
@@ -218,7 +218,7 @@ module.exports = {
   createRegArrayChecker,
   createIncludeFunc,
   createExcludeFunc,
-  isBlacklistSelector,
+  isSelector,
   convertPropValue,
   hasIgnoreComments,
   createContainingBlockWidthDecls,
