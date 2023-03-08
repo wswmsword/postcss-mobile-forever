@@ -1,6 +1,8 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar,
+  pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit,
+} = require("./src/css-generator");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
@@ -204,6 +206,7 @@ module.exports = (options = {}) => {
           if (!satisfyPropList(prop)) return;
   
           if (prop === "position" && val === "fixed") return hadFixed = true;
+          if (hasIgnoreComments(decl, result)) return;
 
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
           if (containingBlockWidthDeclsMap.has(prop)) {
@@ -234,24 +237,13 @@ module.exports = (options = {}) => {
               convertMobile: (number, unit, numberStr) => {
                 if (limitedWidth) {
                   if (unit === "px") {
-                    const fontProp = prop.includes("font");
-                    const n = round(number * 100 / _viewportWidth, unitPrecision);
-                    const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-                    const maxN = round(number * maxDisplayWidth / _viewportWidth, unitPrecision);
-                    if (number > 0) return `min(${n}${mobileUnit}, ${maxN}${unit})`;
-                    else if (number < 0) return `max(${n}${mobileUnit}, ${maxN}${unit})`;
-                    else `0${unit}`;
+                    return pxToMaxViewUnit(number, maxDisplayWidth, _viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
                   } else if (unit === "vw") {
-                    const n = round(maxDisplayWidth / 100 * number, unitPrecision);
-                    if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
-                    else return `max(${n}px, ${numberStr}${unit})`;
+                    return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
                   } else return `${number}${unit}`;
                 }
                 if (unit === "px") {
-                  const fontProp = prop.includes("font");
-                  const n = round(number * 100 / _viewportWidth, unitPrecision);
-                  const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-                  return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
+                  return pxToViewUnit(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
                 } else return `${number}${unit}`;
               },
               convertDesktop: (number, unit, numberStr) => {
@@ -283,9 +275,8 @@ module.exports = (options = {}) => {
             });
           } else if (lengthProps.includes(prop) && varTestReg.test(val)) {
             // 可以匹配 val(...) 的部分（css 变量），css 变量直接加入媒体查询
-            const ignore = hasIgnoreComments(decl, result);
-            const enabledDesktop = !disableDesktop && !ignore;
-            const enabledLandscape = !disableLandscape && !ignore;
+            const enabledDesktop = !disableDesktop;
+            const enabledLandscape = !disableLandscape;
 
             appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
               sharedAtRult,

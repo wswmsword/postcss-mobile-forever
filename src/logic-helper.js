@@ -73,7 +73,7 @@ const createRegArrayChecker = (TYPE_REG, TYPE_ARY) => (options, optionName) => {
     if (!bad) return TYPE_ARY;
   }
   throw new Error('options.' + optionName + ' should be RegExp or Array of RegExp.');
-}
+};
 
 /** 如果不包含，则返回 true，不转换 */
 const createIncludeFunc = (TYPE_REG, TYPE_ARY) => (include, file, regOrAry) => {

@@ -158,13 +158,13 @@ describe("maxDisplayWidth", function() {
 
   it("should convert vw to min(vw, px)", function() {
     var input = ".rule { border-width: 10vw; }";
-    var output = ".rule { border-width: min(60px, 10vw); }";
+    var output = ".rule { border-width: min(10vw, 60px); }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
   it("should convert negative vw to max(vw, px)", function() {
     var input = ".rule { border-width: -10vw; }";
-    var output = ".rule { border-width: max(-60px, -10vw); }";
+    var output = ".rule { border-width: max(-10vw, -60px); }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
@@ -223,7 +223,7 @@ describe("maxDisplayWidth", function() {
 
   it("should convert fixed not-left/right containing-block vw/% to min(px, %)", function() {
     var input = ".rule { position: fixed; padding-bottom: 10vw; padding-top: 10%; padding-left: 0%; }";
-    var output = ".rule { position: fixed; padding-bottom: min(60px, 10vw); padding-top: min(60px, 10%); padding-left: 0%; }";
+    var output = ".rule { position: fixed; padding-bottom: min(10vw, 60px); padding-top: min(10%, 60px); padding-left: 0%; }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });

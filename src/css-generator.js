@@ -28,6 +28,41 @@ function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScape
   }
 }
 
+/** 限制百分比的最大宽度 */
+function percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision) {
+  const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
+  if (number > 0) return `min(${numberStr}%, ${maxN}px)`;
+  else if (number < 0) return `max(${numberStr}%, ${maxN}px)`;
+  else return "0%";
+}
+
+/** vw 限制最大宽度 */
+function vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision) {
+  const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
+  if (number > 0) return `min(${numberStr}vw, ${maxN}px)`;
+  else if (number < 0) return `max(${numberStr}vw, ${maxN}px)`;
+  else return "0vw";
+}
+
+/** px 转为视口单位（限制最大宽度） */
+function pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop) {
+  const fontProp = prop.includes("font");
+  const n = round(number * 100 / viewportWidth, unitPrecision);
+  const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+  const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
+  if (number > 0) return `min(${n}${mobileUnit}, ${maxN}px)`;
+  else if (number < 0) return `max(${n}${mobileUnit}, ${maxN}px)`;
+  else return `0px`;
+}
+
+/** px 转为视口单位 */
+function pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit) {
+  const fontProp = prop.includes("font");
+  const n = round(number * 100 / viewportWidth, unitPrecision);
+  const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+  return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
+}
+
 /** 转换受 fixed 影响的属性的媒体查询值 */
 function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
@@ -90,43 +125,23 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
             } else return `${numberStr}${unit}`;
           } else {
             if (unit === "px") {
-              const fontProp = prop.includes("font");
-              const n = round(number * 100 / viewportWidth, unitPrecision);
-              const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-              const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
-              if (number > 0)
-                return `min(${n}${mobileUnit}, ${maxN}px)`;
-              else if (number <  0) return `max(${n}${mobileUnit}, ${maxN}px)`;
-              else return "0px";
-            } else if (unit === "vw" || unit === "%") {
-              const n = round(maxDisplayWidth / 100 * number, unitPrecision);
-              if (number > 0) return `min(${n}px, ${numberStr}${unit})`;
-              else if (number < 0) return `max(${n}px, ${numberStr}${unit})`;
-              else `0${unit}`;
+              return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
+            } else if (unit === "vw") {
+              return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
+            } else if (unit === "%") {
+              return percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
             } else return `${numberStr}${unit}`;
           }
         } else {
           if (unit === "px") {
-            const fontProp = prop.includes("font");
-            const n = round(number * 100 / viewportWidth, unitPrecision);
-            const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-            const maxN = round(number * maxDisplayWidth / viewportWidth, unitPrecision);
-            if (number > 0) return `min(${n}${mobileUnit}, ${maxN}px)`;
-            else if (number < 0) return `max(${n}${mobileUnit}, ${maxN}px)`;
-            else return "0px";
+            return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
           } else if (unit === "vw") {
-            const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
-            if (number > 0) return `min(${numberStr}vw, ${maxN}px)`;
-            else if (number < 0) return `max(${numberStr}vw, ${maxN}px)`;
-            else return "0vw";
+            return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
           } else return `${number}${unit}`;
         }
       }
       if (unit === "px") {
-        const fontProp = prop.includes("font");
-        const n = round(number * 100 / viewportWidth, unitPrecision);
-        const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
-        return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
+        return pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
       } else
         return `${number}${unit}`
     },
@@ -225,11 +240,10 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   matchPercentage,
 }) {
   decl.book = true;
-  const ignore = hasIgnoreComments(decl, result);
 
-  const enabledDesktop = !disableDesktop && !ignore;
-  const enabledLandscape = !disableLandscape && !ignore;
-  const enabledMobile = !disableMobile && !ignore;
+  const enabledDesktop = !disableDesktop;
+  const enabledLandscape = !disableLandscape;
+  const enabledMobile = !disableMobile;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
     const { mobile, desktop, landscape } = convertPropValue(prop, val, {
@@ -405,4 +419,7 @@ module.exports = {
   appendConvertedFixedContainingBlockDecls,
   appendCentreRoot,
   appendCSSVar,
+  pxToMaxViewUnit,
+  pxToViewUnit,
+  vwToMaxViewUnit,
 };
