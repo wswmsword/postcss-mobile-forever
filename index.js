@@ -1,8 +1,7 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar,
-  pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx,
-} = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
+const { pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx, } = require("./src/unit-transfer");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
