@@ -1,7 +1,6 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
-const { dynamicZero, pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx, } = require("./src/unit-transfer");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
@@ -234,16 +233,10 @@ module.exports = (options = {}) => {
               landscapeWidth,
               matchPercentage: false,
               convertMobile: (number, unit, numberStr) => {
-                if (limitedWidth) {
-                  if (unit === "px") {
-                    return pxToMaxViewUnit(number, maxDisplayWidth, _viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
-                  } else if (unit === "vw") {
-                    return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
-                  } else return `${number}${unit}`;
-                }
-                if (unit === "px") {
-                  return pxToViewUnit(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
-                } else return `${number}${unit}`;
+                if (limitedWidth)
+                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr);
+                else
+                  return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
               },
               convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr),
               convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr),

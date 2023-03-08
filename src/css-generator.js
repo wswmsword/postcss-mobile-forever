@@ -2,13 +2,14 @@ const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight,
 const {
   convertPropValue,
   convertFixedMediaQuery,
+  convertMobile,
+  convertMaxMobile,
 } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
 const {
   percentageToMaxViewUnit,
   vwToMaxViewUnit,
   pxToMaxViewUnit,
-  pxToViewUnit,
   pxToMaxViewUnit_FIXED_LR,
   vwToMaxViewUnit_FIXED_LR,
   percentToMaxViewUnit_FIXED_LR,
@@ -75,41 +76,43 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     landscapeWidth,
     matchPercentage: isFixed,
     convertMobile: (number, unit, numberStr) => {
-      if (limitedWidth) {
-        if (isFixed) {
-          if (leftOrRight) {
-            if (unit === "px") {
+      if (isFixed) {
+        if (leftOrRight) {
+          if (limitedWidth) {
+            if (unit === "px")
               return pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision);
-            } else if (unit === "vw") {
+            else if (unit === "vw")
               return vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
-            } else if (unit === '%') {
+            else if (unit === '%')
               return percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
-            } else if (unit === " " || unit === "") {
+            else if (unit === " " || unit === "") {
               if (number === 0)
                 return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
               return `${number}${unit}`;
             } else return `${numberStr}${unit}`;
           } else {
+            return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+          }
+        } else {
+          if (limitedWidth) {
             if (unit === "px") {
               return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
             } else if (unit === "vw") {
               return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
-            } else if (unit === "%") {
+            } else if (unit === '%') {
               return percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
             } else return `${numberStr}${unit}`;
+          } else {
+            return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
           }
+        }
+      } else {
+        if (limitedWidth) {
+          return convertMaxMobile(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr);
         } else {
-          if (unit === "px") {
-            return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
-          } else if (unit === "vw") {
-            return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
-          } else return `${number}${unit}`;
+          return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
         }
       }
-      if (unit === "px") {
-        return pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
-      } else
-        return `${number}${unit}`
     },
     convertDesktop: (number, unit, numberStr) => convertFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
     convertLandscape: (number, unit, numberStr) => convertFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),

@@ -1,6 +1,6 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment } = require("./constants");
-const { vwToMediaQueryPx, pxToMediaQueryPx, dynamicZero, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED } = require("./unit-transfer");
+const { vwToMediaQueryPx, pxToMediaQueryPx, dynamicZero, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createContainingBlockWidthDecls = () => {
@@ -249,9 +249,21 @@ const convertNoFixedMediaQuery = (number, idealWidth, viewportWidth, precision, 
     return `${dzn(number)}${unit}`;
 };
 
-// const convertNoFixedMobile = () => {
+/** 转换移动竖屏 */
+const convertMobile = (prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit) => {
+  if (unit === "px")
+    return pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+  else return `${number}${unit}`;
+};
 
-// };
+/** 转换移动竖屏，限制最大宽度 */
+const convertMaxMobile = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr) => {
+  if (unit === "px")
+    return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
+  else if (unit === "vw")
+    return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
+  else return `${number}${unit}`;
+}
 
 module.exports = {
   removeDulplicateDecls,
@@ -267,4 +279,6 @@ module.exports = {
   hasRootContainingBlockComment,
   convertNoFixedMediaQuery,
   convertFixedMediaQuery,
+  convertMobile,
+  convertMaxMobile,
 };
