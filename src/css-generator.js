@@ -1,7 +1,7 @@
 const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, lengthProps } = require("./constants");
 const {
   convertPropValue,
-  dynamicZero,
+  convertFixedMediaQuery,
 } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
 const {
@@ -12,13 +12,6 @@ const {
   pxToMaxViewUnit_FIXED_LR,
   vwToMaxViewUnit_FIXED_LR,
   percentToMaxViewUnit_FIXED_LR,
-  pxToMediaQueryPx,
-  pxToMediaQueryPx_FIXED_LR,
-  vwToMediaQueryPx_FIXED_LR,
-  percentToMediaQueryPx_FIXED_LR,
-  noUnitZeroToMediaQueryPx_FIXED_LR,
-  vwToMediaQueryPx,
-  percentToMediaQueryPx_FIXED,
 } = require("./unit-transfer");
 
 function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
@@ -118,80 +111,8 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       } else
         return `${number}${unit}`
     },
-    convertDesktop: (number, unit, numberStr) => {
-      // 处理 0
-      const dznn = numberStr => number => dynamicZero(number, numberStr);
-      const dzn = dznn(numberStr);
-      if (isFixed) {
-        if (leftOrRight) {
-          if (unit === "px") {
-            return pxToMediaQueryPx_FIXED_LR(number, viewportWidth, desktopWidth, unitPrecision);
-          } else if (unit === "vw") {
-            return vwToMediaQueryPx_FIXED_LR(number, desktopWidth, unitPrecision);
-          } else if (unit === '%') {
-            return percentToMediaQueryPx_FIXED_LR(number, desktopWidth, unitPrecision);
-          } else if (unit === "" || unit === " ") {
-            if (number === 0)
-              return noUnitZeroToMediaQueryPx_FIXED_LR(desktopWidth);
-            return `${number}${unit}`;
-          } else
-            return `${number}${unit}`;
-        } else {
-          if (unit === "px") {
-            return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
-          } else if (unit === '%') {
-            return percentToMediaQueryPx_FIXED(number, desktopWidth, unitPrecision, numberStr);
-          } else if (unit === "vw") {
-            return vwToMediaQueryPx(number, desktopWidth, unitPrecision, numberStr);
-          } else
-            return `${dzn(number)}${unit}`;
-        }
-      } else {
-        if (unit === "vw")
-          return vwToMediaQueryPx(number, desktopWidth, unitPrecision);
-        else if (unit === "px") {
-          return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
-        } else
-          return `${dzn(number)}${unit}`;
-      }
-    },
-    convertLandscape: (number, unit, numberStr) => {
-      // 处理 0
-      const dznn = numberStr => number => dynamicZero(number, numberStr);
-      const dzn = dznn(numberStr);
-      if (isFixed) {
-        if (leftOrRight) {
-          if (unit === "px") {
-            return pxToMediaQueryPx_FIXED_LR(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
-          } else if (unit === '%') {
-            return percentToMediaQueryPx_FIXED_LR(number, landscapeWidth, unitPrecision);
-          } else if (unit === "vw") {
-            return vwToMediaQueryPx_FIXED_LR(number, landscapeWidth, unitPrecision);
-          } else if (unit === "" || unit === " ") {
-            if (number === 0)
-              return noUnitZeroToMediaQueryPx_FIXED_LR(landscapeWidth);
-            return `${number}${unit}`;
-          } else
-            return `${number}${unit}`;
-        } else {
-          if (unit === "px") {
-            return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
-          } else if (unit === "vw") {
-            return vwToMediaQueryPx(number, landscapeWidth, unitPrecision, numberStr);
-          } else if (unit === '%') {
-            return percentToMediaQueryPx_FIXED(number, landscapeWidth, unitPrecision, numberStr);
-          } else
-            return `${dzn(number)}${unit}`;
-        }
-      } else {
-        if (unit === "vw")
-          return vwToMediaQueryPx(number, landscapeWidth, unitPrecision);
-        else if (unit === "px") {
-          return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
-        } else
-          return `${dzn(number)}${unit}`;
-      }
-    },
+    convertDesktop: (number, unit, numberStr) => convertFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
+    convertLandscape: (number, unit, numberStr) => convertFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
   });
 }
 

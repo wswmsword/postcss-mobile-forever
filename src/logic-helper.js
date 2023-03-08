@@ -1,12 +1,6 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment } = require("./constants");
-/** 单独处理 0 的情况，让 0 经过转换后一定变化 */
-const dynamicZero = (num, numStr) => {
-  if (num === 0) {
-    return numStr === '0' ? `.0` : `${numStr}0`;
-  }
-  return num;
-};
+const { vwToMediaQueryPx, pxToMediaQueryPx, dynamicZero, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createContainingBlockWidthDecls = () => {
@@ -52,9 +46,6 @@ const mergeRules = (node) => {
 		}
 	});
 };
-
-/** 取小数后一位的四舍五入 */
-const round = (number, precision) => Math.round(+number + 'e' + precision) / Math.pow(10, precision);
 
 /** 检查是否是正则类型或包含正则的数组 */
 const createRegArrayChecker = (TYPE_REG, TYPE_ARY) => (options, optionName) => {
@@ -211,10 +202,60 @@ const convertPropValue = (prop, val, {
   }
 };
 
+/** 转换包含块是根元素的媒体查询 */
+const convertFixedMediaQuery = (number, idealWidth, viewportWidth, precision, unit, numberStr, isFixed, leftOrRight) => {
+  // 处理 0
+  const dznn = numberStr => number => dynamicZero(number, numberStr);
+  const dzn = dznn(numberStr);
+  if (isFixed) {
+    if (leftOrRight) {
+      if (unit === "px") {
+        return pxToMediaQueryPx_FIXED_LR(number, viewportWidth, idealWidth, precision);
+      } else if (unit === "vw") {
+        return vwToMediaQueryPx_FIXED_LR(number, idealWidth, precision);
+      } else if (unit === '%') {
+        return percentToMediaQueryPx_FIXED_LR(number, idealWidth, precision);
+      } else if (unit === "" || unit === " ") {
+        if (number === 0)
+          return noUnitZeroToMediaQueryPx_FIXED_LR(idealWidth);
+        return `${number}${unit}`;
+      } else
+        return `${number}${unit}`;
+    } else {
+      if (unit === "px") {
+        return pxToMediaQueryPx(number, viewportWidth, idealWidth, precision, numberStr);
+      } else if (unit === '%') {
+        return percentToMediaQueryPx_FIXED(number, idealWidth, precision, numberStr);
+      } else if (unit === "vw") {
+        return vwToMediaQueryPx(number, idealWidth, precision, numberStr);
+      } else
+        return `${dzn(number)}${unit}`;
+    }
+  } else {
+    return convertNoFixedMediaQuery(number, idealWidth, viewportWidth, precision, unit, numberStr);
+  }
+};
+
+/** 转换媒体查询 */
+const convertNoFixedMediaQuery = (number, idealWidth, viewportWidth, precision, unit, numberStr) => {
+  const dznn = numberStr => number => dynamicZero(number, numberStr);
+  const dzn = dznn(numberStr);
+
+  if (unit === "vw")
+    return vwToMediaQueryPx(number, idealWidth, precision, numberStr);
+  else if (unit === "px") {
+    return pxToMediaQueryPx(number, viewportWidth, idealWidth, precision, numberStr);
+  } else
+    return `${dzn(number)}${unit}`;
+};
+
+// const convertNoFixedMobile = () => {
+
+// };
+
 module.exports = {
   removeDulplicateDecls,
   mergeRules,
-  round,
   createRegArrayChecker,
   createIncludeFunc,
   createExcludeFunc,
@@ -223,6 +264,7 @@ module.exports = {
   hasIgnoreComments,
   createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment,
-  dynamicZero,
   hasRootContainingBlockComment,
+  convertNoFixedMediaQuery,
+  convertFixedMediaQuery,
 };

@@ -1,8 +1,14 @@
 const {
   round,
-  dynamicZero,
-} = require("./logic-helper");
+} = require("./utils");
 
+/** 单独处理 0 的情况，让 0 经过转换后一定变化 */
+const dynamicZero = (num, numStr) => {
+  if (num === 0) {
+    return numStr === '0' ? `.0` : `${numStr}0`;
+  }
+  return num;
+};
 
 /** 限制百分比的最大宽度 */
 function percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision) {
@@ -113,6 +119,7 @@ function percentToMediaQueryPx_FIXED(number, idealWidth, precision, numberStr) {
 }
 
 module.exports = {
+  dynamicZero,
   percentageToMaxViewUnit,
   vwToMaxViewUnit,
   pxToMaxViewUnit,

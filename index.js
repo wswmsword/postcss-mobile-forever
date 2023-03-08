@@ -1,7 +1,7 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
-const { pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx, } = require("./src/unit-transfer");
+const { dynamicZero, pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx, } = require("./src/unit-transfer");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
@@ -245,30 +245,8 @@ module.exports = (options = {}) => {
                   return pxToViewUnit(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
                 } else return `${number}${unit}`;
               },
-              convertDesktop: (number, unit, numberStr) => {
-                // 处理 0
-                const dznn = numberStr => number => dynamicZero(number, numberStr);
-                const dzn = dznn(numberStr);
-
-                if (unit === "vw")
-                  return vwToMediaQueryPx(number, desktopWidth, unitPrecision, numberStr);
-                else if (unit === "px") {
-                  return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
-                } else
-                  return `${dzn(number)}${unit}`;
-              },
-              convertLandscape: (number, unit, numberStr) => {
-                // 处理 0
-                const dznn = numberStr => number => dynamicZero(number, numberStr);
-                const dzn = dznn(numberStr);
-
-                if (unit === "vw")
-                  return vwToMediaQueryPx(number, landscapeWidth, unitPrecision, numberStr);
-                else if (unit === "px") {
-                  return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
-                } else
-                  return `${dzn(number)}${unit}`;
-              },
+              convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr),
+              convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr),
             });
           } else if (lengthProps.includes(prop) && varTestReg.test(val)) {
             // 可以匹配 val(...) 的部分（css 变量），css 变量直接加入媒体查询
