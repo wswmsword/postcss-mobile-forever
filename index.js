@@ -1,7 +1,7 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, round, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, dynamicZero, hasRootContainingBlockComment, hasIgnoreComments } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar,
-  pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit,
+  pxToViewUnit, pxToMaxViewUnit, vwToMaxViewUnit, pxToMediaQueryPx, vwToMediaQueryPx,
 } = require("./src/css-generator");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
@@ -252,10 +252,9 @@ module.exports = (options = {}) => {
                 const dzn = dznn(numberStr);
 
                 if (unit === "vw")
-                  return `${dzn(round(desktopWidth / 100 * number, unitPrecision))}px`;
+                  return vwToMediaQueryPx(number, desktopWidth, unitPrecision, numberStr);
                 else if (unit === "px") {
-                  const n = round(number * desktopRadio, unitPrecision);
-                  return `${dzn(n)}px`;
+                  return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
                 } else
                   return `${dzn(number)}${unit}`;
               },
@@ -265,10 +264,9 @@ module.exports = (options = {}) => {
                 const dzn = dznn(numberStr);
 
                 if (unit === "vw")
-                  return `${dzn(round(landscapeWidth / 100 * number, unitPrecision))}px`;
+                  return vwToMediaQueryPx(number, landscapeWidth, unitPrecision, numberStr);
                 else if (unit === "px") {
-                  const n = round(number * landscapeRadio, unitPrecision);
-                  return `${dzn(n)}px`;
+                  return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
                 } else
                   return `${dzn(number)}${unit}`;
               },

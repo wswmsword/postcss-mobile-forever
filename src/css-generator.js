@@ -89,6 +89,52 @@ function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
   else return `calc(50% - max(${calc2}%, ${calc}px))`;
 }
 
+/** px 转为媒体查询中的 px */
+function pxToMediaQueryPx(number, viewportWidth, idealWidth, unitPrecision, numberStr) {
+  const dznn = numberStr => number => dynamicZero(number, numberStr);
+  const dzn = dznn(numberStr);
+  const radio = idealWidth / viewportWidth;
+  const n = round(number * radio, unitPrecision);
+  return `${dzn(n)}px`;
+}
+
+/** 以根元素为包含块的 left、right 属性的 px 值转换 */
+function pxToMediaQueryPx_FIXED_LR(number, viewportWidth, idealWidth, unitPrecision) {
+  const radio = idealWidth / viewportWidth;
+  const roundedCalc = round(idealWidth / 2 - number * radio, unitPrecision);
+  return `calc(50% - ${roundedCalc}px)`;
+}
+
+/** 以根元素为包含块的 left、right 属性的 vw 值转换 */
+function vwToMediaQueryPx_FIXED_LR(number, idealWidth, precision) {
+  const roundedCalc = round(idealWidth / 2 - idealWidth * number / 100, precision);
+  return `calc(50% - ${roundedCalc}px)`;
+}
+
+/** 以根元素为包含块的 left、right 属性的百分比 % 值转换 */
+function percentToMediaQueryPx_FIXED_LR(number, idealWidth, precision) {
+  const roundedCalc = round(idealWidth / 2 - idealWidth * number / 100, precision);
+  return `calc(50% - ${roundedCalc}px)`;
+}
+
+/** 无单位的 0，以根元素为包含块，left、right 属性的转换 */
+function noUnitZeroToMediaQueryPx_FIXED_LR(idealWidth) {
+  return `calc(50% - ${idealWidth / 2}px)`;
+}
+
+/** vw 转为媒体查询中的 px */
+function vwToMediaQueryPx(number, idealWidth, precision, numberStr) {
+  const dznn = numberStr => number => dynamicZero(number, numberStr);
+  const dzn = dznn(numberStr);
+  return `${dzn(round(idealWidth / 100 * number, precision))}px`;
+}
+
+function percentToMediaQueryPx_FIXED(number, idealWidth, precision, numberStr) {
+  const dznn = numberStr => number => dynamicZero(number, numberStr);
+  const dzn = dznn(numberStr);
+  return `${dzn(round(idealWidth / 100 * number, precision))}px`;
+}
+
 /** 转换受 fixed 影响的属性的媒体查询值 */
 function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
@@ -172,32 +218,32 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (isFixed) {
         if (leftOrRight) {
           if (unit === "px") {
-            const roundedCalc = round(desktopWidth / 2 - number * desktopRadio, unitPrecision)
-            return `calc(50% - ${roundedCalc}px)`;
-          } else if (unit === "%" || unit === "vw") {
-            const roundedCalc = round(desktopWidth / 2 - desktopWidth * number / 100, unitPrecision)
-            return `calc(50% - ${roundedCalc}px)`;
+            return pxToMediaQueryPx_FIXED_LR(number, viewportWidth, desktopWidth, unitPrecision);
+          } else if (unit === "vw") {
+            return vwToMediaQueryPx_FIXED_LR(number, desktopWidth, unitPrecision);
+          } else if (unit === '%') {
+            return percentToMediaQueryPx_FIXED_LR(number, desktopWidth, unitPrecision);
           } else if (unit === "" || unit === " ") {
             if (number === 0)
-              return `calc(50% - ${desktopWidth / 2}px)`;
+              return noUnitZeroToMediaQueryPx_FIXED_LR(desktopWidth);
             return `${number}${unit}`;
           } else
             return `${number}${unit}`;
         } else {
           if (unit === "px") {
-            const roundedPx = round(number * desktopRadio, unitPrecision);
-            return `${dzn(roundedPx)}px`;
-          } else if (unit === '%' || unit === "vw") {
-            return `${dzn(round(desktopWidth * number / 100, unitPrecision))}px`;
+            return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
+          } else if (unit === '%') {
+            return percentToMediaQueryPx_FIXED(number, desktopWidth, unitPrecision, numberStr);
+          } else if (unit === "vw") {
+            return vwToMediaQueryPx(number, desktopWidth, unitPrecision, numberStr);
           } else
             return `${dzn(number)}${unit}`;
         }
       } else {
         if (unit === "vw")
-          return `${dzn(round(desktopWidth * number / 100, unitPrecision))}px`;
+          return vwToMediaQueryPx(number, desktopWidth, unitPrecision);
         else if (unit === "px") {
-          const roundedPx = round(number * desktopRadio, unitPrecision);
-          return `${dzn(roundedPx)}px`;
+          return pxToMediaQueryPx(number, viewportWidth, desktopWidth, unitPrecision, numberStr);
         } else
           return `${dzn(number)}${unit}`;
       }
@@ -209,32 +255,32 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (isFixed) {
         if (leftOrRight) {
           if (unit === "px") {
-            const roundedCalc = round(landscapeWidth / 2 - number * landscapeRadio, unitPrecision)
-            return `calc(50% - ${roundedCalc}px)`;
-          } else if (unit === "%" || unit === "vw") {
-            const roundedCalc = round(landscapeWidth / 2 - landscapeWidth * number / 100, unitPrecision);
-            return `calc(50% - ${roundedCalc}px)`;
+            return pxToMediaQueryPx_FIXED_LR(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
+          } else if (unit === '%') {
+            return percentToMediaQueryPx_FIXED_LR(number, landscapeWidth, unitPrecision);
+          } else if (unit === "vw") {
+            return vwToMediaQueryPx_FIXED_LR(number, landscapeWidth, unitPrecision);
           } else if (unit === "" || unit === " ") {
             if (number === 0)
-              return `calc(50% - ${landscapeWidth / 2}px)`;
+              return noUnitZeroToMediaQueryPx_FIXED_LR(landscapeWidth);
             return `${number}${unit}`;
           } else
             return `${number}${unit}`;
         } else {
           if (unit === "px") {
-            const roundedPx = round(number * landscapeRadio, unitPrecision);
-            return `${dzn(roundedPx)}px`;
-          } else if (unit === '%' || unit === "vw") {
-            return `${dzn(round(landscapeWidth / 100 * number, unitPrecision))}px`;
+            return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
+          } else if (unit === "vw") {
+            return vwToMediaQueryPx(number, landscapeWidth, unitPrecision, numberStr);
+          } else if (unit === '%') {
+            return percentToMediaQueryPx_FIXED(number, landscapeWidth, unitPrecision, numberStr);
           } else
             return `${dzn(number)}${unit}`;
         }
       } else {
         if (unit === "vw")
-          return `${dzn(round(landscapeWidth / 100 * number, unitPrecision))}px`;
+          return vwToMediaQueryPx(number, landscapeWidth, unitPrecision);
         else if (unit === "px") {
-          const roundedPx = round(number * landscapeRadio, unitPrecision);
-          return `${dzn(roundedPx)}px`;
+          return pxToMediaQueryPx(number, viewportWidth, landscapeWidth, unitPrecision, numberStr);
         } else
           return `${dzn(number)}${unit}`;
       }
@@ -442,4 +488,6 @@ module.exports = {
   pxToMaxViewUnit,
   pxToViewUnit,
   vwToMaxViewUnit,
+  pxToMediaQueryPx,
+  vwToMediaQueryPx,
 };
