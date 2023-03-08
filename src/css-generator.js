@@ -63,6 +63,32 @@ function pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontView
   return number === 0 ? `0${unit}` : `${n}${mobileUnit}`;
 }
 
+/** 以根元素为包含块的 left、right 属性的 px 值转换 */
+function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision) {
+  const maxNRadio = maxDisplayWidth / viewportWidth;
+  const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
+  const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
+  if (number > maxDisplayWidth / 2)
+    return `calc(50% - max(${calc2}px, ${calc}%))`;
+  else return `calc(50% - min(${calc2}px, ${calc}%))`;
+}
+
+/** 以根元素为包含块的 left、right 属性的 vw 值转换 */
+function vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
+  const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
+  const calc2 = 50 - number;
+  if (number < 50) return `calc(50vw - min(${calc2}vw, ${calc}px))`;
+  else return `calc(50vw - max(${calc2}vw, ${calc}px))`;
+}
+
+/** 以根元素为包含块的 left、right 属性的百分比 % 值转换 */
+function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
+  const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
+  const calc2 = 50 - number;
+  if (number < 50) return `calc(50% - min(${calc2}%, ${calc}px))`;
+  else return `calc(50% - max(${calc2}%, ${calc}px))`;
+}
+
 /** 转换受 fixed 影响的属性的媒体查询值 */
 function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
@@ -106,18 +132,12 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (limitedWidth) {
         if (isFixed) {
           if (leftOrRight) {
-            const maxNRadio = maxDisplayWidth / viewportWidth;
             if (unit === "px") {
-              const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
-              const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
-              if (number > maxDisplayWidth / 2)
-                return `calc(50% - max(${calc2}px, ${calc}%))`;
-              else return `calc(50% - min(${calc2}px, ${calc}%))`;
-            } else if (unit === "vw" || unit === "%") {
-              const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
-              const calc2 = 50 - number;
-              if (number < 50) return `calc(50${unit} - min(${calc2}${unit}, ${calc}px))`;
-              else return `calc(50${unit} - max(${calc2}${unit}, ${calc}px))`;
+              return pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision);
+            } else if (unit === "vw") {
+              return vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
+            } else if (unit === '%') {
+              return percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
             } else if (unit === " " || unit === "") {
               if (number === 0)
                 return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
