@@ -4,16 +4,10 @@ const {
   convertFixedMediaQuery,
   convertMobile,
   convertMaxMobile,
+  convertMaxMobile_FIXED,
+  convertMaxMobile_FIXED_LR,
 } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
-const {
-  percentageToMaxViewUnit,
-  vwToMaxViewUnit,
-  pxToMaxViewUnit,
-  pxToMaxViewUnit_FIXED_LR,
-  vwToMaxViewUnit_FIXED_LR,
-  percentToMaxViewUnit_FIXED_LR,
-} = require("./unit-transfer");
 
 function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
   if (!disableMobile) {
@@ -79,29 +73,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
       if (isFixed) {
         if (leftOrRight) {
           if (limitedWidth) {
-            if (unit === "px")
-              return pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision);
-            else if (unit === "vw")
-              return vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
-            else if (unit === '%')
-              return percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision);
-            else if (unit === " " || unit === "") {
-              if (number === 0)
-                return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
-              return `${number}${unit}`;
-            } else return `${numberStr}${unit}`;
+            return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, numberStr);
           } else {
             return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
           }
         } else {
           if (limitedWidth) {
-            if (unit === "px") {
-              return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
-            } else if (unit === "vw") {
-              return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
-            } else if (unit === '%') {
-              return percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
-            } else return `${numberStr}${unit}`;
+            return convertMaxMobile_FIXED(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr);
           } else {
             return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
           }
