@@ -20,11 +20,7 @@ yarn add -D postcss postcss-mobile-forever
 
 ## 简介
 
-本插件会**把 px 转换成视口单位适配移动端竖屏，限制视口单位的最大宽度，生成媒体查询适配桌面端和移动端横屏**，最终移动端设计视图会按照小版心布局，居中展示在屏幕中央，使得每种设备上的移动端视图，兼具良好的展示效果。
-
-如果选择限制视口单位的最大宽度，当屏幕宽度超过指定宽度后，视图仍然保持指定宽度不变，居中于屏幕。
-
-如果选择生成媒体查询，视图将会根据桌面端和横屏来展示合适宽度的视图，居中于屏幕，桌面端视图宽一些，横屏则窄一些。
+本插件**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上。插件也可以**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕。
 
 <details>
 <summary>
@@ -355,7 +351,7 @@ rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果�
 
 配套插件：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)
-- postcss-extract-media-query，[https://github.com/SassNinja/postcss-extract-media-query](https://github.com/SassNinja/postcss-extract-media-query)
+- postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)
 
 百分比值受包含块（Containing Block）宽度影响的属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
 
