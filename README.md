@@ -17,10 +17,36 @@ yarn 安装：
 ```bash
 yarn add -D postcss postcss-mobile-forever
 ```
+<details>
+<summary>
+安装之后在 `postcss.config.js` 配置文件中引入，或者其它框架配置文件中引入。
+</summary>
+
+```javascript
+import mobile from 'postcss-mobile-forever' // <---- 这里
+import autoprefixer from 'autoprefixer'
+// 省略……
+{
+	postcss: {
+		plugins: [
+			autoprefixer(),
+			mobile({ // <---- 这里
+				rootSelector: '#app',
+				viewportWidth: 375,
+				border: false,
+			}),
+		],
+	},
+}
+// 省略……
+```
+</details>
 
 ## 简介
 
-本插件**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上。插件也可以**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕。
+插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询，第二种方法限制视口单位的最大值：
+- 第一种方法**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上，这种方法覆盖广；
+- 第二种方法**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法代码量小。
 
 <details>
 <summary>
