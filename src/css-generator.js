@@ -158,8 +158,8 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
     if (enabledDesktop || enabledLandscape) {
       if (lengthProps.includes(prop)) {
         const tested = varTestReg.test(val);
-        shouldAppendDesktopVar = tested && val === desktop;
-        shouldAppendLandscape = tested && val === landscape;
+        shouldAppendDesktopVar = tested && !converted;
+        shouldAppendLandscape = tested && !converted;
       }
     }
     appendCSSVar(shouldAppendDesktopVar, shouldAppendLandscape, prop, val, important, selector, postcss, {

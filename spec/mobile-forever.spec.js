@@ -188,6 +188,13 @@ describe("CSS variable", function() {
     expect(processed).toBe(output);
   });
 
+  it("should not convert value includes 0", function() {
+    var input = ".rule { padding: 0 var(--bb); } .l{}";
+    var output = ".rule { padding: 0 var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { padding: 0 var(--bb); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { padding: 0 var(--bb); } }"
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
   it("should not append color var() to media query", function() {
     var input = ".rule { color: var(--salmon); } .l{}";
     var output = ".rule { color: var(--salmon); } .l{}";
