@@ -1,6 +1,6 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment } = require("./constants");
-const { vwToMediaQueryPx, pxToMediaQueryPx, dynamicZero, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
+const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createContainingBlockWidthDecls = () => {
@@ -169,6 +169,7 @@ const convertPropValue = (prop, val, {
   convertLandscape,
   matchPercentage,
 }) => {
+  let book = false;
   let mobileVal = '';
   let desktopVal = '';
   let landscapeVal = '';
@@ -179,6 +180,7 @@ const convertPropValue = (prop, val, {
   while(matched = reg.exec(val)) {
     const numberStr = matched[2];
     if (numberStr == null) continue;
+    book = true;
     const beforePxContent = matched[1] || '';
     const chunk = val.slice(lastIndex, matched.index + beforePxContent.length); // 当前匹配和上一次匹配之间的字符串
     const number = Number(numberStr); // 数字
@@ -199,14 +201,12 @@ const convertPropValue = (prop, val, {
     mobile: enabledMobile ? mobileVal.concat(tailChunk) : val,
     desktop: enabledDesktop ? desktopVal.concat(tailChunk) : val,
     landscape: enabledLandscape ? landscapeVal.concat(tailChunk) : val,
+    book,
   }
 };
 
 /** 转换包含块是根元素的媒体查询 */
 const convertFixedMediaQuery = (number, idealWidth, viewportWidth, precision, unit, numberStr, isFixed, leftOrRight) => {
-  // 处理 0
-  const dznn = numberStr => number => dynamicZero(number, numberStr);
-  const dzn = dznn(numberStr);
   if (isFixed) {
     if (leftOrRight) {
       if (unit === "px") {
@@ -229,7 +229,7 @@ const convertFixedMediaQuery = (number, idealWidth, viewportWidth, precision, un
       } else if (unit === "vw") {
         return vwToMediaQueryPx(number, idealWidth, precision, numberStr);
       } else
-        return `${dzn(number)}${unit}`;
+        return `${number}${unit}`;
     }
   } else {
     return convertNoFixedMediaQuery(number, idealWidth, viewportWidth, precision, unit, numberStr);
@@ -238,15 +238,11 @@ const convertFixedMediaQuery = (number, idealWidth, viewportWidth, precision, un
 
 /** 转换媒体查询 */
 const convertNoFixedMediaQuery = (number, idealWidth, viewportWidth, precision, unit, numberStr) => {
-  const dznn = numberStr => number => dynamicZero(number, numberStr);
-  const dzn = dznn(numberStr);
-
   if (unit === "vw")
     return vwToMediaQueryPx(number, idealWidth, precision, numberStr);
   else if (unit === "px") {
     return pxToMediaQueryPx(number, viewportWidth, idealWidth, precision, numberStr);
-  } else
-    return `${dzn(number)}${unit}`;
+  } else return `${number}${unit}`;
 };
 
 /** 转换移动竖屏 */

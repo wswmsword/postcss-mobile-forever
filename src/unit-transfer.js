@@ -2,14 +2,6 @@ const {
   round,
 } = require("./utils");
 
-/** 单独处理 0 的情况，让 0 经过转换后一定变化 */
-const dynamicZero = (num, numStr) => {
-  if (num === 0) {
-    return numStr === '0' ? `.0` : `${numStr}0`;
-  }
-  return num;
-};
-
 /** 限制百分比的最大宽度 */
 function percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision) {
   const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
@@ -73,11 +65,9 @@ function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
 
 /** px 转为媒体查询中的 px */
 function pxToMediaQueryPx(number, viewportWidth, idealWidth, unitPrecision, numberStr) {
-  const dznn = numberStr => number => dynamicZero(number, numberStr);
-  const dzn = dznn(numberStr);
   const radio = idealWidth / viewportWidth;
   const n = round(number * radio, unitPrecision);
-  return `${dzn(n)}px`;
+  return `${n}px`;
 }
 
 /** 以根元素为包含块的 left、right 属性的 px 值转换 */
@@ -106,20 +96,15 @@ function noUnitZeroToMediaQueryPx_FIXED_LR(idealWidth) {
 
 /** vw 转为媒体查询中的 px */
 function vwToMediaQueryPx(number, idealWidth, precision, numberStr) {
-  const dznn = numberStr => number => dynamicZero(number, numberStr);
-  const dzn = dznn(numberStr);
-  return `${dzn(round(idealWidth / 100 * number, precision))}px`;
+  return `${round(idealWidth / 100 * number, precision)}px`;
 }
 
 /** 百分比 % 转为媒体查询中的 px，包含块为根元素 */
 function percentToMediaQueryPx_FIXED(number, idealWidth, precision, numberStr) {
-  const dznn = numberStr => number => dynamicZero(number, numberStr);
-  const dzn = dznn(numberStr);
-  return `${dzn(round(idealWidth / 100 * number, precision))}px`;
+  return `${round(idealWidth / 100 * number, precision)}px`;
 }
 
 module.exports = {
-  dynamicZero,
   percentageToMaxViewUnit,
   vwToMaxViewUnit,
   pxToMaxViewUnit,

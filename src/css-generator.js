@@ -121,7 +121,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   const enabledMobile = !disableMobile;
 
   if (enabledDesktop || enabledLandscape || enabledMobile) {
-    const { mobile, desktop, landscape } = convertPropValue(prop, val, {
+    const { mobile, desktop, landscape, book: converted } = convertPropValue(prop, val, {
       enabledMobile,
       enabledDesktop,
       enabledLandscape,
@@ -135,28 +135,22 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
     });
 
     if (enabledMobile) {
-      if (replace)
-        decl.value = mobile;
-      else
-        decl.after(decl.clone({ value: mobile, book: true, }));
+      if (replace) decl.value = mobile;
+      else decl.after(decl.clone({ value: mobile, book: true, }));
     }
-    if (enabledDesktop) {
-      if (val !== desktop) {
-        desktopViewAtRule.append(postcss.rule({ selector }).append({
-          prop: prop, // 属性
-          value: desktop, // 替换 px 比例计算后的值
-          important, // 值的尾部有 important 则添加
-        }));
-      }
+    if (enabledDesktop && converted) {
+      desktopViewAtRule.append(postcss.rule({ selector }).append({
+        prop: prop, // 属性
+        value: desktop, // 替换 px 比例计算后的值
+        important, // 值的尾部有 important 则添加
+      }));
     }
-    if (enabledLandscape) {
-      if (val !== landscape) {
-        landScapeViewAtRule.append(postcss.rule({ selector }).append({
-          prop,
-          value: landscape,
-          important,
-        }));
-      }
+    if (enabledLandscape && converted) {
+      landScapeViewAtRule.append(postcss.rule({ selector }).append({
+        prop,
+        value: landscape,
+        important,
+      }));
     }
 
     let shouldAppendDesktopVar = false;
