@@ -61,9 +61,9 @@ module.exports = {
     prop: "left",
     value: `calc(50% - ${vwidth / 2 + gap + width}px)`,
   }),
-  sideR: (vwidth, gap) => ({
+  sideR: (vwidth, gap, width) => ({
     prop: "right",
-    value: `calc(50% - ${vwidth / 2 + gap}px)`
+    value: `calc(50% - ${vwidth / 2 + gap + width}px)`
   }),
   top: t => ({
     prop: "top",
