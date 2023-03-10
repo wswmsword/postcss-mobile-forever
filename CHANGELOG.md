@@ -13,6 +13,7 @@
 - 整理入参。
 
 ### Changed
+- 插件更名；
 - 更换 ignoreNext 和 ignoreLine 的默认值。
 
 ## [2.4.0] - 2023-03-10
