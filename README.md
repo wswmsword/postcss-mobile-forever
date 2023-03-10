@@ -19,7 +19,7 @@ yarn add -D postcss postcss-mobile-forever
 ```
 <details>
 <summary>
-安装之后在 `postcss.config.js` 配置文件中引入，或者其它框架配置文件中引入。
+安装之后在 postcss.config.js 配置文件中引入，或者其它框架配置文件中引入。
 </summary>
 
 ```javascript
@@ -45,7 +45,7 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询，第二种方法限制视口单位的最大值：
-- 第一种方法**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上，这种方法覆盖广；
+- 第一种方法**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上，这种方法覆盖广，可能存在属性优先级覆盖问题；
 - 第二种方法**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法代码量小。
 
 <details>
@@ -99,10 +99,15 @@ import autoprefixer from 'autoprefixer'
 | propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
-| mobileConfig | { viewportUnit: string; fontViewportUnit: string; replace: boolean; } | N | { viewportUnit: "vw", fontViewportUnit: "vw", replace: true } | 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 |
-| mobileConfig.viewportUnit | number | N | "vw" | 转换成什么视口单位？ |
-| mobileConfig.fontViewportUnit | string | N | "vw" | 字体单位 |
-| mobileConfig.replace | boolean | N | true | 直接替换属性值还是新增？ |
+| mobileConfig.viewportUnit | number | N | "vw" | 移动端竖屏视口视图的配置，转换成什么视口单位？ |
+| mobileConfig.fontViewportUnit | string | N | "vw" | 移动端竖屏视口视图的配置，字体单位 |
+| mobileConfig.replace | boolean | N | true | 移动端竖屏视口视图的配置，直接替换属性值还是新增？ |
+| sideConfig.width | number | N | 190 | 侧边宽度 |
+| sideConfig.gap | number | N | 18 | 上下左右间隔 |
+| sideConfig.selector1 | string | N | null | 左上选择器 |
+| sideConfig.selector2 | string | N | null | 右上选择器 |
+| sideConfig.selector3 | string | N | null | 右下选择器 |
+| sideConfig.selector4 | string | N | null | 左下选择器 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
@@ -132,6 +137,14 @@ import autoprefixer from 'autoprefixer'
     "viewportUnit": "vw",
     "fontViewportUnit": "vw",
     "replace": true
+  },
+	"sideConfig": {
+    "width": 190,
+    "gap": 18,
+    "selector1": null,
+    "selector2": null,
+    "selector3": null,
+    "selector4": null
   }
 }
 ```
@@ -270,7 +283,7 @@ npm run start
 
 	.nav {
 		height: 57.6px;
-		top: .0;
+		top: 0;
 		left  : calc(50% - 300px); /* calc(50% - (600 / 2 - 0 * 600 / 750)px) */
 		width : 600px; /* 100% -> 600px */
 	}
@@ -285,7 +298,7 @@ npm run start
 
 	.nav {
 		height: 40.8px;
-		top: .0;
+		top: 0;
 		left  : calc(50% - 212.5px); /* calc(50% - (425 / 2 - 0 * 425 / 750)px) */
 		width : 425px; /* 100% -> 425px */
 	}
