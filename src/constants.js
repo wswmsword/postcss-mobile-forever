@@ -78,6 +78,7 @@ module.exports = {
   ignorePrevComment: 'px-to-viewport-ignore',
   notRootCBComment: "not-root-containing-block",
   rootCBComment: "root-containing-block",
+  applyComment: "apply-without-convert",
   /** position fixed 时依赖屏幕宽度的属性，https://jameshfisher.com/2019/12/29/what-are-css-percentages/ */
   containingBlockWidthProps: [
     "left", "right",

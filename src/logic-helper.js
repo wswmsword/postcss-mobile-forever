@@ -1,5 +1,5 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment } = require("./constants");
+const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment, applyComment } = require("./constants");
 const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
@@ -109,54 +109,63 @@ const isSelector = (list, selector) => {
 
 /** 选择器上方有根包含块的注释 */
 const hasRootContainingBlockComment = (rule) => {
-  let prev = rule.prev();
-  if (prev == null) return false;
-  do {
-    if (prev && prev.type === 'comment' && prev.text === rootCBComment) {
-      // remove comment
-      prev.remove();
-      return true;
-    }
-    else return false;
-  } while(prev = prev.prev())
+  return hasNextComment(rule, rootCBComment);
 };
 
 /** 选择器前面有非根包含块的注释吗 */
 const hasNoneRootContainingBlockComment = (rule) => {
-  let prev = rule.prev();
-  if (prev == null) return false;
-  do {
-    if (prev && prev.type === 'comment' && prev.text === notRootCBComment) {
-      // remove comment
-      prev.remove();
-      return true;
-    }
-    else return false;
-  } while(prev = prev.prev())
+  return hasNextComment(rule, notRootCBComment);
 }
 
 /** 是否有忽略转换的注释？ */
 const hasIgnoreComments = (decl, result) => {
   let ignore = false;
-  const prev = decl.prev();
-  // prev declaration is ignore conversion comment at same line
-  if (prev && prev.type === 'comment' && prev.text === ignoreNextComment) {
-    // remove comment
-    prev.remove();
-    ignore = true;
-  }
-  const next = decl.next();
-  // next declaration is ignore conversion comment at same line
-  if (next && next.type === 'comment' && next.text === ignorePrevComment) {
-    if (/\n/.test(next.raws.before)) {
-      result.warn('Unexpected comment /* ' + ignorePrevComment + ' */ must be after declaration at same line.', { node: next });
-    } else {
-      // remove comment
-      next.remove();
-      ignore = true;
-    }
+  ignore = hasNextComment(decl, ignoreNextComment);
+  if (!ignore) {
+    ignore = hasPrevComment(decl, ignorePrevComment, result);
   }
   return ignore;
+};
+
+/** 当前行是否有注释？ */
+const hasPrevComment = (node, comment, result) => {
+  let bud = false;
+  let next = node.next();
+  do {
+    if (next && next.type === 'comment' && next.text === comment) {
+      if (/\n/.test(next.raws.before)) {
+        result.warn('Unexpected comment /* ' + comment + ' */ must be after declaration at same line.', { node: next });
+      } else {
+        // remove comment
+        next.remove();
+        bud = true;
+      }
+      break;
+    }
+    if (next == null || next.type !== "comment") break;
+  } while(next = next.next())
+  return bud;
+};
+
+/** 前面是否有匹配注释？ */
+const hasNextComment = (node, comment) => {
+  let bud = false;
+  let prev = node.prev();
+  if (prev == null) return false;
+  do {
+    if (prev && prev.type === 'comment' && prev.text === comment) {
+      // remove comment
+      prev.remove();
+      bud = true;
+      break;
+    }
+    if (prev == null ||  prev.type !== "comment") break;
+  } while(prev = prev.prev())
+  return bud;
+};
+
+const hasApplyWithoutConvertComment = (decl, result) => {
+  return hasPrevComment(decl, applyComment, result);
 };
 
 /** 获取匹配的数字和单位，转换 */
@@ -305,4 +314,5 @@ module.exports = {
   convertMaxMobile,
   convertMaxMobile_FIXED_LR,
   convertMaxMobile_FIXED,
+  hasApplyWithoutConvertComment,
 };

@@ -384,6 +384,13 @@ describe("comment", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should apply without convert when add /* apply-without-convert */ comment", function() {
+    var input = ".a, .b, .c { position: absolute; left: 75px; }; .b { left: auto; /* apply-without-convert */ right: 75px; }";
+    var output = ".a, .b, .c { position: absolute; left: 10vw; }; .b { left: auto; right: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .a, .b, .c { left: 60px; } .b { right: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .a, .b, .c { left: 42.5px; } .b { right: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .b { left: auto; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("transform vw to media query px", function() {

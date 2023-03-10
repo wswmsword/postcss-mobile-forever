@@ -97,6 +97,33 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   });
 }
 
+/** 桌面和横屏添加选择器属性 */
+function appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
+  sharedAtRult,
+  desktopViewAtRule,
+  landScapeViewAtRule,
+}) {
+  if (enabledDesktop && enabledLandscape) {
+    sharedAtRult.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
+  } else if (enabledDesktop) {
+    desktopViewAtRule.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
+  } else if (enabledLandscape) {
+    landScapeViewAtRule.append(postcss.rule({ selector }).append({
+      prop: prop, // 属性
+      value: val,
+      important, // 值的尾部有 important 则添加
+    }));
+  }
+}
+
 /** px 值，转换为媒体查询中比例计算的 px，替换为移动端竖屏视口单位 */
 function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   desktopViewAtRule,
@@ -176,25 +203,11 @@ function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, se
   desktopViewAtRule,
   landScapeViewAtRule,
 }) {
-  if (enabledDesktop && enabledLandscape) {
-    sharedAtRult.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val,
-      important, // 值的尾部有 important 则添加
-    }));
-  } else if (enabledDesktop) {
-    desktopViewAtRule.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val,
-      important, // 值的尾部有 important 则添加
-    }));
-  } else if (enabledLandscape) {
-    landScapeViewAtRule.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val,
-      important, // 值的尾部有 important 则添加
-    }));
-  }
+  appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
+    sharedAtRult,
+    desktopViewAtRule,
+    landScapeViewAtRule,
+  });
 }
 
 /** 居中最外层选择器，margin 居中，无 border */
@@ -299,4 +312,5 @@ module.exports = {
   appendCentreRoot,
   appendCSSVar,
   appendSider,
+  appendDisplaysRule,
 };

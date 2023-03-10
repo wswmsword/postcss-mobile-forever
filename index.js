@@ -1,6 +1,6 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile, hasApplyWithoutConvertComment } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar, appendSider } = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider, appendDisplaysRule, appendCSSVar } = require("./src/css-generator");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
@@ -234,6 +234,15 @@ module.exports = (options = {}) => {
   
           if (prop === "position" && val === "fixed") return hadFixed = true;
           if (hasIgnoreComments(decl, result)) return;
+          // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
+          if (hasApplyWithoutConvertComment(decl, result)) {
+            appendDisplaysRule(!disableDesktop, !disableLandscape, prop, val, decl.important, selector, postcss, {
+              sharedAtRult,
+              desktopViewAtRule,
+              landScapeViewAtRule,
+            });
+            return;
+          }
 
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
           if (containingBlockWidthDeclsMap.has(prop)) {
@@ -274,7 +283,6 @@ module.exports = (options = {}) => {
             // 可以匹配 val(...) 的部分（css 变量），css 变量直接加入媒体查询
             const enabledDesktop = !disableDesktop;
             const enabledLandscape = !disableLandscape;
-
             appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
               sharedAtRult,
               desktopViewAtRule,
