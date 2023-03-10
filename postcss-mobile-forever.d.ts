@@ -60,6 +60,9 @@ declare namespace mobileForever {
 
     /** 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 */
     mobileConfig?: mobileConfig
+
+    /** 侧边内容的配置，用于扩大桌面端可访问内容 */
+    sideConfig?: sideConfig
   }
 
   interface mobileConfig {
@@ -71,6 +74,21 @@ declare namespace mobileForever {
 
     /** 直接替换属性值还是新增？ */
     replace?: boolean
+  }
+
+  interface sideConfig {
+    /** 侧边宽度 */
+    width?: number,
+    /** 上下左右间隔 */
+    gap?: number,
+    /** 左上选择器 */
+    selector1?: string,
+    /** 右上选择器 */
+    selector2?: string,
+    /** 右下选择器 */
+    selector3?: string,
+    /** 左下选择器 */
+    selector4?: string,
   }
 }
 
