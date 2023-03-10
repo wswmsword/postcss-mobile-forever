@@ -23,7 +23,9 @@
     "mobile",
     "desktop",
     "media-query",
-    "mobile-forever"
+    "mobile-forever",
+    "mobile-first",
+    "css-scale"
   ],
   "author": "wswmsword",
   "license": "MIT",
