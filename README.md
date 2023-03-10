@@ -45,8 +45,8 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询，第二种方法限制视口单位的最大值：
-- 第一种方法**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上，这种方法覆盖广，可能存在属性优先级覆盖问题；
-- 第二种方法**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法代码量小。
+- 第一种方法**转换用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在竖屏、横屏和桌面端宽度的屏幕上，这种方法覆盖广，但可能存在属性覆盖问题，可能需要手动调整；
+- 第二种方法**在转换视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法代码量小，没有属性覆盖问题。
 
 <details>
 <summary>
@@ -102,12 +102,17 @@ import autoprefixer from 'autoprefixer'
 | mobileConfig.viewportUnit | number | N | "vw" | 移动端竖屏视口视图的配置，转换成什么视口单位？ |
 | mobileConfig.fontViewportUnit | string | N | "vw" | 移动端竖屏视口视图的配置，字体单位 |
 | mobileConfig.replace | boolean | N | true | 移动端竖屏视口视图的配置，直接替换属性值还是新增？ |
-| sideConfig.width | number | N | 190 | 侧边宽度 |
-| sideConfig.gap | number | N | 18 | 上下左右间隔 |
-| sideConfig.selector1 | string | N | null | 左上选择器 |
-| sideConfig.selector2 | string | N | null | 右上选择器 |
-| sideConfig.selector3 | string | N | null | 右下选择器 |
-| sideConfig.selector4 | string | N | null | 左下选择器 |
+| sideConfig.width | number | N | 190 | 侧边配置，侧边内容宽度 |
+| sideConfig.gap | number | N | 18 | 侧边配置，侧边布局的上下左右间隔 |
+| sideConfig.selector1 | string | N | null | 侧边配置，左上侧边元素选择器 |
+| sideConfig.selector2 | string | N | null | 侧边配置，右上侧边元素选择器 |
+| sideConfig.selector3 | string | N | null | 侧边配置，右下侧边元素选择器 |
+| sideConfig.selector4 | string | N | null | 侧边配置，左下侧边元素选择器 |
+| comment.applyWithoutConvert | string | N | apply-without-convert | 自定义注释，直接添加进屏幕媒体查询，不转换 |
+| comment.rootContainingBlock | string | N | root-containing-block | 自定义注释，包含块注释 |
+| comment.notRootContainingBlock | string | N | not-root-containing-block | 自定义注释，非包含块注释 |
+| comment.ignoreNext | string | N | px-to-viewport-ignore-next | 自定义注释，忽略选择器内的转换 |
+| comment.ignoreLine | string | N | px-to-viewport-ignore | 自定义注释，忽略本行转换 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
@@ -138,18 +143,26 @@ import autoprefixer from 'autoprefixer'
     "fontViewportUnit": "vw",
     "replace": true
   },
-	"sideConfig": {
+  "sideConfig": {
     "width": 190,
     "gap": 18,
     "selector1": null,
     "selector2": null,
     "selector3": null,
     "selector4": null
+  },
+  "comment": {
+    "applyWithoutConvert": "apply-without-convert",
+    "rootContainingBlock": "root-containing-block",
+    "notRootContainingBlock": "not-root-containing-block",
+    "ignoreNext": "px-to-viewport-ignore-next",
+    "ignoreLine": "px-to-viewport-ignore",
   }
 }
 ```
 
 标记注释：
+- `/* apply-without-convert */`，将属性添加到桌面端和横屏，不经过转换（可用于属性覆盖的情况）；
 - `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
 - `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
 - `/* px-to-viewport-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
