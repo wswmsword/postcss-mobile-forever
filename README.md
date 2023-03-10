@@ -156,7 +156,7 @@ import autoprefixer from 'autoprefixer'
     "rootContainingBlock": "root-containing-block",
     "notRootContainingBlock": "not-root-containing-block",
     "ignoreNext": "px-to-viewport-ignore-next",
-    "ignoreLine": "px-to-viewport-ignore",
+    "ignoreLine": "px-to-viewport-ignore"
   }
 }
 ```
