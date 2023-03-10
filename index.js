@@ -1,7 +1,7 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile, hasApplyWithoutConvertComment } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider, appendDisplaysRule, appendCSSVar } = require("./src/css-generator");
-const { demoModeSelector, lengthProps } = require("./src/constants");
+const { demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
@@ -66,6 +66,19 @@ const defaults = {
     /** 左下选择器 */
     selector4: null,
   },
+  /** 自定义注释名称 */
+  comment: {
+    /** 直接添加进屏幕媒体查询，不转换 */
+    applyWithoutConvert: applyComment,
+    /** 包含块注释 */
+    rootContainingBlock: rootCBComment,
+    /** 非包含块注释 */
+    notRootContainingBlock: notRootCBComment,
+    /** 忽略选择器内的转换 */
+    ignoreNext: ignoreNextComment,
+    /** 忽略本行转换 */
+    ignoreLine: ignorePrevComment,
+  },
   /** 添加标识，用于调试 */
   demoMode: false,
 };
@@ -92,7 +105,6 @@ const hasExcludeFile = createExcludeFunc(TYPE_REG, TYPE_ARY);
  * 宽度的比例，将两种情况的 px 元素的比例计算后的尺寸放入媒体查询中。
  */
 module.exports = (options = {}) => {
-  const optMobileConfig = options.mobileConfig;
   const opts = {
     ...defaults,
     ...options,
@@ -102,13 +114,18 @@ module.exports = (options = {}) => {
     },
     mobileConfig: {
       ...defaults.mobileConfig,
-      ...optMobileConfig,
-    }
+      ...options.mobileConfig,
+    },
+    comment: {
+      ...defaults.comment,
+      ...options.comment,
+    },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, sideConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, sideConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = sideConfig;
+  const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
 
 
   const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
@@ -216,10 +233,10 @@ module.exports = (options = {}) => {
           hadSider4 = hadSider4 || selector === side4;
 
           /** 有标志*非根包含块*的注释吗？ */
-          const notRootContainingBlock = hasNoneRootContainingBlockComment(rule);
+          const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
           if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
           /** 有标志*根包含块*的注释吗？ */
-          const hadRootContainingBlock = hasRootContainingBlockComment(rule) || isSelector(rootContainingBlockSelectorList, selector);
+          const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isSelector(rootContainingBlockSelectorList, selector);
           if (hadRootContainingBlock) hadFixed = true;
         },
         Declaration(decl, postcss) {
@@ -233,9 +250,9 @@ module.exports = (options = {}) => {
           if (!satisfyPropList(prop)) return;
   
           if (prop === "position" && val === "fixed") return hadFixed = true;
-          if (hasIgnoreComments(decl, result)) return;
+          if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
           // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
-          if (hasApplyWithoutConvertComment(decl, result)) {
+          if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) {
             appendDisplaysRule(!disableDesktop, !disableLandscape, prop, val, decl.important, selector, postcss, {
               sharedAtRult,
               desktopViewAtRule,

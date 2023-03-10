@@ -1,5 +1,5 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
-const { ignorePrevComment, ignoreNextComment, containingBlockWidthProps, notRootCBComment, rootCBComment, applyComment } = require("./constants");
+const { containingBlockWidthProps } = require("./constants");
 const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
@@ -108,21 +108,21 @@ const isSelector = (list, selector) => {
 }
 
 /** 选择器上方有根包含块的注释 */
-const hasRootContainingBlockComment = (rule) => {
-  return hasNextComment(rule, rootCBComment);
+const hasRootContainingBlockComment = (rule, RCB_CMT) => {
+  return hasNextComment(rule, RCB_CMT);
 };
 
 /** 选择器前面有非根包含块的注释吗 */
-const hasNoneRootContainingBlockComment = (rule) => {
-  return hasNextComment(rule, notRootCBComment);
+const hasNoneRootContainingBlockComment = (rule, NRCB_CMT) => {
+  return hasNextComment(rule, NRCB_CMT);
 }
 
 /** 是否有忽略转换的注释？ */
-const hasIgnoreComments = (decl, result) => {
+const hasIgnoreComments = (decl, result, IN_CMT, IL_CMT) => {
   let ignore = false;
-  ignore = hasNextComment(decl, ignoreNextComment);
+  ignore = hasNextComment(decl, IN_CMT);
   if (!ignore) {
-    ignore = hasPrevComment(decl, ignorePrevComment, result);
+    ignore = hasPrevComment(decl, IL_CMT, result);
   }
   return ignore;
 };
@@ -164,8 +164,8 @@ const hasNextComment = (node, comment) => {
   return bud;
 };
 
-const hasApplyWithoutConvertComment = (decl, result) => {
-  return hasPrevComment(decl, applyComment, result);
+const hasApplyWithoutConvertComment = (decl, result, AWC_CMT) => {
+  return hasPrevComment(decl, AWC_CMT, result);
 };
 
 /** 获取匹配的数字和单位，转换 */
