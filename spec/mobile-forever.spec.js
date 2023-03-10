@@ -253,6 +253,13 @@ describe("maxDisplayWidth", function() {
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert 0px", function() {
+    var input = ".rule { border: 0px solid salmon; }";
+    var output = ".rule { border: 0px solid salmon; }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("rootSelector", function() {
@@ -497,6 +504,22 @@ describe("value parsing", function() {
     var input = ".rule { position: fixed; margin: 0 0; padding-bottom: 0; left: 0; border: 0; } .l{}";
     var output = ".rule { position: fixed; margin: 0 0; padding-bottom: 0; left: 0; border: 0; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border: .0; left: calc(50% - 300px); margin: .0 .0; padding-bottom: .0; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { border: .0; left: calc(50% - 212.5px); margin: .0 .0; padding-bottom: .0; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not convert var(...px)", function() {
+    var input = ".rule { left: var(l-75px); border: var(l-75px) solid salmon; } .l{}";
+    var output = ".rule { left: var(l-75px); border: var(l-75px) solid salmon; } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border: var(l-75px) solid salmon; left: var(l-75px); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not convert var(...px) with maxDisplayWidth", function() {
+    var input = ".rule { left: var(l-75px); border: var(l-75px) solid salmon; } .l{}";
+    var output = ".rule { left: var(l-75px); border: var(l-75px) solid salmon; } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border: var(l-75px) solid salmon; left: var(l-75px); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+    })).process(input).css;
     expect(processed).toBe(output);
   });
 });

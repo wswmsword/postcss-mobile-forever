@@ -176,6 +176,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   }
 }
 
+/** 由于不能直接检测 css 变量的值，不能获取变量内部是否包含 px 等单位，所以无法转换，因此将 css 变量统一移到共享媒体查询中，防止 css 变量被转换过的低优先级的属性覆盖 */
 function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
   sharedAtRult,
   desktopViewAtRule,
