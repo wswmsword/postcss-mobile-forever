@@ -1,6 +1,6 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar } = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendCSSVar, appendSider } = require("./src/css-generator");
 const { demoModeSelector, lengthProps } = require("./src/constants");
 
 const {
@@ -51,10 +51,21 @@ const defaults = {
     fontViewportUnit: "vw",
     replace: true,
   },
-  // sideConfig: {
-  //   selector: null,
-  //   width: 190,
-  // },
+  /** 侧边内容配置 */
+  sideConfig: {
+    /** 侧边宽度 */
+    width: 190,
+    /** 上下左右间隔 */
+    gap: 18,
+    /** 左上选择器 */
+    selector1: null,
+    /** 右上选择器 */
+    selector2: null,
+    /** 右下选择器 */
+    selector3: null,
+    /** 左下选择器 */
+    selector4: null,
+  },
   /** 添加标识，用于调试 */
   demoMode: false,
 };
@@ -85,14 +96,19 @@ module.exports = (options = {}) => {
   const opts = {
     ...defaults,
     ...options,
+    sideConfig: {
+      ...defaults.sideConfig,
+      ...options.sideConfig,
+    },
     mobileConfig: {
       ...defaults.mobileConfig,
       ...optMobileConfig,
     }
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, sideConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth } = opts;
   const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
+  const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = sideConfig;
 
 
   const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
@@ -117,6 +133,8 @@ module.exports = (options = {}) => {
       let landScapeViewAtRule = null;
       /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
       let sharedAtRult = null;
+      /** 侧边视图的媒体查询 */
+      let sideAtRule = null;
 
 
       let hadFixed = null;
@@ -140,17 +158,23 @@ module.exports = (options = {}) => {
       let walkedRule = false;
       /** 是否限制了最宽宽度？ */
       let limitedWidth = maxDisplayWidth != null;
+      /** 是否有侧边选择器？ */
+      let hadSider1 = false;
+      let hadSider2 = false;
+      let hadSider3 = false;
+      let hadSider4 = false;
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
-          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
+          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
           /** 移动端横屏下的媒体查询 */
           const landscapeMediaStr_1 = `(min-width: ${_minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
           const landscapeMediaStr_2 = `(max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
           sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
-          
+          /** 侧边视图媒体查询 */
+          sideAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth + sideWidth * 2 + sideGap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
         },
         Rule(rule, postcss) {
           walkedRule = true;
@@ -185,6 +209,11 @@ module.exports = (options = {}) => {
               maxDisplayWidth,
             });
           }
+
+          hadSider1 = hadSider1 || selector === side1;
+          hadSider2 = hadSider2 || selector === side2;
+          hadSider3 = hadSider3 || selector === side3;
+          hadSider4 = hadSider4 || selector === side4;
 
           /** 有标志*非根包含块*的注释吗？ */
           const notRootContainingBlock = hasNoneRootContainingBlockComment(rule);
@@ -279,7 +308,7 @@ module.exports = (options = {}) => {
           walkedRule = false;
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
-        OnceExit(css) {
+        OnceExit(css, postcss) {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;
           const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
           const appendedShared = sharedAtRult.nodes.length > 0;
@@ -288,6 +317,11 @@ module.exports = (options = {}) => {
             mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
             removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
             css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
+
+            appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+            if (sideAtRule.nodes.length > 0) {
+              css.append(sideAtRule);
+            }
           }
           if (appendedLandscape) {
             mergeRules(landScapeViewAtRule);

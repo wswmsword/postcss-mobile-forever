@@ -1,4 +1,4 @@
-const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, lengthProps } = require("./constants");
+const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width } = require("./constants");
 const {
   convertPropValue,
   convertFixedMediaQuery,
@@ -281,6 +281,15 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   }
 }
 
+function appendSider(postcss, atRule, w, gap, hadSide1, hadSide2, hadSide3, hadSide4, vw, selector1, selector2, selector3, selector4) {
+  const sideRule1 = hadSide1 ? postcss.rule({ selector: selector1 }).append(fixedPos, top(gap), sideL(vw, gap, w), autoDir("right"), autoDir("bottom"), width(w)) : null;
+  const sideRule2 = hadSide2 ? postcss.rule({ selector: selector2 }).append(fixedPos, top(gap), autoDir("left"), sideR(vw, gap), autoDir("bottom"), width(w)) : null;
+  const sideRule3 = hadSide3 ? postcss.rule({ selector: selector3 }).append(fixedPos, autoDir("top"), autoDir("left"), sideR(vw, gap), bottom(gap), width(w)) : null;
+  const sideRule4 = hadSide4 ? postcss.rule({ selector: selector4 }).append(fixedPos, autoDir("top"), sideL(vw, gap, w), autoDir("right"), bottom(gap), width(w)) : null;
+  const rules = [sideRule1, sideRule2, sideRule3, sideRule4].filter(r => r != null);
+  rules.forEach(R => atRule.append(R));
+}
+
 module.exports = {
   appendMarginCentreRootClassWithBorder,
   appendMediaRadioPxOrReplaceMobileVwFromPx,
@@ -289,4 +298,5 @@ module.exports = {
   appendConvertedFixedContainingBlockDecls,
   appendCentreRoot,
   appendCSSVar,
+  appendSider,
 };

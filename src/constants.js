@@ -49,6 +49,30 @@ module.exports = {
     prop: 'box-sizing',
     value: 'content-box',
   },
+  fixedPos: {
+    prop: "position",
+    value: "fixed",
+  },
+  autoDir: dir => ({
+    prop: dir,
+    value: "auto",
+  }),
+  sideL: (vwidth, gap, width) => ({
+    prop: "left",
+    value: `calc(50% - ${vwidth / 2 + gap + width}px)`,
+  }),
+  sideR: (vwidth, gap) => ({
+    prop: "right",
+    value: `calc(50% - ${vwidth / 2 + gap}px)`
+  }),
+  top: t => ({
+    prop: "top",
+    value: `${t}px`,
+  }),
+  bottom: b => ({
+    prop: "bottom",
+    value: `${b}px`,
+  }),
   demoModeSelector: ".DEMO_MODE::before",
   ignoreNextComment: 'px-to-viewport-ignore-next',
   ignorePrevComment: 'px-to-viewport-ignore',

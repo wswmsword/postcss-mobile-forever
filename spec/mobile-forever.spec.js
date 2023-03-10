@@ -54,6 +54,65 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("sider", function() {
+  it("should not generate when disable desktop", function() {
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      disableDesktop: true,
+      sideConfig: {
+        selector1: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate left top sider", function() {
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: calc(50% - 508px); right: auto; bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      sideConfig: {
+        selector1: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate right top sider", function() {
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: auto; right: calc(50% - 318px); bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      sideConfig: {
+        selector2: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate right bottom sider", function() {
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 318px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      sideConfig: {
+        selector3: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate left bottom sider", function() {
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: calc(50% - 508px); right: auto; bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      sideConfig: {
+        selector4: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+});
+
 describe("rootContainingBlockSelectorList", function() {
   it("should convert selector string", function() {
     var input = ".abc { left: 75px; } .def { left: 75px; }";
