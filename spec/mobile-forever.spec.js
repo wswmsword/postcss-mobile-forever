@@ -391,6 +391,28 @@ describe("comment", function() {
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should handle custom comment", function() {
+    var input = ".a, .b, .c { position: absolute; left: 75px; }; .b { left: auto; /* 移动本行 */ right: 75px; }";
+    var output = ".a, .b, .c { position: absolute; left: 10vw; }; .b { left: auto; right: 10vw; } @media (min-width: 600px) and (min-height: 640px) { .a, .b, .c { left: 60px; } .b { right: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .a, .b, .c { left: 42.5px; } .b { right: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .b { left: auto; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      comment: {
+        applyWithoutConvert: "移动本行",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert none-fixed-position value with root-containing-block comment", function() {
+    var input = "/* 包含块 */.nav { left: 0; } .l{}";
+    var output = ".nav { left: 0; } .l{} @media (min-width: 600px) and (min-height: 640px) { .nav { left: calc(50% - 300px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .nav { left: calc(50% - 212.5px); } }"
+    var processed = postcss(mobileToMultiDisplays({
+      comment: {
+        rootContainingBlock: "包含块",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("transform vw to media query px", function() {
