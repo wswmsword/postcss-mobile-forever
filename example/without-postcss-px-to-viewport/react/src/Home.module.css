@@ -132,3 +132,10 @@
   background-color: rgb(230, 210, 153);
   transition: background-color .1s;
 }
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 36px 0;
+}

@@ -1,6 +1,7 @@
 import Card from "./Card";
-import CardBack from "./CardBack"
-import Item from "./Item"
+import CardBack from "./CardBack";
+import Item from "./Item";
+import QRCode from "./QRCode";
 import styles from "./Home.module.css";
 
 const Hello = () => {
@@ -29,6 +30,9 @@ const Hello = () => {
       </div>
       <button className={styles.backToTop}>TOP</button>
     </main>
+    <fotter className={styles.footer}>
+      <QRCode />
+    </fotter>
   </div>;
 };
 

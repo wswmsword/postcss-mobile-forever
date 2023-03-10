@@ -2,6 +2,7 @@
 	import Card from "./Card.svelte";
 	import CardBack from "./CardBack.svelte";
 	import Item from "./Item.svelte";
+  import QrCode from "./QRCode.svelte";
   const items = new Array(12).fill();
   const title = "Svelte MobileViewport";
   const letters = ['✨', ' '].concat(title.split(''), '🐰');
@@ -32,6 +33,9 @@
     </div>
     <button class="back-to-top">TOP</button>
   </main>
+  <footer class="footer">
+    <QrCode />
+  </footer>
 </div>
 
 <style>
@@ -167,5 +171,12 @@
 .back-to-top:active {
   background-color: rgb(230, 210, 153);
   transition: background-color .1s;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 36px 0;
 }
 </style>

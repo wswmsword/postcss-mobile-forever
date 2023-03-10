@@ -7,6 +7,9 @@ module.exports = {
       border: true,
       rootClass: "root-class",
       demoMode: true,
+      sideConfig: {
+        selector1: ".footer",
+      }
     }),
   ],
 };
