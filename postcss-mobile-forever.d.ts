@@ -25,7 +25,7 @@ declare namespace mobileForever {
     /** 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式，将在下个主版本发布后删除，请使用 rootSelector */
     rootClass?: string
 
-    /** 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式，将在下个主版本发布后删除，请使用 rootSelector */
+    /** 页面最外层选择器，如 `#app`、`.root-class` */
     rootSelector?: string
 
     /** 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 */
@@ -63,6 +63,9 @@ declare namespace mobileForever {
 
     /** 侧边内容的配置，用于扩大桌面端可访问内容 */
     sideConfig?: sideConfig
+
+    /** 自定义注释名称 */
+    comment?: comment
   }
 
   interface mobileConfig {
@@ -78,17 +81,30 @@ declare namespace mobileForever {
 
   interface sideConfig {
     /** 侧边宽度 */
-    width?: number,
+    width?: number
     /** 上下左右间隔 */
-    gap?: number,
+    gap?: number
     /** 左上选择器 */
-    selector1?: string,
+    selector1?: string
     /** 右上选择器 */
-    selector2?: string,
+    selector2?: string
     /** 右下选择器 */
-    selector3?: string,
+    selector3?: string
     /** 左下选择器 */
-    selector4?: string,
+    selector4?: string
+  }
+
+  interface comment {
+    /** 直接添加进屏幕媒体查询，不转换 */
+    applyWithoutConvert?: string
+    /** 包含块注释 */
+    rootContainingBlock?: string
+    /** 非包含块注释 */
+    notRootContainingBlock?: string
+    /** 忽略选择器内的转换 */
+    ignoreNext?: string
+    /** 忽略本行转换 */
+    ignoreLine?: string
   }
 }
 
