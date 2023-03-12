@@ -12,10 +12,23 @@
 - 兼容逻辑宽高的属性计算。
 
 ### Changed
-- 整理入参；
-- 删除 rootSelector 属性；
 - 插件更名；
+- 插件拆分。
+
+## [3.0.0] - 2023-03-12
+
+### Changed
+- 整理入参；
+- 删除 fontViewportUnit、replace；
+- 删除 rootSelector；
+- mobileConfig.viewportUnit 重命名为 mobileUnit；
+- sideConfig 重命名为 side；
 - 更换 ignoreNext 和 ignoreLine 的默认值。
+
+## [2.4.1] - 2023-03-11
+
+### Fixed
+- 更新类型包。
 
 ## [2.4.0] - 2023-03-10
 

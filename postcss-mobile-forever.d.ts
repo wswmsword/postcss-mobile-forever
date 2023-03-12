@@ -22,9 +22,6 @@ declare namespace mobileForever {
     /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 */
     maxLandscapeDisplayHeight?: number
 
-    /** 页面最外层 class 选择器，用于设置在桌面端和移动端横屏时的居中样式，将在下个主版本发布后删除，请使用 rootSelector */
-    rootClass?: string
-
     /** 页面最外层选择器，如 `#app`、`.root-class` */
     rootSelector?: string
 
@@ -58,28 +55,17 @@ declare namespace mobileForever {
     /** 包含块是根元素的选择器列表 */
     rootContainingBlockSelectorList?: (string | RegExp)[]
 
-    /** 移动端竖屏视口视图的配置，如果需要关闭，设置 disableMobile 为 true 即可关闭 */
-    mobileConfig?: mobileConfig
+    /** 竖屏要转换成什么视口单位？ */
+    mobileUnit?: string;
 
     /** 侧边内容的配置，用于扩大桌面端可访问内容 */
-    sideConfig?: sideConfig
+    side?: side
 
     /** 自定义注释名称 */
     comment?: comment
   }
 
-  interface mobileConfig {
-    /** 转换成什么视口单位？ */
-    viewportUnit?: string
-
-    /** 字体单位 */
-    fontViewportUnit?: string
-
-    /** 直接替换属性值还是新增？ */
-    replace?: boolean
-  }
-
-  interface sideConfig {
+  interface side {
     /** 侧边宽度 */
     width?: number
     /** 上下左右间隔 */

@@ -16,7 +16,7 @@ describe('px-to-viewport', function() {
     unitPrecision: 5,
   };
   it('should work on the readme example', function () {
-    var input = 'h1 { margin: 0 0 20px; font-size: 32px; line-height: 2; letter-spacing: 1px; /* px-to-viewport-ignore */ }';
+    var input = 'h1 { margin: 0 0 20px; font-size: 32px; line-height: 2; letter-spacing: 1px; /* mobile-ignore */ }';
     var output = 'h1 { margin: 0 0 6.25vw; font-size: 10vw; line-height: 2; letter-spacing: 1px; }';
     var processed = postcss(mobileToMultiDisplays(basicOptions)).process(input).css;
 
@@ -106,21 +106,6 @@ describe('px-to-viewport', function() {
   
       expect(processed).toBe(expected);
     })
-  });
-
-  describe('fontViewportUnit', function() {
-    it('should replace only font-size using unit from options', function() {
-      var rules = '.rule { margin-top: 15px; font-size: 8px; }';
-      var expected = '.rule { margin-top: 4.6875vw; font-size: 2.5vmax; }';
-      var processed = postcss(mobileToMultiDisplays({
-        ...basicOptions,
-        mobileConfig: {
-          fontViewportUnit: "vmax",
-        }
-      })).process(rules).css;
-  
-      expect(processed).toBe(expected);
-    });
   });
 
   describe('selectorBlackList', function () {
@@ -400,23 +385,9 @@ describe('px-to-viewport', function() {
     });
   });
 
-  describe('replace', function () {
-    it('should leave fallback pixel unit with root em value', function () {
-      var processed = postcss(mobileToMultiDisplays({
-        ...basicOptions,
-        mobileConfig: {
-          replace: false,
-        }
-      })).process(basicCSS).css;
-      var expected = '.rule { font-size: 15px; font-size: 4.6875vw }';
-  
-      expect(processed).toBe(expected);
-    });
-  });
-
-  describe('/* px-to-viewport-ignore */ & /* px-to-viewport-ignore-next */', function() {
+  describe('/* mobile-ignore */ & /* mobile-ignore-next */', function() {
     it('should ignore right-commented', function() {
-      var css = '.rule { font-size: 15px; /* simple comment */ width: 100px; /* px-to-viewport-ignore */ height: 50px; }';
+      var css = '.rule { font-size: 15px; /* simple comment */ width: 100px; /* mobile-ignore */ height: 50px; }';
       var expected = '.rule { font-size: 4.6875vw; /* simple comment */ width: 100px; height: 15.625vw; }';
   
       var processed = postcss(mobileToMultiDisplays(basicOptions)).process(css).css;
@@ -425,7 +396,7 @@ describe('px-to-viewport', function() {
     });
   
     it('should ignore right-commented in multiline-css', function() {
-      var css = '.rule {\n  font-size: 15px;\n  width: 100px; /*px-to-viewport-ignore*/\n  height: 50px;\n}';
+      var css = '.rule {\n  font-size: 15px;\n  width: 100px; /*mobile-ignore*/\n  height: 50px;\n}';
       var expected = '.rule {\n  font-size: 4.6875vw;\n  width: 100px;\n  height: 15.625vw;\n}';
   
       var processed = postcss(mobileToMultiDisplays(basicOptions)).process(css).css;
@@ -434,8 +405,8 @@ describe('px-to-viewport', function() {
     });
   
     it('should ignore before-commented in multiline-css', function() {
-      var css = '.rule {\n  font-size: 15px;\n  /*px-to-viewport-ignore-next*/\n  width: 100px;\n  /*px-to-viewport-ignore*/\n  height: 50px;\n}';
-      var expected = '.rule {\n  font-size: 4.6875vw;\n  width: 100px;\n  /*px-to-viewport-ignore*/\n  height: 15.625vw;\n}';
+      var css = '.rule {\n  font-size: 15px;\n  /*mobile-ignore-next*/\n  width: 100px;\n  /*mobile-ignore*/\n  height: 50px;\n}';
+      var expected = '.rule {\n  font-size: 4.6875vw;\n  width: 100px;\n  /*mobile-ignore*/\n  height: 15.625vw;\n}';
   
       var processed = postcss(mobileToMultiDisplays(basicOptions)).process(css).css;
   
@@ -449,9 +420,7 @@ describe('px-to-viewport', function() {
       var expected = '.rule { margin-top: 4.6875vh }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        mobileConfig: {
-          viewportUnit: "vh",
-        }
+        mobileUnit: "vh"
       })).process(rules).css;
   
       expect(processed).toBe(expected);

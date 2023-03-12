@@ -12,8 +12,8 @@ describe("mobile-forever", function() {
     disableMobile: true,
   };
   it("should work on the readme example", function() {
-    var input = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
-    var output = ".root-class { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } .nav { height: 57.6px; top: 0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } .nav { height: 40.8px; top: 0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } }";
+    var input = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
+    var output = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } .nav { height: 57.6px; top: 0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } .nav { height: 40.8px; top: 0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
   });
@@ -60,7 +60,7 @@ describe("sider", function() {
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
       disableDesktop: true,
-      sideConfig: {
+      side: {
         selector1: ".rule",
       },
     })).process(input).css;
@@ -71,7 +71,7 @@ describe("sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: calc(50% - 508px); right: auto; bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
-      sideConfig: {
+      side: {
         selector1: ".rule",
       },
     })).process(input).css;
@@ -82,7 +82,7 @@ describe("sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: auto; right: calc(50% - 918px); bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
-      sideConfig: {
+      side: {
         selector2: ".rule",
       },
     })).process(input).css;
@@ -93,7 +93,7 @@ describe("sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 918px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
-      sideConfig: {
+      side: {
         selector3: ".rule",
       },
     })).process(input).css;
@@ -104,7 +104,7 @@ describe("sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: calc(50% - 508px); right: auto; bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
-      sideConfig: {
+      side: {
         selector4: ".rule",
       },
     })).process(input).css;
@@ -345,10 +345,10 @@ describe("rootSelector", function() {
     expect(processed).toBe(output);
   });
 
-  it("should centre the rootClass element on page", function() {
-    var input = ".root-class { color: salmon; } .l{}";
-    var output = ".root-class { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { .root-class { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .root-class { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .root-class { margin-left: auto !important; margin-right: auto !important; } }";
-    var processed = postcss(mobileToMultiDisplays({ rootClass: "root-class" })).process(input).css;
+  it("should centre the rootSelector element on page", function() {
+    var input = "#app { color: salmon; } .l{}";
+    var output = "#app { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays({ rootSelector: "#app" })).process(input).css;
     expect(processed).toBe(output);
   });
 });
@@ -568,7 +568,7 @@ describe("value parsing", function() {
   });
 
   it("should not convert values equal to 1", function() {
-    var input = ".rule { border: 1px solid white; /* px-to-viewport-ignore */ left: 1px; /* px-to-viewport-ignore */ top: 75px; } .l{}";
+    var input = ".rule { border: 1px solid white; /* mobile-ignore */ left: 1px; /* mobile-ignore */ top: 75px; } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { top: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { top: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
@@ -624,7 +624,7 @@ describe("media queries", function() {
     disableMobile: true,
   };
   it("should ignore 1px in media queries", function() {
-    var input = ".rule { border: 1px solid white; /* px-to-viewport-ignore */ left: 1px; /* px-to-viewport-ignore */ top: 1px; /* px-to-viewport-ignore */ background: left 1px / 1px 60% repeat-x url(./star750px); /* px-to-viewport-ignore */ } .l{}";
+    var input = ".rule { border: 1px solid white; /* mobile-ignore */ left: 1px; /* mobile-ignore */ top: 1px; /* mobile-ignore */ background: left 1px / 1px 60% repeat-x url(./star750px); /* mobile-ignore */ } .l{}";
     var output = ".rule { border: 1px solid white; left: 1px; top: 1px; background: left 1px / 1px 60% repeat-x url(./star750px); } .l{}";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);

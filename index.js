@@ -21,10 +21,8 @@ const defaults = {
   minDesktopDisplayWidth: null,
   /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
   maxLandscapeDisplayHeight: 640,
-  /** [deprecated] 页面最外层 class 选择器 */
-  rootClass: "root-class",
   /** 页面最外层选择器，如 `#app`、`.root-class` */
-  rootSelector: null,
+  rootSelector: "#app",
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -45,14 +43,10 @@ const defaults = {
   propList: ['*'],
   /** 包含块是根元素的选择器列表 */
   rootContainingBlockSelectorList: [],
-  /** 移动端竖屏视口视图的配置，同 postcss-px-to-view */
-  mobileConfig: {
-    viewportUnit: "vw",
-    fontViewportUnit: "vw",
-    replace: true,
-  },
+  /** 移动端竖屏转换单位 */
+  mobileUnit: "vw",
   /** 侧边内容配置 */
-  sideConfig: {
+  side: {
     /** 侧边宽度 */
     width: 190,
     /** 上下左右间隔 */
@@ -108,13 +102,9 @@ module.exports = (options = {}) => {
   const opts = {
     ...defaults,
     ...options,
-    sideConfig: {
-      ...defaults.sideConfig,
-      ...options.sideConfig,
-    },
-    mobileConfig: {
-      ...defaults.mobileConfig,
-      ...options.mobileConfig,
+    side: {
+      ...defaults.side,
+      ...options.side,
     },
     comment: {
       ...defaults.comment,
@@ -122,14 +112,13 @@ module.exports = (options = {}) => {
     },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootClass, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, mobileConfig, sideConfig, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment } = opts;
-  const { fontViewportUnit, replace, viewportUnit } = mobileConfig;
-  const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = sideConfig;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit } = opts;
+  const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
-
+  const fontViewportUnit = "vw";
+  const replace = true;
 
   const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
-  const _rootSelector = rootSelector == null ? `.${rootClass}` : rootSelector;
 
   const excludeType = checkRegExpOrArray(opts, "exclude");
   const includeType = checkRegExpOrArray(opts, "include");
@@ -215,7 +204,7 @@ module.exports = (options = {}) => {
           landscapeRadio = landscapeWidth / _viewportWidth;
 
           // 设置页面最外层 class 的最大宽度，并居中
-          if (selector === _rootSelector) {
+          if (selector === rootSelector) {
             appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
               rule,
               desktopViewAtRule,
@@ -283,15 +272,15 @@ module.exports = (options = {}) => {
               fontViewportUnit,
               replace,
               result,
-              viewportUnit,
+              viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
               matchPercentage: false,
               convertMobile: (number, unit, numberStr) => {
                 if (limitedWidth)
-                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr);
+                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
                 else
-                  return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+                  return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
               },
               convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr),
               convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr),
@@ -324,7 +313,7 @@ module.exports = (options = {}) => {
               fontViewportUnit,
               replace,
               result,
-              viewportUnit,
+              viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
               maxDisplayWidth,
