@@ -5,9 +5,9 @@ module.exports = {
       desktopWidth: 600,
       landscapeWidth: 450,
       border: true,
-      rootClass: "root-class",
+      rootSelector: ".root-class",
       demoMode: true,
-      sideConfig: {
+      side: {
         selector1: ".footer",
       },
     }],
