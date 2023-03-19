@@ -2,7 +2,7 @@
 
 <img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
 
-一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*max(vw, px)*），生成屏幕媒体查询（*@media*），让移动端视图处处可访问。
+一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成屏幕媒体查询（*@media*），让移动端视图处处可访问。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
@@ -82,7 +82,7 @@ import autoprefixer from 'autoprefixer'
 | Name | Type | isRequired | Default | Desc |
 |:--|:--|:--|:--|:--|
 | viewportWidth | number\|(file: string, selector: string) => number | N | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
-| mobileUnit | number | N | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
+| mobileUnit | string | N | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
 | maxDisplayWidth | number | N | null | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
@@ -105,11 +105,11 @@ import autoprefixer from 'autoprefixer'
 | side.selector2 | string | N | null | 侧边配置，右上侧边元素选择器 |
 | side.selector3 | string | N | null | 侧边配置，右下侧边元素选择器 |
 | side.selector4 | string | N | null | 侧边配置，左下侧边元素选择器 |
-| comment.applyWithoutConvert | string | N | apply-without-convert | 自定义注释，直接添加进屏幕媒体查询，不转换 |
-| comment.rootContainingBlock | string | N | root-containing-block | 自定义注释，包含块注释 |
-| comment.notRootContainingBlock | string | N | not-root-containing-block | 自定义注释，非包含块注释 |
-| comment.ignoreNext | string | N | mobile-ignore-next | 自定义注释，忽略选择器内的转换 |
-| comment.ignoreLine | string | N | mobile-ignore | 自定义注释，忽略本行转换 |
+| comment.applyWithoutConvert | string | N | "apply-without-convert" | 自定义注释，直接添加进屏幕媒体查询，不转换 |
+| comment.rootContainingBlock | string | N | "root-containing-block" | 自定义注释，包含块注释 |
+| comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
+| comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
+| comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
@@ -393,9 +393,10 @@ rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果�
 
 ## 其它
 
-配套插件：
-- postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)
-- postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)
+可以配合使用的项目：
+- postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
+- postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
+- media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
 
 百分比值受包含块（Containing Block）宽度影响的属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
 
