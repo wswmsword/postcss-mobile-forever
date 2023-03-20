@@ -1,4 +1,5 @@
 module.exports = {
+  PLUGIN_NAME: "postcss-mobile-forever",
   width: w => ({
     prop: 'width',
     value: `${w}px`,

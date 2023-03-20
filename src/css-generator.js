@@ -8,6 +8,7 @@ const {
   convertMaxMobile_FIXED_LR,
 } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
+const fs = require("fs");
 
 function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile) {
   if (!disableMobile) {
@@ -28,6 +29,25 @@ function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScape
       value: "'✨Landscape✨'",
     }));
   }
+}
+
+function extractFile(plugins, cssContent, newFile, targetFileDir, appendedShared, newSharedFile, sharedAtRult, viewAtRule, postcss) {
+  return new Promise(resolve => {
+    const newFilePath = path.join(targetFileDir, newFile);
+    if (appendedShared) {
+      const newSharedFilePath = path.join(targetFileDir, newSharedFile);
+      const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
+      viewAtRule.prepend(atImportShared)
+    }
+    plugins.applyPlugins(cssContent, newFilePath).then(css => {
+      if (!fs.existsSync(targetFileDir)) {
+        fs.mkdirSync(targetFileDir, { recursive: true });
+      }
+      fs.writeFileSync(newFilePath, css);
+
+      resolve();
+    });
+  });
 }
 
 /** 转换受 fixed 影响的属性的媒体查询值 */
@@ -313,4 +333,5 @@ module.exports = {
   appendCSSVar,
   appendSider,
   appendDisplaysRule,
+  extractFile,
 };
