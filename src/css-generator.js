@@ -32,14 +32,9 @@ function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScape
   }
 }
 
-function extractFile(plugins, cssContent, newFile, targetFileDir, appendedShared, newSharedFile, sharedAtRult, viewAtRule, postcss) {
+function extractFile(plugins, cssContent, newFile, targetFileDir) {
   return new Promise(resolve => {
     const newFilePath = path.join(targetFileDir, newFile);
-    if (appendedShared) {
-      const newSharedFilePath = path.join(targetFileDir, newSharedFile);
-      const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
-      viewAtRule.prepend(atImportShared)
-    }
     plugins.applyPlugins(cssContent, newFilePath).then(css => {
       if (!fs.existsSync(targetFileDir)) {
         fs.mkdirSync(targetFileDir, { recursive: true });

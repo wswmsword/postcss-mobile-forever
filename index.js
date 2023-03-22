@@ -365,19 +365,41 @@ module.exports = (options = {}) => {
             const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
 
             const mobileCss = css.toString(); // without media query
-            const mobilePromise = extractFile(plugins, mobileCss, mobileFile, targetFileDir, false); // 提取移动端 css
+            const mobilePromise = extractFile(plugins, mobileCss, mobileFile, targetFileDir); // 提取移动端 css
+
+            let sharedPromise = Promise.resolve();
+            if (appendedShared) {
+              mergeRules(sharedAtRult); // 合并相同选择器中的内容
+              removeDulplicateDecls(sharedAtRult); // 移除重复属性
+              const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
+              sharedPromise = extractFile(plugins, sharedCss, sharedFile, targetFileDir); // 提取公共 css
+            }
+
+            const newSharedFilePath = path.join(targetFileDir, sharedFile);
+            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
 
             let desktopPromise = Promise.resolve();
             if (appendedDesktop) {
+              const desktopCssRules = postcss.root(); // without media query
+              mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
               appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              const desktopCss = postcss.root().append(desktopViewAtRule.nodes, sideAtRule).toString(); // without media query
-              desktopPromise = extractFile(plugins, desktopCss, desktopFile, targetFileDir, appendedShared, sharedFile, sharedAtRult, desktopViewAtRule, postcss); // 提取桌面端 css
+              desktopCssRules.append(desktopViewAtRule.nodes);
+              if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
+              if (appendedShared) desktopCssRules.prepend(atImportShared);
+              const desktopCss = desktopCssRules.toString();
+              desktopPromise = extractFile(plugins, desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
             }
 
             let landscapePromise = Promise.resolve();
             if (appendedLandscape) {
-              const landscapeCss = postcss.root().append(landScapeViewAtRule.nodes).toString(); // without media query
-              landscapePromise = extractFile(plugins, landscapeCss, landscapeFile, targetFileDir, appendedShared, sharedFile, sharedAtRult, landScapeViewAtRule, postcss); // 提取横屏 css
+              const landscapeCssRules = postcss.root(); // without media query
+              mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
+              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+              landscapeCssRules.append(landScapeViewAtRule.nodes);
+              if (appendedShared) landscapeCssRules.prepend(atImportShared);
+              const landscapeCss = landscapeCssRules.toString();
+              landscapePromise = extractFile(plugins, landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
             }
 
             // 清空文件内容，并替换为 @import，导入移动端、桌面端和横屏
@@ -394,7 +416,7 @@ module.exports = (options = {}) => {
             // console.log(atImportMobile.toString());
             // console.log(atImportDesktop.toString());
             // console.log(atImportLandscape.toString());
-            return Promise.all([mobilePromise, desktopPromise, landscapePromise]);
+            return Promise.all([mobilePromise, desktopPromise, landscapePromise, sharedPromise]);
           } else {
             if (appendedDesktop) {
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
