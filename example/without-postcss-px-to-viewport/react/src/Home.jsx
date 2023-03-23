@@ -30,9 +30,9 @@ const Hello = () => {
       </div>
       <button className={styles.backToTop}>TOP</button>
     </main>
-    <fotter className={styles.footer}>
+    <footer className={styles.footer}>
       <QRCode />
-    </fotter>
+    </footer>
   </div>;
 };
 
