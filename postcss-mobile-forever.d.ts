@@ -65,6 +65,8 @@ declare namespace mobileForever {
     comment?: comment
   }
 
+  function remakeExtractedResourcePath(loaderContext: any): any
+
   interface side {
     /** 侧边宽度 */
     width?: number

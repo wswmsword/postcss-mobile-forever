@@ -446,3 +446,17 @@ module.exports = (options = {}) => {
 };
 
 module.exports.postcss = true;
+
+
+module.exports.remakeExtractedResourcePath = function(loaderContext) {
+  const {
+    resourcePath,
+  } = loaderContext;
+  const aStr = __dirname.replace(process.cwd(), ''); // '/node_modules/postcss-mobile-forever'
+  const bStr = resourcePath.replace(aStr + '/.temp', ''); // remove '/node_modules/postcss-mobile-forever/.temp'
+  const cStr = bStr.replace(/(?<=[\\/])(?:landscape|desktop|mobile|shared)\.([^\\/]*)$/, (_, file) => file); // remove 'landscape\.|desktop\.|mobile\.|shared.'
+  return {
+    ...loaderContext,
+    resourcePath: cStr, // remaked resource path
+  };
+};
