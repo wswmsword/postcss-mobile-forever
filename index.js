@@ -27,8 +27,6 @@ const defaults = {
   rootSelector: "#app",
   /** 在页面外层展示边框吗 */
   border: false,
-  /** 提取移动端、桌面端和横屏代码，使用 `@import` 引入 */
-  extract: false,
   /** 不做桌面端的适配 */
   disableDesktop: false,
   /** 不做移动端横屏的适配 */
@@ -79,6 +77,11 @@ const defaults = {
   },
   /** 添加标识，用于调试 */
   demoMode: false,
+  /** 实验性功能 */
+  experimental: {
+    /** 是否拆分桌面端和横屏样式文件，提取移动端、桌面端和横屏代码，使用 `@import` 引入 */
+    extract: false,
+  }
 };
 
 const TYPE_REG = "regex";
@@ -116,7 +119,8 @@ module.exports = (options = {}) => {
     },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, extract, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit, experimental } = opts;
+  const { extract } = experimental;
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
   const fontViewportUnit = "vw";
