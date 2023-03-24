@@ -364,6 +364,14 @@ module.exports = (options = {}) => {
             /** 目标文件文件夹 */
             const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
 
+            const newSharedFilePath = path.join(targetFileDir, sharedFile);
+            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
+
+            if (appendedDesktop) {
+              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+              if (sideAtRule.nodes.length > 0) css.append(sideAtRule); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
+            }
+            if (appendedShared) css.append(atImportShared);
             const mobileCss = css.toString(); // without media query
             const mobilePromise = extractFile(plugins, mobileCss, mobileFile, targetFileDir); // 提取移动端 css
 
@@ -375,18 +383,15 @@ module.exports = (options = {}) => {
               sharedPromise = extractFile(plugins, sharedCss, sharedFile, targetFileDir); // 提取公共 css
             }
 
-            const newSharedFilePath = path.join(targetFileDir, sharedFile);
-            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
-
             let desktopPromise = Promise.resolve();
             if (appendedDesktop) {
               const desktopCssRules = postcss.root(); // without media query
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
               removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
-              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+              // appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
               desktopCssRules.append(desktopViewAtRule.nodes);
-              if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
-              if (appendedShared) desktopCssRules.prepend(atImportShared);
+              // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
+              // if (appendedShared) desktopCssRules.prepend(atImportShared);
               const desktopCss = desktopCssRules.toString();
               desktopPromise = extractFile(plugins, desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
             }
@@ -397,7 +402,7 @@ module.exports = (options = {}) => {
               mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
               removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
               landscapeCssRules.append(landScapeViewAtRule.nodes);
-              if (appendedShared) landscapeCssRules.prepend(atImportShared);
+              // if (appendedShared) landscapeCssRules.prepend(atImportShared);
               const landscapeCss = landscapeCssRules.toString();
               landscapePromise = extractFile(plugins, landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
             }
@@ -406,16 +411,12 @@ module.exports = (options = {}) => {
             const atImportMobile = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, mobileFile)})` });
             const atImportDesktop = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, desktopFile)}) ${desktopViewAtRule.params}` });
             const atImportLandscape = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, landscapeFile)}) ${landScapeViewAtRule.params}` });
-            // css.removeAll();
             css.walkRules(rule => {
               rule.removeAll();
             });
             if (appendedLandscape) css.prepend(atImportLandscape);
             if (appendedDesktop) css.prepend(atImportDesktop);
             css.prepend(atImportMobile);
-            // console.log(atImportMobile.toString());
-            // console.log(atImportDesktop.toString());
-            // console.log(atImportLandscape.toString());
             return Promise.all([mobilePromise, desktopPromise, landscapePromise, sharedPromise]);
           } else {
             if (appendedDesktop) {
