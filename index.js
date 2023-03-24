@@ -447,16 +447,55 @@ module.exports = (options = {}) => {
 
 module.exports.postcss = true;
 
-
-module.exports.remakeExtractedResourcePath = function(loaderContext) {
-  const {
-    resourcePath,
-  } = loaderContext;
-  const aStr = __dirname.replace(process.cwd(), ''); // '/node_modules/postcss-mobile-forever'
-  const bStr = resourcePath.replace(aStr + '/.temp', ''); // remove '/node_modules/postcss-mobile-forever/.temp'
-  const cStr = bStr.replace(/(?<=[\\/])(?:landscape|desktop|mobile|shared)\.([^\\/]*)$/, (_, file) => file); // remove 'landscape\.|desktop\.|mobile\.|shared.'
-  return {
-    ...loaderContext,
-    resourcePath: cStr, // remaked resource path
-  };
+/**
+ * 用于替换 webpack css-loader 配置中的 getLocalIdent。需要引入 css-loader
+ * 导出的 defaultGetLocalIdent 函数。
+ *
+ * 开启 extract 选项后，桌面端和横屏的媒体查询会被分割为单独的文件，文件的路
+ * 径和源文件相异，这会导致生成的样式选择器 hash 值不同，这个函数用来修改新生成
+ * 文件的路径字符串，用于在桌面端和横屏的媒体查询文件里的选择器 hash 保持和源文
+ * 件一致。
+ *
+ * 举例：
+ * ```javascript
+ * const { defaultGetLocalIdent } = require("css-loader");
+ * const { remakeExtractedGetLocalIdent } = require("postcss-mobile-forever");
+ * 
+ * module.exports = {
+ *   module: {
+ *     rules: [{
+ *       test: /\.css$/,
+ *       use: [{
+ *         loader: "css-loader",
+ *         options: {
+ *           modules: {
+ *             localIdentName: "[path][name]__[local]",
+ *             getLocalIdent: remakeExtractedGetLocalIdent({ defaultGetLocalIdent }), // <----- 这里
+ *           },
+ *         },
+ *       }, "postcss-loader"],
+ *     }],
+ *   },
+ * }
+ * ```
+ **/
+module.exports.remakeExtractedGetLocalIdent = function({ defaultGetLocalIdent, getLocalIdent }) {
+  return (context, localIdentName, localName, options) => {
+    const {
+      resourcePath,
+    } = context;
+    const aStr = __dirname.replace(process.cwd(), ''); // '/node_modules/postcss-mobile-forever'
+    const bStr = resourcePath.replace(aStr + '/.temp', ''); // remove '/node_modules/postcss-mobile-forever/.temp'
+    const cStr = bStr.replace(/(?<=[\\/])(?:landscape|desktop|mobile|shared)\.([^\\/]*)$/, (_, file) => file); // remove 'landscape\.|desktop\.|mobile\.|shared.'
+    const newContext = {
+      ...context,
+      resourcePath: cStr, // remaked resource path
+    };
+    if (getLocalIdent) {
+      return getLocalIdent(newContext, localIdentName, localName, options);
+    } else {
+      const localIdent = defaultGetLocalIdent(newContext, localIdentName, localName, options);
+      return localIdent.replace(/\[local\]/gi, localName);
+    }
+  }
 };

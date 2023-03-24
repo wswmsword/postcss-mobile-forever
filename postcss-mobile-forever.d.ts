@@ -65,7 +65,7 @@ declare namespace mobileForever {
     comment?: comment
   }
 
-  function remakeExtractedResourcePath(loaderContext: any): any
+  function remakeExtractedGetLocalIdent(getLocalIdentOpts: getLocalIdentOpts): any
 
   interface side {
     /** 侧边宽度 */
@@ -93,6 +93,11 @@ declare namespace mobileForever {
     ignoreNext?: string
     /** 忽略本行转换 */
     ignoreLine?: string
+  }
+
+  interface getLocalIdentOpts {
+    defaultGetLocalIdent?: any
+    getLocalIdent?: any
   }
 }
 
