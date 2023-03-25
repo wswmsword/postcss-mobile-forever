@@ -8,7 +8,7 @@ const {
   /** 用于验证字符串是否为“数字px”的形式 */
   pxVwTestReg, varTestReg,
 } = require("./src/regexs");
-const SubsequentPlugins = require("./src/subsequent-plugins");
+// const SubsequentPlugins = require("./src/subsequent-plugins");
 
 const defaults = {
   /** 设计图宽度 */
@@ -179,10 +179,6 @@ module.exports = (options = {}) => {
       let hadSider2 = false;
       let hadSider3 = false;
       let hadSider4 = false;
-      // mobile-forever 之后的插件
-      let plugins = null;
-      // 提取桌面端和移动端，则需要为提取出的代码执行 postcss 插件
-      if (extract) plugins = new SubsequentPlugins();
 
       return {
         Once(_, postcss) {
@@ -377,14 +373,14 @@ module.exports = (options = {}) => {
             }
             if (appendedShared) css.append(atImportShared);
             const mobileCss = css.toString(); // without media query
-            const mobilePromise = extractFile(plugins, mobileCss, mobileFile, targetFileDir); // 提取移动端 css
+            const mobilePromise = extractFile(mobileCss, mobileFile, targetFileDir); // 提取移动端 css
 
             let sharedPromise = Promise.resolve();
             if (appendedShared) {
               mergeRules(sharedAtRult); // 合并相同选择器中的内容
               removeDulplicateDecls(sharedAtRult); // 移除重复属性
               const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
-              sharedPromise = extractFile(plugins, sharedCss, sharedFile, targetFileDir); // 提取公共 css
+              sharedPromise = extractFile(sharedCss, sharedFile, targetFileDir); // 提取公共 css
             }
 
             let desktopPromise = Promise.resolve();
@@ -397,7 +393,7 @@ module.exports = (options = {}) => {
               // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
               // if (appendedShared) desktopCssRules.prepend(atImportShared);
               const desktopCss = desktopCssRules.toString();
-              desktopPromise = extractFile(plugins, desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
+              desktopPromise = extractFile(desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
             }
 
             let landscapePromise = Promise.resolve();
@@ -408,7 +404,7 @@ module.exports = (options = {}) => {
               landscapeCssRules.append(landScapeViewAtRule.nodes);
               // if (appendedShared) landscapeCssRules.prepend(atImportShared);
               const landscapeCss = landscapeCssRules.toString();
-              landscapePromise = extractFile(plugins, landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
+              landscapePromise = extractFile(landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
             }
 
             // 清空文件内容，并替换为 @import，导入移动端、桌面端和横屏

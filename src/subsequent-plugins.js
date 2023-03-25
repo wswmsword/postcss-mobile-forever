@@ -1,5 +1,5 @@
 /**
- * Source By https://github.com/SassNinja/postcss-extract-media-query/blob/master/subsequent-plugins.js
+ * copied from https://github.com/SassNinja/postcss-extract-media-query/blob/master/subsequent-plugins.js
  */
 const fs = require('fs');
 const path = require('path');

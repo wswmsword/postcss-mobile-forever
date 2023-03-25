@@ -32,17 +32,15 @@ function appendDemoContent(postcss, selector, rule, desktopViewAtRule, landScape
   }
 }
 
-function extractFile(plugins, cssContent, newFile, targetFileDir) {
+function extractFile(cssContent, newFile, targetFileDir) {
   return new Promise(resolve => {
     const newFilePath = path.join(targetFileDir, newFile);
-    plugins.applyPlugins(cssContent, newFilePath).then(css => {
-      if (!fs.existsSync(targetFileDir)) {
-        fs.mkdirSync(targetFileDir, { recursive: true });
-      }
-      fs.writeFileSync(newFilePath, css);
+    if (!fs.existsSync(targetFileDir)) {
+      fs.mkdirSync(targetFileDir, { recursive: true });
+    }
+    fs.writeFileSync(newFilePath, cssContent);
 
-      resolve();
-    });
+    resolve();
   });
 }
 
