@@ -348,8 +348,8 @@ module.exports = (options = {}) => {
              * ```
              */
             const matched = (file || '').match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
-            const name = matched[1] || "UNEXPECTED_FILE";
-            const ext = matched[2] || "css";
+            const name = matched && matched[1] || "UNEXPECTED_FILE";
+            const ext = matched && matched[2] || "css";
             const mobileFile = `mobile.${name}.${ext}`;
             const desktopFile = `desktop.${name}.${ext}`;
             const landscapeFile = `landscape.${name}.${ext}`;
