@@ -63,7 +63,15 @@ declare namespace mobileForever {
 
     /** 自定义注释名称 */
     comment?: comment
+
+    /** 实验性功能 */
+    experimental?: {
+      /** 分离桌面、横屏、移动端样式 */
+      extract?: boolean
+    }
   }
+
+  function remakeExtractedGetLocalIdent(getLocalIdentOpts: getLocalIdentOpts): any
 
   interface side {
     /** 侧边宽度 */
@@ -91,6 +99,11 @@ declare namespace mobileForever {
     ignoreNext?: string
     /** 忽略本行转换 */
     ignoreLine?: string
+  }
+
+  interface getLocalIdentOpts {
+    defaultGetLocalIdent?: any
+    getLocalIdent?: any
   }
 }
 

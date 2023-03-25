@@ -110,6 +110,7 @@ import autoprefixer from 'autoprefixer'
 | comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
 | comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
 | comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
+| experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
@@ -149,6 +150,9 @@ import autoprefixer from 'autoprefixer'
     "notRootContainingBlock": "not-root-containing-block",
     "ignoreNext": "mobile-ignore-next",
     "ignoreLine": "mobile-ignore"
+  },
+  "experimental": {
+    "extract": false
   }
 }
 ```
@@ -354,6 +358,94 @@ rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果�
 插件暂时不支持转换和包含块的 `logical-width`、`logical-height`、`block-size`、`inline-size` 有关的属性。
 
 插件转换的是选择器中的属性的值，不转换 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的属性，例如 `@font-face` 中的属性。
+
+关于 `experimental.extract` 选项：
+- 打开选项后，样式文件会被分割为 `mobile.xxx.css`、`landscape.xxx.css` 和 `desktop.xxx.css`，这有利于使用代码分割进行产包优化;
+- 该选项需要设置 [css-loader](https://github.com/webpack-contrib/css-loader) 的 `modules.getLocalIdent` 选项，需要从本插件导入 `remakeExtractedGetLocalIdent` 函数进行传递，这是为了防止选择器名称中的哈希值出现错误（哈希值会通过文件路径计算，而被分割的文件路径是不同的）；
+- 暂时不支持热重载，可以仅在生产模式下打开该选项；
+- 被分割的文件暂时不支持运行本插件（postcss-mobile-forever）后面的其它 postcss 插件；
+- 如果使用 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin) 自动插入样式产包，需要注意顺序，顺序可以通过 `optimization.splitChunks.cacheGroups.[group].priority` 来决定，优先级越高，插入到 html 的顺序越靠前。
+
+<details>
+<summary>查看使用 `experimental.extract` 的一份范例配置。</summary>
+
+```javascript
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { defaultGetLocalIdent } = require("css-loader");
+const { remakeExtractedGetLocalIdent } = require("postcss-mobile-forever");
+
+const isProdMode = process.env.NODE_ENV === "production";
+
+module.exports = {
+  mode: isProdMode ? "production" : "development",
+  entry: "./src/index.js",
+  output: {
+    filename: "[name].js",
+    path: path.resolve(__dirname, "build"),
+    clean: true,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [isProdMode ? MiniCssExtractPlugin.loader : "style-loader", {
+          loader: "css-loader",
+          options: {
+            modules: {
+              localIdentName: isProdMode ? "[hash:base64]" : "[path][name]__[local]",
+              getLocalIdent: isProdMode ? remakeExtractedGetLocalIdent({ defaultGetLocalIdent }) : undefined, // 开发环境不分割，因此设置为 undefined
+            },
+          }
+        }, {
+          loader: "postcss-loader",
+          options: {
+            postcssOptions: [
+              ["postcss-mobile-forever", {
+                rootSelector: ".root-class",
+                experimental: {
+                  extract: isProdMode, // 生产环境打开文件的提取
+                },
+              }]
+            ]
+          }
+        }],
+      }
+    ],
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        desktop: {
+          chunks: "all",
+          enforce: true,
+          test: /desktop[^\\/]*?\.css$/, // 分割桌面端样式
+          name: "desktop",
+          priority: 101, // 第三位被加载
+        },
+        landscape: {
+          chunks: "all",
+          enforce: true,
+          test: /landscape[^\\/]*?\.css$/, // 分割横屏样式
+          name: "landscape",
+          priority: 102, // 第二位被加载
+        },
+        mobile: {
+          chunks: "all",
+          enforce: true,
+          test: /mobile[^\\/]*?\.css$/, // 分割移动端样式
+          name: "mobile",
+          priority: 103, // 第一位被加载
+        },
+      }
+    }
+  },
+};
+```
+
+前往[范例](./example/cases/split-chunks/react/)查看可运行的配置。
+
+</details>
 
 本插件的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
 

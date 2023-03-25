@@ -1,12 +1,14 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile, hasApplyWithoutConvertComment } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider, appendDisplaysRule, appendCSSVar } = require("./src/css-generator");
-const { demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider, appendDisplaysRule, appendCSSVar, extractFile } = require("./src/css-generator");
+const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
+const path = require('path');
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
   pxVwTestReg, varTestReg,
 } = require("./src/regexs");
+// const SubsequentPlugins = require("./src/subsequent-plugins");
 
 const defaults = {
   /** 设计图宽度 */
@@ -75,6 +77,11 @@ const defaults = {
   },
   /** 添加标识，用于调试 */
   demoMode: false,
+  /** 实验性功能 */
+  experimental: {
+    /** 是否拆分桌面端和横屏样式文件，提取移动端、桌面端和横屏代码，使用 `@import` 引入 */
+    extract: false,
+  }
 };
 
 const TYPE_REG = "regex";
@@ -112,7 +119,8 @@ module.exports = (options = {}) => {
     },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit } = opts;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit, experimental } = opts;
+  const { extract } = experimental;
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
   const fontViewportUnit = "vw";
@@ -124,10 +132,12 @@ module.exports = (options = {}) => {
   const includeType = checkRegExpOrArray(opts, "include");
 
   const satisfyPropList = createPropListMatcher(propList);
+
   return {
-    postcssPlugin: "postcss-mobile-forever",
+    postcssPlugin: PLUGIN_NAME,
     prepare(result) {
       const file = result.root && result.root.source && result.root.source.input.file;
+      const from = result.opts.from;
       // 包含文件
       if(hasNoIncludeFile(include, file, includeType)) return;
       // 排除文件
@@ -169,6 +179,7 @@ module.exports = (options = {}) => {
       let hadSider2 = false;
       let hadSider3 = false;
       let hadSider4 = false;
+
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
@@ -326,26 +337,109 @@ module.exports = (options = {}) => {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;
           const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
           const appendedShared = sharedAtRult.nodes.length > 0;
-      
-          if (appendedDesktop) {
-            mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-            removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
-            css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
 
-            appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-            if (sideAtRule.nodes.length > 0) {
-              css.append(sideAtRule);
+          if (extract) {
+            /**
+             * 清空 css 内容，并拆分为 `@import`
+             * ```css
+             * @import url(mobile.css)
+             * @import url(landscape.css) screen and ...
+             * @import url(desktop.css) screen and ...
+             * ```
+             */
+            const matched = (file || '').match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
+            const name = matched && matched[1] || "UNEXPECTED_FILE";
+            const ext = matched && matched[2] || "css";
+            const mobileFile = `mobile.${name}.${ext}`;
+            const desktopFile = `desktop.${name}.${ext}`;
+            const landscapeFile = `landscape.${name}.${ext}`;
+            const sharedFile = `shared.${name}.${ext}`;
+
+            /** 应用根目录 */
+            const rootDir = process.cwd();
+            /** 当前 css 文件路径 */
+            const curFilePath = from || '';
+            /** 目标文件夹 */
+            const targetDir = path.join(__dirname, ".temp");
+            /** 目标文件文件夹 */
+            const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
+
+            const newSharedFilePath = path.join(targetFileDir, sharedFile);
+            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
+
+            if (appendedDesktop) {
+              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+              if (sideAtRule.nodes.length > 0) css.append(sideAtRule); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
             }
-          }
-          if (appendedLandscape) {
-            mergeRules(landScapeViewAtRule);
-            removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
-            css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
-          }
-          if (appendedShared) {
-            mergeRules(sharedAtRult);
-            removeDulplicateDecls(sharedAtRult); // 移除重复属性
-            css.append(sharedAtRult); // 样式中添加公共媒体查询
+            if (appendedShared) css.append(atImportShared);
+            const mobileCss = css.toString(); // without media query
+            const mobilePromise = extractFile(mobileCss, mobileFile, targetFileDir); // 提取移动端 css
+            atImportShared.remove();
+
+            let sharedPromise = Promise.resolve();
+            if (appendedShared) {
+              mergeRules(sharedAtRult); // 合并相同选择器中的内容
+              removeDulplicateDecls(sharedAtRult); // 移除重复属性
+              const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
+              sharedPromise = extractFile(sharedCss, sharedFile, targetFileDir); // 提取公共 css
+            }
+
+            let desktopPromise = Promise.resolve();
+            if (appendedDesktop) {
+              const desktopCssRules = postcss.root(); // without media query
+              mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+              // appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+              desktopCssRules.append(desktopViewAtRule.nodes);
+              // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
+              // if (appendedShared) desktopCssRules.prepend(atImportShared);
+              const desktopCss = desktopCssRules.toString();
+              desktopPromise = extractFile(desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
+            }
+
+            let landscapePromise = Promise.resolve();
+            if (appendedLandscape) {
+              const landscapeCssRules = postcss.root(); // without media query
+              mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
+              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+              landscapeCssRules.append(landScapeViewAtRule.nodes);
+              // if (appendedShared) landscapeCssRules.prepend(atImportShared);
+              const landscapeCss = landscapeCssRules.toString();
+              landscapePromise = extractFile(landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
+            }
+
+            // 清空文件内容，并替换为 @import，导入移动端、桌面端和横屏
+            const atImportMobile = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, mobileFile)})` });
+            const atImportDesktop = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, desktopFile)}) ${desktopViewAtRule.params}` });
+            const atImportLandscape = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, landscapeFile)}) ${landScapeViewAtRule.params}` });
+            css.walkRules(rule => {
+              rule.removeAll();
+            });
+            if (appendedLandscape) css.prepend(atImportLandscape);
+            if (appendedDesktop) css.prepend(atImportDesktop);
+            css.prepend(atImportMobile);
+            return Promise.all([mobilePromise, desktopPromise, landscapePromise, sharedPromise]);
+          } else {
+            if (appendedDesktop) {
+              mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+              css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
+  
+              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+              if (sideAtRule.nodes.length > 0) {
+                css.append(sideAtRule);
+              }
+            }
+            if (appendedLandscape) {
+              mergeRules(landScapeViewAtRule);
+              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+              css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
+            }
+            if (appendedShared) {
+              mergeRules(sharedAtRult);
+              removeDulplicateDecls(sharedAtRult); // 移除重复属性
+              css.append(sharedAtRult); // 样式中添加公共媒体查询
+            }
           }
         },
       };
@@ -354,3 +448,56 @@ module.exports = (options = {}) => {
 };
 
 module.exports.postcss = true;
+
+/**
+ * 用于替换 webpack css-loader 配置中的 getLocalIdent。需要引入 css-loader
+ * 导出的 defaultGetLocalIdent 函数。
+ *
+ * 开启 extract 选项后，桌面端和横屏的媒体查询会被分割为单独的文件，文件的路
+ * 径和源文件相异，这会导致生成的样式选择器 hash 值不同，这个函数用来修改新生成
+ * 文件的路径字符串，用于在桌面端和横屏的媒体查询文件里的选择器 hash 保持和源文
+ * 件一致。
+ *
+ * 举例：
+ * ```javascript
+ * const { defaultGetLocalIdent } = require("css-loader");
+ * const { remakeExtractedGetLocalIdent } = require("postcss-mobile-forever");
+ * 
+ * module.exports = {
+ *   module: {
+ *     rules: [{
+ *       test: /\.css$/,
+ *       use: [{
+ *         loader: "css-loader",
+ *         options: {
+ *           modules: {
+ *             localIdentName: "[path][name]__[local]",
+ *             getLocalIdent: remakeExtractedGetLocalIdent({ defaultGetLocalIdent }), // <----- 这里
+ *           },
+ *         },
+ *       }, "postcss-loader"],
+ *     }],
+ *   },
+ * }
+ * ```
+ **/
+module.exports.remakeExtractedGetLocalIdent = function({ defaultGetLocalIdent, getLocalIdent }) {
+  return (context, localIdentName, localName, options) => {
+    const {
+      resourcePath,
+    } = context;
+    const aStr = __dirname.replace(process.cwd(), ''); // '/node_modules/postcss-mobile-forever'
+    const bStr = resourcePath.replace(aStr + '/.temp', ''); // remove '/node_modules/postcss-mobile-forever/.temp'
+    const cStr = bStr.replace(/(?<=[\\/])(?:landscape|desktop|mobile|shared)\.([^\\/]*)$/, (_, file) => file); // remove 'landscape\.|desktop\.|mobile\.|shared.'
+    const newContext = {
+      ...context,
+      resourcePath: cStr, // remaked resource path
+    };
+    if (getLocalIdent) {
+      return getLocalIdent(newContext, localIdentName, localName, options);
+    } else {
+      const localIdent = defaultGetLocalIdent(newContext, localIdentName, localName, options);
+      return localIdent.replace(/\[local\]/gi, localName);
+    }
+  }
+};
