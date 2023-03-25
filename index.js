@@ -374,6 +374,7 @@ module.exports = (options = {}) => {
             if (appendedShared) css.append(atImportShared);
             const mobileCss = css.toString(); // without media query
             const mobilePromise = extractFile(mobileCss, mobileFile, targetFileDir); // 提取移动端 css
+            atImportShared.remove();
 
             let sharedPromise = Promise.resolve();
             if (appendedShared) {
