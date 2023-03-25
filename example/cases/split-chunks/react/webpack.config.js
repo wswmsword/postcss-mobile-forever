@@ -64,15 +64,22 @@ module.exports = {
           enforce: true,
           test: /desktop[^\\/]*?\.css$/,
           name: "desktop",
-          priority: 100,
+          priority: 101,
         },
         landscape: {
           chunks: "all",
           enforce: true,
           test: /landscape[^\\/]*?\.css$/,
           name: "landscape",
-          priority: 100,
-        }
+          priority: 102,
+        },
+        mobile: {
+          chunks: "all",
+          enforce: true,
+          test: /mobile[^\\/]*?\.css$/,
+          name: "mobile",
+          priority: 103,
+        },
       }
     }
   },
