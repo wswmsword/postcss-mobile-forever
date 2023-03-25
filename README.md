@@ -150,6 +150,9 @@ import autoprefixer from 'autoprefixer'
     "notRootContainingBlock": "not-root-containing-block",
     "ignoreNext": "mobile-ignore-next",
     "ignoreLine": "mobile-ignore"
+  },
+  "experimental": {
+    "extract": false
   }
 }
 ```
