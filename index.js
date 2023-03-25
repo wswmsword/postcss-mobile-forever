@@ -347,9 +347,9 @@ module.exports = (options = {}) => {
              * @import url(desktop.css) screen and ...
              * ```
              */
-            const matched = file.match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
-            const name = matched[1];
-            const ext = matched[2];
+            const matched = (file || '').match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
+            const name = matched[1] || "UNEXPECTED_FILE";
+            const ext = matched[2] || "css";
             const mobileFile = `mobile.${name}.${ext}`;
             const desktopFile = `desktop.${name}.${ext}`;
             const landscapeFile = `landscape.${name}.${ext}`;
