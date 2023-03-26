@@ -110,6 +110,10 @@ import autoprefixer from 'autoprefixer'
 | comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
 | comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
 | comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
+| customLengthProperty | any | N | { rootContainingBlockList_LR: [], rootContainingBlockList_NOT_LR: [], ancestorContainingBlockList: [] } | 用于指定需要转换的自定义变量（css 变量，var(...)），如果不指定，**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，不指定可能会造成转换错误，因为没有考虑包含块是根包含块的情况 |
+| customLengthProperty.rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--length-a", "--length-b"]` 后，`--length-a` 和 `--length-a` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
+| customLengthProperty.rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
+| customLengthProperty.ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
 | experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
@@ -150,6 +154,11 @@ import autoprefixer from 'autoprefixer'
     "notRootContainingBlock": "not-root-containing-block",
     "ignoreNext": "mobile-ignore-next",
     "ignoreLine": "mobile-ignore"
+  },
+  "customLengthProperty": {
+    "rootContainingBlockList_LR": [],
+    "rootContainingBlockList_NOT_LR": [],
+    "ancestorContainingBlockList": []
   },
   "experimental": {
     "extract": false
