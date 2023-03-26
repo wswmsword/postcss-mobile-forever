@@ -19,6 +19,11 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.1.0] - 2023-03-26
+
+### Added
+- 添加 `customLengthProperty` 选项，用于解决 css 变量的转换问题。
+
 ## [3.1.0] - 2023-03-25
 
 ### Added
