@@ -1,6 +1,11 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls, hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile, hasApplyWithoutConvertComment } = require("./src/logic-helper");
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls,
+  hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
+  hasApplyWithoutConvertComment,
+} = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider, appendDisplaysRule, appendCSSVar, extractFile } = require("./src/css-generator");
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider,
+  appendDisplaysRule, appendCSSVar, extractFile,
+} = require("./src/css-generator");
 const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
 const path = require('path');
 
@@ -77,6 +82,15 @@ const defaults = {
   },
   /** 添加标识，用于调试 */
   demoMode: false,
+  /** 和长度有关的自定义属性 */
+  customLengthProperty: {
+    /** 根包含块属性，用于 left 和 right */
+    rootContainingBlockList_LR: [],
+    /** 根包含块属性，用于非 left 和 right 的属性 */
+    rootContainingBlockList_NOT_LR: [],
+    /** 祖先包含块属性 */
+    ancestorContainingBlockList: [],
+  },
   /** 实验性功能 */
   experimental: {
     /** 是否拆分桌面端和横屏样式文件，提取移动端、桌面端和横屏代码，使用 `@import` 引入 */
@@ -117,12 +131,24 @@ module.exports = (options = {}) => {
       ...defaults.comment,
       ...options.comment,
     },
+    customLengthProperty: {
+      ...defaults.customLengthProperty,
+      ...options.customLengthProperty,
+    },
+    experimental: {
+      ...defaults.experimental,
+      ...options.experimental,
+    },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth, maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList, maxDisplayWidth, comment, mobileUnit, experimental } = opts;
-  const { extract } = experimental;
+  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth,
+    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList,
+    maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
+  } = opts;
+  const { extract } = experimental || {};
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
+  const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList } = customLengthProperty;
   const fontViewportUnit = "vw";
   const replace = true;
 
@@ -132,6 +158,9 @@ module.exports = (options = {}) => {
   const includeType = checkRegExpOrArray(opts, "include");
 
   const satisfyPropList = createPropListMatcher(propList);
+
+  /** 需要添加到桌面端和横屏的 css 变量 */
+  const expectedLengthVars = [...new Set([].concat(rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList))].filter(e => e != null);
 
   return {
     postcssPlugin: PLUGIN_NAME,
@@ -240,10 +269,10 @@ module.exports = (options = {}) => {
           if (hadRootContainingBlock) hadFixed = true;
         },
         Declaration(decl, postcss) {
-          if (!walkedRule) return;
-          if (insideMediaQuery) return;
-          if (decl.book) return; // 被标记过
-          if (blackListedSelector) return;
+          if (!walkedRule) return; // 不是 Rule 的属性则不转换
+          if (insideMediaQuery) return; // 不转换媒体查询中的属性
+          if (decl.book) return; // 被标记过不转换
+          if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
           const prop = decl.prop;
           const val = decl.value;
 
@@ -261,14 +290,18 @@ module.exports = (options = {}) => {
             return;
           }
 
+          // 该属性是用于设置根包含块的变量属性
+          const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
+          isRootContainingBlockProp && (hadFixed = true);
           // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
-          if (containingBlockWidthDeclsMap.has(prop)) {
+          if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
             const important = decl.important;
             const mapDecl = containingBlockWidthDeclsMap.get(prop);
             if (mapDecl == null || important || !mapDecl.important)
               containingBlockWidthDeclsMap.set(prop, decl);
             return;
           }
+
           // 转换 px
           if (pxVwTestReg.test(val)) {
             const important = decl.important;
@@ -282,11 +315,11 @@ module.exports = (options = {}) => {
               unitPrecision,
               fontViewportUnit,
               replace,
-              result,
               viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
               matchPercentage: false,
+              expectedLengthVars,
               convertMobile: (number, unit, numberStr) => {
                 if (limitedWidth)
                   return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
@@ -296,8 +329,11 @@ module.exports = (options = {}) => {
               convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr),
               convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr),
             });
-          } else if (lengthProps.includes(prop) && varTestReg.test(val)) {
-            // 可以匹配 val(...) 的部分（css 变量），css 变量直接加入媒体查询
+          } else if (
+            // 值是指定的变量名称，则加入进桌面端和横屏的媒体查询
+            (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
+            // 默认行为，未指定长度变量列表，属性和长度有关，并且值包含变量 val(...)，则加入进桌面端和横屏的媒体查询
+            (expectedLengthVars.length === 0 && lengthProps.includes(prop) && varTestReg.test(val))) {
             const enabledDesktop = !disableDesktop;
             const enabledLandscape = !disableLandscape;
             appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
@@ -323,11 +359,12 @@ module.exports = (options = {}) => {
               unitPrecision,
               fontViewportUnit,
               replace,
-              result,
               viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
               maxDisplayWidth,
+              expectedLengthVars,
+              isLRVars: rootContainingBlockList_LR.includes(prop),
             });
           });
           walkedRule = false;

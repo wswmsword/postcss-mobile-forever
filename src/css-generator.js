@@ -55,16 +55,17 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   unitPrecision,
   fontViewportUnit,
   replace,
-  result,
   viewportUnit,
   desktopWidth,
   landscapeWidth,
   maxDisplayWidth,
+  expectedLengthVars = [],
+  isLRVars,
 }) {
   const prop = decl.prop;
   const val = decl.value;
   const important = decl.important;
-  const leftOrRight = prop === "left" || prop === "right";
+  const leftOrRight = prop === "left" || prop === "right" || isLRVars;
   const limitedWidth = maxDisplayWidth != null;
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
@@ -78,11 +79,11 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     unitPrecision,
     fontViewportUnit,
     replace,
-    result,
     viewportUnit,
     desktopWidth,
     landscapeWidth,
     matchPercentage: isFixed,
+    expectedLengthVars,
     convertMobile: (number, unit, numberStr) => {
       if (isFixed) {
         if (leftOrRight) {
@@ -146,7 +147,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   important,
   decl,
   replace,
-  result,
   convertLandscape,
   convertDesktop,
   convertMobile,
@@ -154,6 +154,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   landscapeWidth,
   unitPrecision,
   matchPercentage,
+  expectedLengthVars = [],
 }) {
   decl.book = true;
 
@@ -196,11 +197,15 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
 
     let shouldAppendDesktopVar = false;
     let shouldAppendLandscape = false;
-    if (enabledDesktop || enabledLandscape) {
-      if (lengthProps.includes(prop)) {
-        const tested = varTestReg.test(val);
-        shouldAppendDesktopVar = tested && !converted;
-        shouldAppendLandscape = tested && !converted;
+    if (
+      (enabledDesktop || enabledLandscape) &&
+      // 值没有被转换
+      !converted) {
+      if (
+        (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
+        (expectedLengthVars.length === 0 && lengthProps.includes(prop) && varTestReg.test(val))) {
+        shouldAppendDesktopVar = enabledDesktop;
+        shouldAppendLandscape = enabledLandscape;
       }
     }
     appendCSSVar(shouldAppendDesktopVar, shouldAppendLandscape, prop, val, important, selector, postcss, {

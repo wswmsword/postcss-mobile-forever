@@ -154,7 +154,95 @@ describe("rootContainingBlockSelectorList", function() {
   });
 });
 
-describe("CSS variable", function() {
+describe("CSS variable, custom properties", function() {
+  it("should not apply custom property value outside customLengthProperty list", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--cc"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should apply shared value inside customLengthProperty list", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should apply desktop and landscape value inside customLengthProperty list", function() {
+    var input = ".rule { border-bottom: var(--bb); left: 75px; } .l{}";
+    var output = ".rule { border-bottom: var(--bb); left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert custom fixed left or right property", function() {
+    var input = ":root { --bb: 75px; } .rule { left: var(--bb); } .l{}";
+    var output = ":root { --bb: 10vw; } .rule { left: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --bb: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --bb: calc(50% - 170px); } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert custom fixed not left and right property", function() {
+    var input = ":root { --bb: 75px; --cc: 75px; } .rule { top: var(--bb); } .l{}";
+    var output = ":root { --bb: 10vw; --cc: 10vw; } .rule { top: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --cc: 60px; --bb: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --cc: 42.5px; --bb: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { top: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_NOT_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert common percentage custom property", function() {
+    var input = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{}";
+    var output = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        ancestorContainingBlockList: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed left or right percentage custom property", function() {
+    var input = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{}";
+    var output = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --bb: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --bb: calc(50% - 170px); } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed not left and right percentage custom property", function() {
+    var input = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{}";
+    var output = ":root { --bb: 10%; } .rule { left: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --bb: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --bb: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_NOT_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
   it("should append var() to shared media query when enabled desktop and landscape", function() {
     var input = ".rule { border-bottom: var(--bb); } .l{}";
     var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";

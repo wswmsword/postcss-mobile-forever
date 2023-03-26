@@ -64,6 +64,19 @@ declare namespace mobileForever {
     /** 自定义注释名称 */
     comment?: comment
 
+    /** 和长度有关的自定义属性，需要转换的自定义属性 */
+    customLengthProperty?: {
+
+      /** 用于根包含块和 left、right 的自定义属性 */
+      rootContainingBlockList_LR?: string[]
+
+      /** 用于根包含块的，非 left、right 的自定义属性 */
+      rootContainingBlockList_NOT_LR?: string[]
+
+      /** 用于非根包含块的自定义属性 */
+      ancestorContainingBlockList?: string[]
+    }
+
     /** 实验性功能 */
     experimental?: {
       /** 分离桌面、横屏、移动端样式 */

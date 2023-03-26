@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "postcss-mobile-forever.d.ts",
   "scripts": {
-    "test": "jest spec/*.spec.js"
+    "test": "jest spec/mobile-forever.spec.js spec/px-to-viewport.spec.js"
   },
   "repository": {
     "type": "git",
