@@ -512,7 +512,7 @@ module.exports = {
 {
   // ...其它配置
   customLengthProperty: {
-    rootContainingBlockList_LR: ["--len-a"]，
+    rootContainingBlockList_LR: ["--len-a"],
   }
 }
 ```
