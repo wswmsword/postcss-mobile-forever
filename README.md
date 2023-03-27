@@ -110,15 +110,18 @@ import autoprefixer from 'autoprefixer'
 | comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
 | comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
 | comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
-| customLengthProperty | any | N | { rootContainingBlockList_LR: [], rootContainingBlockList_NOT_LR: [], ancestorContainingBlockList: [] } | 用于指定需要转换的自定义变量（css 变量，var(...)），如果不指定，**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，不指定可能会造成转换错误，因为没有考虑包含块是根包含块的情况 |
-| customLengthProperty.rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--length-a", "--length-b"]` 后，`--length-a` 和 `--length-a` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
-| customLengthProperty.rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
-| customLengthProperty.ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
+| customLengthProperty | any | N | { rootContainingBlockList_LR: [], rootContainingBlockList_NOT_LR: [], ancestorContainingBlockList: [] } | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
+| (c...y).rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
+| (c...y).rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
+| (c...y).ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
 | experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
-下面是默认的配置参数：
+<details>
+<summary>
+查看默认的配置参数。
+</summary>
 
 ```json
 {
@@ -166,8 +169,36 @@ import autoprefixer from 'autoprefixer'
 }
 ```
 
+</details>
+
+<details>
+<summary>
+虽然配置选项的数量看起来很多，但是只需要指定选项 rootSelector 和 viewportWidth 后，就能看到适配竖屏、横屏和桌面端的结果。在桌面端和横屏的视图下，如果有样式和移动端竖屏不一致，再考虑配置其它选项。
+</summary>
+
+下面的配置会适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+```json
+{
+  "viewportWidth": 750,
+  "rootSelector": "#app"
+}
+```
+
+下面的配置会限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
+```json
+{
+  "viewportWidth": 750,
+  "maxDisplayWidth": 600,
+  "rootSelector": "#app",
+  "disableDesktop": true,
+  "disableLandscape": true
+}
+```
+
+</details>
+
 标记注释：
-- `/* apply-without-convert */`，将属性添加到桌面端和横屏，不经过转换（可用于属性覆盖的情况）；
+- `/* apply-without-convert */`，将属性不经过转换，直接添加到桌面端和横屏（可用于属性覆盖的情况）；
 - `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
 - `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
 - `/* mobile-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
@@ -348,7 +379,10 @@ rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果�
 
 > 对于 fixed 定位元素的包含块是祖先元素，而不是根元素（浏览器窗口，visual viewport）的条件，请查看“其它”一节。
 
-对于包含块，如果 `position: fixed;` 和 `left: 0;` 不在同一选择器，可以在需要重新计算的选择器上标记注释 `/* root-containing-block */`，例如（另一个方法是设置 `rootContainingBlockSelectorList` 参数）：
+<details>
+<summary>
+对于包含块，如果“position: fixed;”和“left: 0;”不在同一选择器，可以在需要重新计算的选择器上标记注释“/* root-containing-block */”（另一个方法是设置“rootContainingBlockSelectorList”参数）。
+</summary>
 
 ```css
 .position {
@@ -363,6 +397,7 @@ rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果�
 	border-radius: 9px;
 }
 ```
+</details>
 
 插件暂时不支持转换和包含块的 `logical-width`、`logical-height`、`block-size`、`inline-size` 有关的属性。
 
@@ -456,14 +491,44 @@ module.exports = {
 
 </details>
 
+<details>
+<summary>
+关于 css 自定义属性，默认情况下，所有和长度相关的属性，如果使用了自定义属性，都会被添加入桌面端和横屏，这可能会带来一些冗余的添加，也可能会有一些转换的错误，转换的错误和包含块相关。
+</summary>
+
+下面的例子，默认的情况，`--len-a` 的值在桌面端会被转为 `60px`，横屏会被转为 `42.5px`，但是可以看到实际的应用场景中，定位是 fixed，因此包含块是根包含块，所以默认的转换是错误的，正确的转换应该是，桌面端会被转为 `calc(50% - 240px)`，横屏会被转为 `calc(50% - 170px)`。
+```css
+:root {
+  --len-a: 75px;
+}
+.rule {
+  left: var(--len-a);
+  position: fixed;
+}
+```
+
+上面的例子中，如果要正确的转换，需要在配置中明确指定，`--len-a` 用于根包含块，并且被用于 `left` 属性：
+```javascript
+{
+  // ...其它配置
+  customLengthProperty: {
+    rootContainingBlockList_LR: ["--len-a"]，
+  }
+}
+```
+
+</details>
+
 本插件的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
 
 ## 期望效果
 
 在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 做得很好，桌面端和移动端虽然基本公用一套 UI（移动端竖屏 UI），但访问无障碍，没有巨大字体和全宽的问题。
 
-下面的三张图分别是“多抓鱼“在移动端、移动端横屏和桌面端的展示效果：
-
+<details>
+<summary>
+查看“多抓鱼“在移动端、移动端横屏和桌面端的展示效果。
+</summary>
 <table>
 	<tr>
 		<td><img src="./images/dzy-portrait.png" alt="移动端的展示效果" /></td>
@@ -473,6 +538,8 @@ module.exports = {
 		<td colspan="2"><img src="./images/dzy-desktop.png" alt="桌面端的展示效果" /></td>
 	</tr>
 </table>
+
+</details>
 
 “多抓鱼”官网用百分比单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性和展示效果。虽然百分比单位牺牲了一点“完美还原度”，但是从灵活度和代码轻量的角度看，是个不错的选择。
 
