@@ -61,6 +61,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   maxDisplayWidth,
   expectedLengthVars = [],
   isLRVars,
+  disableAutoApply,
 }) {
   const prop = decl.prop;
   const val = decl.value;
@@ -84,6 +85,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     landscapeWidth,
     matchPercentage: isFixed,
     expectedLengthVars,
+    disableAutoApply,
     convertMobile: (number, unit, numberStr) => {
       if (isFixed) {
         if (leftOrRight) {
@@ -155,6 +157,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   unitPrecision,
   matchPercentage,
   expectedLengthVars = [],
+  disableAutoApply = false,
 }) {
   decl.book = true;
 
@@ -203,7 +206,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       !converted) {
       if (
         (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
-        (expectedLengthVars.length === 0 && lengthProps.includes(prop) && varTestReg.test(val))) {
+        (expectedLengthVars.length === 0 && !disableAutoApply && lengthProps.includes(prop) && varTestReg.test(val))) {
         shouldAppendDesktopVar = enabledDesktop;
         shouldAppendLandscape = enabledLandscape;
       }

@@ -75,6 +75,9 @@ declare namespace mobileForever {
 
       /** 用于非根包含块的自定义属性 */
       ancestorContainingBlockList?: string[]
+
+      /** 关闭自动添加到桌面端和横屏 */
+      disableAutoApply?: boolean,
     }
 
     /** 实验性功能 */

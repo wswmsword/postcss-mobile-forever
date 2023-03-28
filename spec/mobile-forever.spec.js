@@ -155,6 +155,47 @@ describe("rootContainingBlockSelectorList", function() {
 });
 
 describe("CSS variable, custom properties", function() {
+
+  it("should not correct override by high priority", function() {
+    var input = ".rule { border-bottom: var(--bb); border-bottom: 75px; } .l{}";
+    var output = ".rule { border-bottom: var(--bb); border-bottom: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border-bottom: var(--bb); border-bottom: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { border-bottom: var(--bb); border-bottom: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).not.toBe(output);
+  });
+
+  it("should apply custom property when enable disableAutoApply and expect customLengthProperty", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        disableAutoApply: true,
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ":root { --bb: 75px; } .rule { border-bottom: var(--bb); } .l{}";
+    var output = ":root { --bb: 10vw; } .rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --bb: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --bb: calc(50% - 170px); } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        disableAutoApply: true,
+        rootContainingBlockList_LR: ["--bb"],
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not apply custom property when enable disableAutoApply option", function() {
+    var input = ".rule { border-bottom: var(--bb); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        disableAutoApply: true,
+      }
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
   it("should not apply custom property value outside customLengthProperty list", function() {
     var input = ".rule { border-bottom: var(--bb); } .l{}";
     var output = ".rule { border-bottom: var(--bb); } .l{}";

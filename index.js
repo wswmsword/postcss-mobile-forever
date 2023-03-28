@@ -90,6 +90,8 @@ const defaults = {
     rootContainingBlockList_NOT_LR: [],
     /** 祖先包含块属性 */
     ancestorContainingBlockList: [],
+    /** 关闭自动添加到桌面端和横屏 */
+    disableAutoApply: false,
   },
   /** 实验性功能 */
   experimental: {
@@ -148,7 +150,7 @@ module.exports = (options = {}) => {
   const { extract } = experimental || {};
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
-  const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList } = customLengthProperty;
+  const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
   const fontViewportUnit = "vw";
   const replace = true;
 
@@ -320,6 +322,7 @@ module.exports = (options = {}) => {
               landscapeWidth,
               matchPercentage: false,
               expectedLengthVars,
+              disableAutoApply,
               convertMobile: (number, unit, numberStr) => {
                 if (limitedWidth)
                   return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
@@ -333,7 +336,7 @@ module.exports = (options = {}) => {
             // 值是指定的变量名称，则加入进桌面端和横屏的媒体查询
             (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
             // 默认行为，未指定长度变量列表，属性和长度有关，并且值包含变量 val(...)，则加入进桌面端和横屏的媒体查询
-            (expectedLengthVars.length === 0 && lengthProps.includes(prop) && varTestReg.test(val))) {
+            (expectedLengthVars.length === 0 && !disableAutoApply && lengthProps.includes(prop) && varTestReg.test(val))) {
             const enabledDesktop = !disableDesktop;
             const enabledLandscape = !disableLandscape;
             appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
@@ -364,6 +367,7 @@ module.exports = (options = {}) => {
               landscapeWidth,
               maxDisplayWidth,
               expectedLengthVars,
+              disableAutoApply,
               isLRVars: rootContainingBlockList_LR.includes(prop),
             });
           });

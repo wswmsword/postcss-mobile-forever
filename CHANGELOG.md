@@ -17,7 +17,8 @@
 
 ### Fixed
 - 修复 `experimental.extract` 选项的热重载问题；
-- 修复 `experimental.extract` 分割后加载后续插件问题。
+- 修复 `experimental.extract` 分割后加载后续插件问题；
+- 修复自定义属性覆盖同一选择器内优先级更高的属性问题。
 
 ## [3.1.0] - 2023-03-26
 
