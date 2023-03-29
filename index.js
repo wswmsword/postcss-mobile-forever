@@ -211,6 +211,9 @@ module.exports = (options = {}) => {
       let hadSider3 = false;
       let hadSider4 = false;
 
+      /** 一个选择器内优先级最高的各个属性 */
+      const priorityProps = new Map();
+
       return {
         Once(_, postcss) {
           /** 桌面端视图下的媒体查询 */
@@ -269,6 +272,17 @@ module.exports = (options = {}) => {
           /** 有标志*根包含块*的注释吗？ */
           const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isSelector(rootContainingBlockSelectorList, selector);
           if (hadRootContainingBlock) hadFixed = true;
+
+          /** 标记优先级最高的各个属性 */
+          priorityProps.clear();
+          rule.walkDecls(decl => {
+            const important = decl.important;
+            const prop = decl.prop;
+            const mapProp = priorityProps.get(prop);
+            if (mapProp == null || important || !mapProp.important) {
+              priorityProps.set(prop, decl);
+            }
+          })
         },
         Declaration(decl, postcss) {
           if (!walkedRule) return; // 不是 Rule 的属性则不转换
@@ -288,6 +302,7 @@ module.exports = (options = {}) => {
               sharedAtRult,
               desktopViewAtRule,
               landScapeViewAtRule,
+              isShare: priorityProps.get(prop) === decl,
             });
             return;
           }
@@ -323,6 +338,7 @@ module.exports = (options = {}) => {
               matchPercentage: false,
               expectedLengthVars,
               disableAutoApply,
+              isLastProp: priorityProps.get(prop) === decl,
               convertMobile: (number, unit, numberStr) => {
                 if (limitedWidth)
                   return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
@@ -343,6 +359,7 @@ module.exports = (options = {}) => {
               sharedAtRult,
               desktopViewAtRule,
               landScapeViewAtRule,
+              isLastProp: priorityProps.get(prop) === decl,
             });
           }
         },
@@ -369,6 +386,7 @@ module.exports = (options = {}) => {
               expectedLengthVars,
               disableAutoApply,
               isLRVars: rootContainingBlockList_LR.includes(prop),
+              isLastProp: priorityProps.get(prop) === decl,
             });
           });
           walkedRule = false;

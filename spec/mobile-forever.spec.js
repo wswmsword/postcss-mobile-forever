@@ -54,6 +54,66 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("shared media query of landscape and desktop", function() {
+
+  it("should not generate shared media query if not last property", function() {
+    var input = ".rule { left: var(--beatles); left: 75px; } .l{}";
+    var output = ".rule { left: var(--beatles); left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { left: 750px; /* apply-without-convert */ left: 75px; } .l{}";
+    var output = ".rule { left: 750px; left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate shared media query if last property", function() {
+    var input = ".rule { left: 75px; left: var(--beatles); } .l{}";
+    var output = ".rule { left: 75px; left: var(--beatles); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--beatles); } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { left: 750px; left: 75px; /* apply-without-convert */ } .l{}";
+    var output = ".rule { left: 100vw; left: 75px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: 75px; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate shared media query if important property", function() {
+    var input = ".rule { left: var(--beatles) !important; left: 75px; } .l{}";
+    var output = ".rule { left: var(--beatles) !important; left: 75px; } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: var(--beatles) !important; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { left: 750px !important; /* apply-without-convert */ left: 75px; } .l{}";
+    var output = ".rule { left: 750px !important; left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { left: 750px !important; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not generate shared media if previous important property", function() {
+    var input = ".rule { left: 75px !important; left: var(--beatles); } .l{}";
+    var output = ".rule { left: 10vw !important; left: var(--beatles); } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px !important; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { left: 75px !important; left: 750px; /* apply-without-convert */ } .l{}";
+    var output = ".rule { left: 10vw !important; left: 750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px !important; } }";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should generate shared media if root-selector center", function() {
+    var input = ".rule { margin-left: 75px !important; margin-left: 750px; } .l{}";
+    var output = ".rule { margin-left: 10vw !important; margin-left: 750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { margin-left: 60px !important; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { margin-left: 42.5px !important; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: ".rule"
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
 describe("sider", function() {
   it("should not generate when disable desktop", function() {
     var input = ".rule { left: 75px; } .l {}";

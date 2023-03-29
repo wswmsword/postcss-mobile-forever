@@ -62,6 +62,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   expectedLengthVars = [],
   isLRVars,
   disableAutoApply,
+  isLastProp,
 }) {
   const prop = decl.prop;
   const val = decl.value;
@@ -86,6 +87,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     matchPercentage: isFixed,
     expectedLengthVars,
     disableAutoApply,
+    isLastProp,
     convertMobile: (number, unit, numberStr) => {
       if (isFixed) {
         if (leftOrRight) {
@@ -119,25 +121,29 @@ function appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, importa
   sharedAtRult,
   desktopViewAtRule,
   landScapeViewAtRule,
+  isShare,
 }) {
-  if (enabledDesktop && enabledLandscape) {
+  if (enabledDesktop && enabledLandscape && isShare) {
     sharedAtRult.append(postcss.rule({ selector }).append({
       prop: prop, // 属性
       value: val,
       important, // 值的尾部有 important 则添加
     }));
-  } else if (enabledDesktop) {
-    desktopViewAtRule.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val,
-      important, // 值的尾部有 important 则添加
-    }));
-  } else if (enabledLandscape) {
-    landScapeViewAtRule.append(postcss.rule({ selector }).append({
-      prop: prop, // 属性
-      value: val,
-      important, // 值的尾部有 important 则添加
-    }));
+  } else {
+    if (enabledDesktop) {
+      desktopViewAtRule.append(postcss.rule({ selector }).append({
+        prop: prop, // 属性
+        value: val,
+        important, // 值的尾部有 important 则添加
+      }));
+    }
+    if (enabledLandscape) {
+      landScapeViewAtRule.append(postcss.rule({ selector }).append({
+        prop: prop, // 属性
+        value: val,
+        important, // 值的尾部有 important 则添加
+      }));
+    }
   }
 }
 
@@ -158,6 +164,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   matchPercentage,
   expectedLengthVars = [],
   disableAutoApply = false,
+  isLastProp,
 }) {
   decl.book = true;
 
@@ -215,6 +222,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       sharedAtRult,
       desktopViewAtRule,
       landScapeViewAtRule,
+      isLastProp,
     });
   }
 }
@@ -224,11 +232,13 @@ function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, se
   sharedAtRult,
   desktopViewAtRule,
   landScapeViewAtRule,
+  isLastProp,
 }) {
   appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
     sharedAtRult,
     desktopViewAtRule,
     landScapeViewAtRule,
+    isShare: isLastProp,
   });
 }
 
