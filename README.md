@@ -45,12 +45,12 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询，第二种方法限制视口单位的最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在横屏和桌面端的屏幕上，这种方法覆盖广，但是存在属性覆盖问题，可能需要手动调整；
-- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法代码量小，没有属性覆盖问题。
+- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在横屏和桌面端的屏幕上，这种方法可以在两种屏幕上控制展示的宽度；
+- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法在屏幕宽度超过指定宽度后，视图宽度保持不变。
 
 <details>
 <summary>
-插件生成的媒体查询，期望覆盖手机、平板、笔记本，以及竖屏或横屏的各种屏幕。
+插件生成的媒体查询，期望覆盖手机、平板、笔记本，以及竖屏或横屏的多种屏幕。
 </summary>
 
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
@@ -110,13 +110,13 @@ import autoprefixer from 'autoprefixer'
 | comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
 | comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
 | comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
-| customLengthProperty | any | N | { rootContainingBlockList_LR: [], rootContainingBlockList_NOT_LR: [], ancestorContainingBlockList: [] } | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
+| customLengthProperty | any | N | | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
 | (c...y).rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
 | (c...y).rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
 | (c...y).ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
 | experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
-> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭，这是第一种限制视口单位宽度的方法。第二种方法是设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
+> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
 <details>
 <summary>
@@ -173,7 +173,7 @@ import autoprefixer from 'autoprefixer'
 
 <details>
 <summary>
-虽然配置选项的数量看起来很多，但是只需要指定选项 rootSelector 和 viewportWidth 后，就能看到适配竖屏、横屏和桌面端的结果。在桌面端和横屏的视图下，如果有样式和移动端竖屏不一致，再考虑配置其它选项。
+虽然配置选项的数量看起来很多，但是只需要指定选项 rootSelector 和 viewportWidth 后，就可以输出适配竖屏、横屏和桌面端的结果。在桌面端和横屏的视图下，如果有样式和移动端竖屏不一致，再考虑配置其它选项。
 </summary>
 
 下面的配置会适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
@@ -225,75 +225,9 @@ npm run start
 
 ## 原理和输入输出范例
 
-下面会介绍关于媒体查询、限制最大宽度和 fixed 定位时的计算这三个主题，以及展示输入输出范例。
+查看[原理](./how-to-work.md)。
 
----
-
-本插件会创建可以代表桌面端和移动端横屏的两个媒体查询，然后找到所有的 px 值进行转换，默认情况会把原值转换成两个经过比例计算后的新 px 值，分别对应桌面端和移动端横屏。
-
-媒体查询中有两个重要因素，分别是“屏幕宽度（X）”和“屏幕高度（Y）”，分别对应了屏幕的高低（高度）变化，以及屏幕的宽窄（宽度）变化。下面是媒体查询断点的具体情况，以及和每种情况等效的端口（默认 X 是 640px，Y 是 600px，可通过参数调整）：
-
-- 宽于 X（600）
-	- 高于 Y（640），使用桌面宽度（平板、笔记本、桌面端）
-	- 低于 Y，使用移动端横屏宽度（移动端横屏）
-- 窄于 X
-	- 横屏
-		- 宽于 landscapeWidth（425），使用移动端横屏宽度（移动端横屏）
-		- 窄于 landscapeWidth，使用设计图宽度（穿戴设备）
-	- 纵屏，使用设计图宽度（移动端竖屏）
-
-桌面端媒体查询类似于：
-
-```css
-@media (min-width: 600px) and (min-height: 640px) { /* ... */ }
-```
-
-移动端横屏媒体查询类似于：
-
-```css
-@media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { /* ... */ }
-```
-
----
-
-怎样限制视口单位的最大宽度：
-- 使用 CSS 函数 `min()` 或 `max()`；
-- 举例，当前配置为 `{ viewportWidth: 750, maxDisplayWidth: 600 }`，
-	- 转换前，`width: 75px;`，
-	- 转换后，`width: min(10vw, 60px);`。
-
----
-
-当需要把竖屏视图居中展示时，fixed 定位的元素需要重新计算，让元素回到视图中，而不是左右的空白区域。例如 `position: fixed; left: 0;` 在宽屏上，应该处于居中的视图中，而不是屏幕最左侧。
-
-如果元素的长度单位是百分比，那么这个百分比是基于[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)计算的。大部分情况，元素的包含块是它的父级元素，因此插件不需要进行转换，但是当元素处于 fixed 定位时，元素的包含块就可能是根元素 `<html>`（visual viewport），这时的宽度是浏览器宽度，所以插件需要把此时依赖浏览器宽度的属性进行转换，这样不管浏览器宽度怎么变化，视图才能始终居中。下面是具体的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
-- 属性是除了 left 和 right 的属性，单位使用 vw 或百分号（%），
-	- 计算方式为 `(idealClientWidth / 100 * number)px`；
-- 属性是除了 left 和 right 的属性，单位使用 px，
-	- 计算方式为 `(idealClientWidth / viewportWidth * number)px`；
-- 属性为 left 或 right，单位使用 vw 或百分号，
-	- 计算方式为 `calc(50% - (idealClientWidth / 2 - idealClientWidth / 100 * number)px)`；
-- 属性为 left 或 right，单位使用 px，
-	- 计算方式为 `calc(50% - (idealClientWidth / 2 - number * idealClientWidth / viewportWidth)px)`。
-
-<details>
-<summary>查看关于上述包含块内单位转换的更多解释。</summary>
-
-- idealClientWidth（理想客户端宽度）是属性表中的 desktopWidth 或 landscapeWidth；
-- viewportWidth 即属性表中的 viewportWidth；
-- number 即属性值里的长度数字；
-- 对于包含块，“未考虑的其它情况”请查看“注意事项”一节，例如 `position: fixed; left: 0;` 的另一种可能是使元素处于某祖先元素的最左侧，而不是根元素（浏览器窗口）最左侧；
-- 对于包含块，会有 `position: fixed;` 和 `left: 0;` 不在同一选择器的情况，这种情况仍然需要计算 `left`，但默认由于未在同一选择器中检测到 `fixed`，因此不会重新计算，应对方法请查看“注意事项”一节；
-- 包含块宽度影响的属性，请查看“其它”一节；
-- 以上值的重新计算，目的是保证每个端口的视图完全一致。
-
-</details>
-
----
-
-下面是使用默认配置的输入输出内容。
-
-输入：
+默认配置的输入范例：
 
 ```css
 .root-class {
@@ -309,7 +243,7 @@ npm run start
 }
 ```
 
-输出：
+默认配置的输出范例：
 
 ```css
 #app {
