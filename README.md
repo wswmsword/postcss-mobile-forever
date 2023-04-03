@@ -22,6 +22,8 @@ yarn add -D postcss postcss-mobile-forever
 安装之后在 postcss.config.js 配置文件中引入，或者其它框架配置文件中引入。
 </summary>
 
+`postcss.config.js` 有好几种[配置格式](https://github.com/webpack-contrib/postcss-loader#config)，下面是其中一种配置方法：
+
 ```javascript
 import mobile from 'postcss-mobile-forever' // <---- 这里
 import autoprefixer from 'autoprefixer'
