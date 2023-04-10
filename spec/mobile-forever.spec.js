@@ -806,6 +806,13 @@ describe("value parsing", function() {
     })).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should not convert hex color value ends with number", function() {
+    var input = ".rule { color: #781A05; } .l{}";
+    var output = ".rule { color: #781A05; } .l{}";
+    var processed = postcss(mobileToMultiDisplays()).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("media queries", function() {
