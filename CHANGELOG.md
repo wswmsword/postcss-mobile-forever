@@ -19,7 +19,14 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.2.3] - 2023-04-18
+
+### Fixed
+- 修复 viewportWidth 选项是函数的配置下，非包含块属性的值在桌面端和横屏会被转换为 `NaN` 的问题 [#6](https://github.com/wswmsword/postcss-mobile-forever/issues/6)。
+
 ## [3.2.2] - 2023-04-10
+
+### Fixed
 - 修复十六进制颜色值的尾部包含数字可能被转换的问题 [#4](https://github.com/wswmsword/postcss-mobile-forever/issues/4)。
 
 ## [3.2.1] - 2023-03-29
