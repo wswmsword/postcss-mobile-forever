@@ -345,8 +345,8 @@ module.exports = (options = {}) => {
                 else
                   return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
               },
-              convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr),
-              convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr),
+              convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, _viewportWidth, unitPrecision, unit, numberStr),
+              convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, _viewportWidth, unitPrecision, unit, numberStr),
             });
           } else if (
             // 值是指定的变量名称，则加入进桌面端和横屏的媒体查询

@@ -681,8 +681,8 @@ describe("dynamic viewportWidth", function() {
     viewportWidth: file => file.includes("vant") ? 375 : 750,
   };
   it("should use truthy viewportWidth by dynamic viewportWidth", function() {
-    var input = ".rule { left: 75px; } .l{}";
-    var output = ".rule { left: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 85px; } }"
+    var input = ".rule { left: 75px; font-size: 75px; } .l{}";
+    var output = ".rule { left: 20vw; font-size: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font-size: 120px; left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font-size: 85px; left: 85px; } }"
     var processed = postcss(mobileToMultiDisplays(options)).process(input, {
       from: "/vant/main.css",
     }).css;
