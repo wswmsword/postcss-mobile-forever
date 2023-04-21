@@ -97,7 +97,8 @@ import autoprefixer from 'autoprefixer'
 | include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 | propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
-| selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
+| valueBlackList | (string\|RegExp)[] | N | [] | 属性值黑名单，名单上的值不转换 |
 | rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
 | minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
@@ -142,6 +143,7 @@ import autoprefixer from 'autoprefixer'
   "include": null,
   "unitPrecision": 3,
   "selectorBlackList": [],
+  "valueBlackList": [],
   "rootContainingBlockSelectorList": [],
   "propList": ['*'],
   "mobileUnit": "vw",

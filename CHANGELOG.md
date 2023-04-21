@@ -19,6 +19,11 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.3.0] - 2023-04-21
+
+### Added
+- 添加选项 valueBlackList，指定的值不进行转换，例如可以指定 `["1px solid black"]`，指定之后本地和引入的仓库样式包含 `1px solid black` 的值都将不被转换 [#7](https://github.com/wswmsword/postcss-mobile-forever/issues/7)。
+
 ## [3.2.3] - 2023-04-18
 
 ### Fixed

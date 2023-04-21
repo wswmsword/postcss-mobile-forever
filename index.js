@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isSelector, createContainingBlockWidthDecls,
+const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isMatchedStr, createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
   hasApplyWithoutConvertComment,
 } = require("./src/logic-helper");
@@ -46,6 +46,7 @@ const defaults = {
   unitPrecision: 3,
   /** 选择器黑名单列表 */
   selectorBlackList: [],
+  valueBlackList: [],
   /** 是否处理某个属性？ */
   propList: ['*'],
   /** 包含块是根元素的选择器列表 */
@@ -144,8 +145,8 @@ module.exports = (options = {}) => {
   };
 
   const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth,
-    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, rootContainingBlockSelectorList, propList,
-    maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
+    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, valueBlackList, rootContainingBlockSelectorList,
+    propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
   } = opts;
   const { extract } = experimental || {};
   const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
@@ -235,7 +236,7 @@ module.exports = (options = {}) => {
           containingBlockWidthDeclsMap = createContainingBlockWidthDecls();
           selector = rule.selector;
 
-          if (isSelector(selectorBlackList, selector))
+          if (isMatchedStr(selectorBlackList, selector))
             return blackListedSelector = true;
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
           if (rule.parent.params) return insideMediaQuery = true;
@@ -270,7 +271,7 @@ module.exports = (options = {}) => {
           const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
           if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
           /** 有标志*根包含块*的注释吗？ */
-          const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isSelector(rootContainingBlockSelectorList, selector);
+          const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isMatchedStr(rootContainingBlockSelectorList, selector);
           if (hadRootContainingBlock) hadFixed = true;
 
           /** 标记优先级最高的各个属性 */
@@ -293,6 +294,7 @@ module.exports = (options = {}) => {
           const val = decl.value;
 
           if (!satisfyPropList(prop)) return;
+          if (isMatchedStr(valueBlackList, val)) return;
   
           if (prop === "position" && val === "fixed") return hadFixed = true;
           if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;

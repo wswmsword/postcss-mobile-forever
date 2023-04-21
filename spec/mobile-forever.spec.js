@@ -54,6 +54,46 @@ describe("mobile-forever", function() {
   });
 });
 
+describe("ignore value", function() {
+  describe("valueBlackList", function() {
+    it("should ignore value of porperty if set valueBlackList", function() {
+      var input = ".rule { left: 75px; border: 1px solid salmon; } .l{}";
+      var output = ".rule { left: 75px; border: 1px solid salmon; } .l{}";
+      var processed = postcss(mobileToMultiDisplays({
+        valueBlackList: ["75px", "1px solid salmon"],
+      })).process(input).css;
+      expect(processed).toBe(output);
+      
+      var input = ".rule { left: 75px; } .l{}";
+      var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+      var processed = postcss(mobileToMultiDisplays({
+        valueBlackList: [],
+      })).process(input).css;
+      expect(processed).toBe(output);
+    });
+  });
+
+  describe("propList", function() {
+    it("should ignore to convert props value expected by propList", function() {
+      var input = ".rule { border: 1px solid salmon; } .l{}";
+      var output = ".rule { border: 1px solid salmon; } .l{}";
+      var processed = postcss(mobileToMultiDisplays({
+        propList: ["*", "!border"],
+      })).process(input).css;
+      expect(processed).toBe(output);
+    })
+  });
+
+  describe("comments", function() {
+    it("should ignore to convert values that followed comments", function() {
+      var input = ".rule { border: 1px solid salmon; /* mobile-ignore */ } .l{}";
+      var output = ".rule { border: 1px solid salmon; } .l{}";
+      var processed = postcss(mobileToMultiDisplays()).process(input).css;
+      expect(processed).toBe(output);
+    });
+  })
+});
+
 describe("shared media query of landscape and desktop", function() {
 
   it("should not generate shared media query if not last property", function() {
