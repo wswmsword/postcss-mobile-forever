@@ -19,6 +19,11 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.3.1] - 2023-04-21
+
+### Fixed
+- 添加 valueBlackList 类型定义。
+
 ## [3.3.0] - 2023-04-21
 
 ### Added

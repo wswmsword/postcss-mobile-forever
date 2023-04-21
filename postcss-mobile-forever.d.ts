@@ -49,8 +49,11 @@ declare namespace mobileForever {
     /** 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) */
     propList?: string[];
 
-    /** 选择器黑名单，名单上的不转换，用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) */
+    /** 选择器黑名单，名单上的不转换 */
     selectorBlackList?: (string | RegExp)[]
+
+    /** 属性值黑名单，名单上的值不被转换 */
+    valueBlackList?: (string | RegExp)[]
 
     /** 包含块是根元素的选择器列表 */
     rootContainingBlockSelectorList?: (string | RegExp)[]
