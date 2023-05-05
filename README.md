@@ -2,7 +2,9 @@
 
 <img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
 
-一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成屏幕媒体查询（*@media*），让移动端视图处处可访问。
+一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成适应桌面端和横屏的媒体查询（*@media*）。
+
+> 如果您在用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
 
 您可以在线查看 [React 范例](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue 范例](https://wswmsword.github.io/examples/mobile-forever/vue/)或 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
@@ -46,9 +48,9 @@ import autoprefixer from 'autoprefixer'
 
 ## 简介
 
-插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询，第二种方法限制视口单位的最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在横屏和桌面端的屏幕上，这种方法可以在两种屏幕上控制展示的宽度；
-- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法在屏幕宽度超过指定宽度后，视图宽度保持不变。
+插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询（默认方法），第二种方法限制视口单位的最大值：
+- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在横屏和桌面端的屏幕上，这种方法可以在两种屏幕上控制展示的宽度，具体的媒体查询条件请查看“原理和输入输出范例”一节；
+- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小。
 
 <details>
 <summary>
@@ -61,7 +63,7 @@ import autoprefixer from 'autoprefixer'
 - 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
 </details>
 
-> 您也可以通过配合 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*），把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
+> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
 
 ## 演示效果
 
@@ -88,7 +90,7 @@ import autoprefixer from 'autoprefixer'
 | maxDisplayWidth | number | N | null | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| rootSelector | string | N | null | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式，优先级高于 rootClass |
+| rootSelector | string | N | null | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean\|string | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
 | disableDesktop | boolean | N | false | 打开则不做桌面端适配 |
 | disableLandscape | boolean | N | false | 打开则不做移动端横屏适配 |
@@ -303,7 +305,7 @@ npm run start
 
 ## 注意事项
 
-rootSelector 或者 rootClass 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
+rootSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
 默认情况，插件会把所有 fixed 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
 
@@ -514,8 +516,12 @@ module.exports = {
 - backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
 
 相关链接：
-- “[Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)”，W3C Recommendation，05 April 2022；
-- “[CSS syntax validator](https://csstree.github.io/docs/validator.html)”，遵守 W3C 标准的在线 CSS 语法检测器；
+- [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
+- [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器；
 - “[What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)”，罗列了百分比取包含块（Containing Block）宽度的属性；
-- “[CSS 的简写属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)”，罗列了所有的简写属性；
-- [postcss-bud](https://github.com/wswmsword/postcss-bud)，一款 PostCSS 插件，用于保持视图横竖居中于屏幕。
+- [CSS 的简写属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)，罗列了所有的简写属性；
+- [postcss-bud](https://github.com/wswmsword/postcss-bud)，一款 PostCSS 插件，用于保持视图横竖居中于屏幕；
+- [CSS3 Media Queries overview](http://cssmediaqueries.com/overview.html)，一个网站，展示本机当前应用的媒体查询；
+- “[Don't target specific devices or sizes!](https://stackoverflow.com/a/20350990)”，一条答案，解释为什么不应该通过设备类型适配界面；
+- [Media Queries for Standard Devices](https://css-tricks.com/snippets/css/media-queries-for-standard-devices/)，罗列了各种屏幕的媒体查询；
+- [响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)，MDN 的响应式设计教程。
