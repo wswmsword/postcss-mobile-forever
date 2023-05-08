@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.3.2] - 2023-05-08
+
+### Fixed
+- 修复在打开选项 maxDisplayWidth 时，会在根元素陷入死循环问题；
+- 修复在打开选项 maxDisplayWidth 时，选项 border 的功能和预期相反的问题。
+
 ## [3.3.1] - 2023-04-21
 
 ### Fixed
