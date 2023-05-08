@@ -300,8 +300,9 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   const c = typeof border === "string" ? border : "#eee";
   const limitedWidth = maxDisplayWidth != null;
   if (limitedWidth) {
-    if (hadBorder) rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
-    else rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(borderL(c)), b(borderR(c)), b(minFullHeight), b(autoHeight), b(contentBox));
+    if (hadBorder) rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(borderL(c)), b(borderR(c)), b(minFullHeight), b(autoHeight), b(contentBox));
+    else rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
+    rule.processedLimitedWidthBorder = true; // 做标记，防止死循环
     function b(obj) {
       return { ...obj, book: 1, };
     }

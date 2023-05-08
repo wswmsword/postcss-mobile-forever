@@ -229,6 +229,7 @@ module.exports = (options = {}) => {
           sideAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth + sideWidth * 2 + sideGap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
         },
         Rule(rule, postcss) {
+          if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
           walkedRule = true;
           hadFixed = false;
           insideMediaQuery = false;

@@ -16,6 +16,15 @@ describe("mobile-forever", function() {
     var output = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } .nav { height: 57.6px; top: 0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } .nav { height: 40.8px; top: 0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays()).process(input).css;
     expect(processed).toBe(output);
+
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: "#app",
+      maxDisplayWidth: 560,
+      disableDesktop: true,
+      disableLandscape: true,
+    })).process(input).css;
+    var output2 = "#app { width: 100%; max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; } .nav { position: fixed; width: min(100%, 560px); height: min(9.6vw, 53.76px); left: calc(50% - min(50%, 280px)); top: 0; }";
+    expect(processed).toBe(output2);
   });
 
   it("should convert px to desktop and landscape radio px", function() {
@@ -50,6 +59,52 @@ describe("mobile-forever", function() {
     var input = "@media (min-width: 600px) and (min-height: 640px) { .root-class { width: 100vw; } .class { width: 66px; }}";
     var output = "@media (min-width: 600px) and (min-height: 640px) { .root-class { width: 100vw; } .class { width: 66px; }}";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
+describe("border", function() {
+  it("should add border for maxDisplay option when enable border option", function() {
+    var input = ".rule { left: 75px; }";
+    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; box-sizing: content-box; }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: ".rule",
+      border: true,
+      maxDisplayWidth: 620,
+      disableDesktop: true,
+      disableLandscape: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not add border for maxDisplay option by default", function() {
+    var input = ".rule { left: 75px; }";
+    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: ".rule",
+      maxDisplayWidth: 620,
+      disableDesktop: true,
+      disableLandscape: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should add border for desktop and landscape", function() {
+    var input = ".rule { left: 75px; } .l{}";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-sizing: content-box; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: ".rule",
+      border: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should not add border for desktop and landscape by default", function() {
+    var input = ".rule { left: 75px; } .l{}";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      rootSelector: ".rule",
+    })).process(input).css;
     expect(processed).toBe(output);
   });
 });
