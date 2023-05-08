@@ -49,7 +49,7 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询（默认方法），第二种方法限制视口单位的最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以合适的宽度，居中展示在横屏和桌面端的屏幕上，这种方法可以在两种屏幕上控制展示的宽度，具体的媒体查询条件请查看“原理和输入输出范例”一节；
+- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节；
 - 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小。
 
 <details>
@@ -63,7 +63,7 @@ import autoprefixer from 'autoprefixer'
 - 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
 </details>
 
-> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。
+> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第一种方法，生成媒体查询的方法。
 
 ## 演示效果
 
@@ -302,6 +302,38 @@ npm run start
 	}
 }
 ```
+
+<details>
+<summary>查看使用选项 maxDisplayWidth 限制宽度，关闭媒体查询的输出范例。</summary>
+
+配置：
+```json
+{
+  "rootSelector": "#app",
+  "maxDisplayWidth": 560,
+  "disableDesktop": true,
+  "disableLandscape": true,
+}
+```
+
+输出范例
+```css
+#app {
+  width       : 100%;
+  max-width   : 560px !important;
+  margin-left : auto !important;
+  margin-right: auto !important;
+}
+
+.nav {
+  position: fixed;
+  width   : min(100%, 560px);
+  height  : min(9.6vw, 53.76px);
+  left    : calc(50% - min(50%, 280px));
+  top     : 0;
+}
+```
+</details>
 
 ## 注意事项
 
