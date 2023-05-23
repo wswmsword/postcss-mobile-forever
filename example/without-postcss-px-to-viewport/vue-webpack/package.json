@@ -1,0 +1,24 @@
+{
+  "name": "vue-webpack-project",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "start": "webpack serve --config webpack.config.js"
+  },
+  "devDependencies": {
+    "css-loader": "^6.7.4",
+    "html-webpack-plugin": "^5.5.1",
+    "postcss": "^8.4.23",
+    "postcss-loader": "^7.3.0",
+    "postcss-mobile-forever": "file:../../..",
+    "style-loader": "^3.3.3",
+    "vue-loader": "^17.1.1",
+    "webpack": "^5.83.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
+  }
+}
