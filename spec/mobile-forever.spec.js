@@ -91,7 +91,7 @@ describe("border", function() {
 
   it("should add border for desktop and landscape", function() {
     var input = ".rule { left: 75px; } .l{}";
-    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-sizing: content-box; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; } }";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { max-width: 600px !important; left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { max-width: 425px !important; left: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-sizing: content-box; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
       rootSelector: ".rule",
       border: true,
@@ -101,7 +101,7 @@ describe("border", function() {
 
   it("should not add border for desktop and landscape by default", function() {
     var input = ".rule { left: 75px; } .l{}";
-    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { max-width: 600px !important; left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { max-width: 425px !important; left: 42.5px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
       rootSelector: ".rule",
     })).process(input).css;
@@ -201,7 +201,7 @@ describe("shared media query of landscape and desktop", function() {
 
   it("should generate shared media if root-selector center", function() {
     var input = ".rule { margin-left: 75px !important; margin-left: 750px; } .l{}";
-    var output = ".rule { margin-left: 10vw !important; margin-left: 750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { margin-left: 60px !important; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { margin-left: 42.5px !important; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
+    var output = ".rule { margin-left: 10vw !important; margin-left: 750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { max-width: 600px !important; margin-left: 60px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { max-width: 425px !important; margin-left: 42.5px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
       rootSelector: ".rule"
     })).process(input).css;

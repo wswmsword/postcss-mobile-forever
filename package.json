@@ -1,6 +1,6 @@
 {
   "name": "postcss-mobile-forever",
-  "version": "3.3.2",
+  "version": "1.0.0",
   "description": "一款 postcss 插件，让移动端视图处处可访问。To adapt different displays by one mobile viewport.",
   "main": "index.js",
   "types": "postcss-mobile-forever.d.ts",
@@ -35,9 +35,9 @@
   "homepage": "https://github.com/wswmsword/postcss-mobile-forever#readme",
   "devDependencies": {
     "jest": "^29.4.2",
-    "postcss": "^8.0.0"
+    "postcss": "^6.0.0"
   },
   "peerDependencies": {
-    "postcss": "^8.0.0"
+    "postcss": "^6.0.0"
   }
 }

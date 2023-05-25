@@ -1,3 +1,6 @@
+
+const postcss = require('postcss');
+
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isMatchedStr, createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
   hasApplyWithoutConvertComment,
@@ -122,7 +125,7 @@ const hasExcludeFile = createExcludeFunc(TYPE_REG, TYPE_ARY);
  * 通过媒体查询设置在移动端横屏和桌面端两种情况下的 app 视口宽度，根据视口宽度和设计图
  * 宽度的比例，将两种情况的 px 元素的比例计算后的尺寸放入媒体查询中。
  */
-module.exports = (options = {}) => {
+module.exports = postcss.plugin("postcss-mobile-forever", function(options = {}) {
   const opts = {
     ...defaults,
     ...options,
@@ -165,351 +168,343 @@ module.exports = (options = {}) => {
   /** 需要添加到桌面端和横屏的 css 变量 */
   const expectedLengthVars = [...new Set([].concat(rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList))].filter(e => e != null);
 
-  return {
-    postcssPlugin: PLUGIN_NAME,
-    prepare(result) {
-      const file = result.root && result.root.source && result.root.source.input.file;
-      const from = result.opts.from;
-      // 包含文件
-      if(hasNoIncludeFile(include, file, includeType)) return;
-      // 排除文件
-      if(hasExcludeFile(exclude, file, excludeType)) return;
+  return function(css, result) {
+    const file = result.root && result.root.source && result.root.source.input.file;
+    const from = result.opts.from;
+    // 包含文件
+    if(hasNoIncludeFile(include, file, includeType)) return;
+    // 排除文件
+    if(hasExcludeFile(exclude, file, excludeType)) return;
 
-      /** 桌面端视图下的媒体查询 */
-      let desktopViewAtRule = null;
-      /** 移动端横屏下的媒体查询 */
-      let landScapeViewAtRule = null;
-      /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-      let sharedAtRult = null;
-      /** 侧边视图的媒体查询 */
-      let sideAtRule = null;
+    /** 桌面端视图下的媒体查询 */
+    let desktopViewAtRule = null;
+    /** 移动端横屏下的媒体查询 */
+    let landScapeViewAtRule = null;
+    /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
+    let sharedAtRult = null;
+    /** 侧边视图的媒体查询 */
+    let sideAtRule = null;
 
 
-      let hadFixed = null;
-      /** 当前选择器 */
-      let selector = null;
-      /** 视图宽度 */
-      let _viewportWidth = null;
+    let hadFixed = null;
+    /** 当前选择器 */
+    let selector = null;
+    /** 视图宽度 */
+    let _viewportWidth = null;
+    /** 桌面端缩放比例 */
+    let desktopRadio = 1;
+    /** 移动端横屏缩放比例 */
+    let landscapeRadio = 1;
+    /** 选择器在黑名单吗 */
+    let blackListedSelector = null;
+    /** 是否在媒体查询中 */
+    let insideMediaQuery = false;
+    /** 是否添加过调试代码了？ */
+    let addedDemo = false;
+    /** 依赖根包含块宽度的属性 */
+    let containingBlockWidthDeclsMap = null;
+    /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
+    let walkedRule = false;
+    /** 是否限制了最宽宽度？ */
+    let limitedWidth = maxDisplayWidth != null;
+    /** 是否有侧边选择器？ */
+    let hadSider1 = false;
+    let hadSider2 = false;
+    let hadSider3 = false;
+    let hadSider4 = false;
+
+    /** 一个选择器内优先级最高的各个属性 */
+    const priorityProps = new Map();
+
+    /** 桌面端视图下的媒体查询 */
+    desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
+    /** 移动端横屏下的媒体查询 */
+    const landscapeMediaStr_1 = `(min-width: ${_minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
+    const landscapeMediaStr_2 = `(max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
+    landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
+    /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
+    sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+    /** 侧边视图媒体查询 */
+    sideAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth + sideWidth * 2 + sideGap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
+    
+    css.walkRules(function (rule) {
+      if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
+      walkedRule = true;
+      hadFixed = false;
+      insideMediaQuery = false;
+      blackListedSelector = false;
+      containingBlockWidthDeclsMap = createContainingBlockWidthDecls();
+      selector = rule.selector;
+
+      if (isMatchedStr(selectorBlackList, selector))
+        return blackListedSelector = true;
+      // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
+      if (rule.parent.params) return insideMediaQuery = true;
+
+      // 是否动态视图宽度？
+      const isDynamicViewportWidth = typeof viewportWidth === "function";
+      _viewportWidth = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
       /** 桌面端缩放比例 */
-      let desktopRadio = 1;
+      desktopRadio = desktopWidth / _viewportWidth;
       /** 移动端横屏缩放比例 */
-      let landscapeRadio = 1;
-      /** 选择器在黑名单吗 */
-      let blackListedSelector = null;
-      /** 是否在媒体查询中 */
-      let insideMediaQuery = false;
-      /** 是否添加过调试代码了？ */
-      let addedDemo = false;
-      /** 依赖根包含块宽度的属性 */
-      let containingBlockWidthDeclsMap = null;
-      /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
-      let walkedRule = false;
-      /** 是否限制了最宽宽度？ */
-      let limitedWidth = maxDisplayWidth != null;
-      /** 是否有侧边选择器？ */
-      let hadSider1 = false;
-      let hadSider2 = false;
-      let hadSider3 = false;
-      let hadSider4 = false;
+      landscapeRadio = landscapeWidth / _viewportWidth;
 
-      /** 一个选择器内优先级最高的各个属性 */
-      const priorityProps = new Map();
+      // 设置页面最外层 class 的最大宽度，并居中
+      if (selector === rootSelector) {
+        appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+          rule,
+          desktopViewAtRule,
+          landScapeViewAtRule,
+          sharedAtRult,
+          desktopWidth,
+          landscapeWidth,
+          maxDisplayWidth,
+        });
+      }
 
-      return {
-        Once(_, postcss) {
-          /** 桌面端视图下的媒体查询 */
-          desktopViewAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
-          /** 移动端横屏下的媒体查询 */
-          const landscapeMediaStr_1 = `(min-width: ${_minDesktopDisplayWidth}px) and (max-height: ${maxLandscapeDisplayHeight}px)`;
-          const landscapeMediaStr_2 = `(max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
-          landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
-          /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
-          /** 侧边视图媒体查询 */
-          sideAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth + sideWidth * 2 + sideGap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
-        },
-        Rule(rule, postcss) {
-          if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
-          walkedRule = true;
-          hadFixed = false;
-          insideMediaQuery = false;
-          blackListedSelector = false;
-          containingBlockWidthDeclsMap = createContainingBlockWidthDecls();
-          selector = rule.selector;
+      hadSider1 = hadSider1 || selector === side1;
+      hadSider2 = hadSider2 || selector === side2;
+      hadSider3 = hadSider3 || selector === side3;
+      hadSider4 = hadSider4 || selector === side4;
 
-          if (isMatchedStr(selectorBlackList, selector))
-            return blackListedSelector = true;
-          // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
-          if (rule.parent.params) return insideMediaQuery = true;
+      /** 有标志*非根包含块*的注释吗？ */
+      const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
+      if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
+      /** 有标志*根包含块*的注释吗？ */
+      const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isMatchedStr(rootContainingBlockSelectorList, selector);
+      if (hadRootContainingBlock) hadFixed = true;
 
-          // 是否动态视图宽度？
-          const isDynamicViewportWidth = typeof viewportWidth === "function";
-          _viewportWidth = isDynamicViewportWidth ? viewportWidth(file, selector) : viewportWidth;
-          /** 桌面端缩放比例 */
-          desktopRadio = desktopWidth / _viewportWidth;
-          /** 移动端横屏缩放比例 */
-          landscapeRadio = landscapeWidth / _viewportWidth;
+      /** 标记优先级最高的各个属性 */
+      priorityProps.clear();
+      rule.walkDecls(decl => {
+        const important = decl.important;
+        const prop = decl.prop;
+        const mapProp = priorityProps.get(prop);
+        if (mapProp == null || important || !mapProp.important) {
+          priorityProps.set(prop, decl);
+        }
+      });
 
-          // 设置页面最外层 class 的最大宽度，并居中
-          if (selector === rootSelector) {
-            appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
-              rule,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              sharedAtRult,
-              desktopWidth,
-              landscapeWidth,
-              maxDisplayWidth,
-            });
-          }
+      rule.walkDecls(function (decl) {
+        if (!walkedRule) return; // 不是 Rule 的属性则不转换
+        if (insideMediaQuery) return; // 不转换媒体查询中的属性
+        if (decl.book) return; // 被标记过不转换
+        if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
+        const prop = decl.prop;
+        const val = decl.value;
 
-          hadSider1 = hadSider1 || selector === side1;
-          hadSider2 = hadSider2 || selector === side2;
-          hadSider3 = hadSider3 || selector === side3;
-          hadSider4 = hadSider4 || selector === side4;
+        if (!satisfyPropList(prop)) return;
+        if (isMatchedStr(valueBlackList, val)) return;
 
-          /** 有标志*非根包含块*的注释吗？ */
-          const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
-          if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
-          /** 有标志*根包含块*的注释吗？ */
-          const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isMatchedStr(rootContainingBlockSelectorList, selector);
-          if (hadRootContainingBlock) hadFixed = true;
-
-          /** 标记优先级最高的各个属性 */
-          priorityProps.clear();
-          rule.walkDecls(decl => {
-            const important = decl.important;
-            const prop = decl.prop;
-            const mapProp = priorityProps.get(prop);
-            if (mapProp == null || important || !mapProp.important) {
-              priorityProps.set(prop, decl);
-            }
-          })
-        },
-        Declaration(decl, postcss) {
-          if (!walkedRule) return; // 不是 Rule 的属性则不转换
-          if (insideMediaQuery) return; // 不转换媒体查询中的属性
-          if (decl.book) return; // 被标记过不转换
-          if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
-          const prop = decl.prop;
-          const val = decl.value;
-
-          if (!satisfyPropList(prop)) return;
-          if (isMatchedStr(valueBlackList, val)) return;
-  
-          if (prop === "position" && val === "fixed") return hadFixed = true;
-          if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
-          // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
-          if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) {
-            appendDisplaysRule(!disableDesktop, !disableLandscape, prop, val, decl.important, selector, postcss, {
-              sharedAtRult,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              isShare: priorityProps.get(prop) === decl,
-            });
-            return;
-          }
-
-          // 该属性是用于设置根包含块的变量属性
-          const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
-          isRootContainingBlockProp && (hadFixed = true);
-          // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
-          if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
-            const important = decl.important;
-            const mapDecl = containingBlockWidthDeclsMap.get(prop);
-            if (mapDecl == null || important || !mapDecl.important)
-              containingBlockWidthDeclsMap.set(prop, decl);
-            return;
-          }
-
-          // 转换 px
-          if (pxVwTestReg.test(val)) {
-            const important = decl.important;
-            // 添加桌面端、移动端媒体查询
-            appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              sharedAtRult,
-              important,
-              decl,
-              unitPrecision,
-              fontViewportUnit,
-              replace,
-              viewportUnit: mobileUnit,
-              desktopWidth,
-              landscapeWidth,
-              matchPercentage: false,
-              expectedLengthVars,
-              disableAutoApply,
-              isLastProp: priorityProps.get(prop) === decl,
-              convertMobile: (number, unit, numberStr) => {
-                if (limitedWidth)
-                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
-                else
-                  return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
-              },
-              convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, _viewportWidth, unitPrecision, unit, numberStr),
-              convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, _viewportWidth, unitPrecision, unit, numberStr),
-            });
-          } else if (
-            // 值是指定的变量名称，则加入进桌面端和横屏的媒体查询
-            (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
-            // 默认行为，未指定长度变量列表，属性和长度有关，并且值包含变量 val(...)，则加入进桌面端和横屏的媒体查询
-            (expectedLengthVars.length === 0 && !disableAutoApply && lengthProps.includes(prop) && varTestReg.test(val))) {
-            const enabledDesktop = !disableDesktop;
-            const enabledLandscape = !disableLandscape;
-            appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
-              sharedAtRult,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              isLastProp: priorityProps.get(prop) === decl,
-            });
-          }
-        },
-        RuleExit(rule, postcss) {
-          if (!walkedRule) return;
-          if (insideMediaQuery) return;
-          if (blackListedSelector) return;
-          containingBlockWidthDeclsMap.forEach((decl, prop) => {
-            if (decl == null) return;
-            appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
-              viewportWidth: _viewportWidth,
-              desktopRadio,
-              landscapeRadio,
-              desktopViewAtRule,
-              landScapeViewAtRule,
-              sharedAtRult,
-              unitPrecision,
-              fontViewportUnit,
-              replace,
-              viewportUnit: mobileUnit,
-              desktopWidth,
-              landscapeWidth,
-              maxDisplayWidth,
-              expectedLengthVars,
-              disableAutoApply,
-              isLRVars: rootContainingBlockList_LR.includes(prop),
-              isLastProp: priorityProps.get(prop) === decl,
-            });
+        if (prop === "position" && val === "fixed") return hadFixed = true;
+        if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
+        // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
+        if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) {
+          appendDisplaysRule(!disableDesktop, !disableLandscape, prop, val, decl.important, selector, postcss, {
+            sharedAtRult,
+            desktopViewAtRule,
+            landScapeViewAtRule,
+            isShare: priorityProps.get(prop) === decl,
           });
-          walkedRule = false;
-          !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
-        },
-        OnceExit(css, postcss) {
-          const appendedDesktop = desktopViewAtRule.nodes.length > 0;
-          const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
-          const appendedShared = sharedAtRult.nodes.length > 0;
+          return;
+        }
 
-          if (extract) {
-            /**
-             * 清空 css 内容，并拆分为 `@import`
-             * ```css
-             * @import url(mobile.css)
-             * @import url(landscape.css) screen and ...
-             * @import url(desktop.css) screen and ...
-             * ```
-             */
-            const matched = (file || '').match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
-            const name = matched && matched[1] || "UNEXPECTED_FILE";
-            const ext = matched && matched[2] || "css";
-            const mobileFile = `mobile.${name}.${ext}`;
-            const desktopFile = `desktop.${name}.${ext}`;
-            const landscapeFile = `landscape.${name}.${ext}`;
-            const sharedFile = `shared.${name}.${ext}`;
+        // 该属性是用于设置根包含块的变量属性
+        const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
+        isRootContainingBlockProp && (hadFixed = true);
+        // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
+        if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
+          const important = decl.important;
+          const mapDecl = containingBlockWidthDeclsMap.get(prop);
+          if (mapDecl == null || important || !mapDecl.important)
+            containingBlockWidthDeclsMap.set(prop, decl);
+          return;
+        }
 
-            /** 应用根目录 */
-            const rootDir = process.cwd();
-            /** 当前 css 文件路径 */
-            const curFilePath = from || '';
-            /** 目标文件夹 */
-            const targetDir = path.join(__dirname, ".temp");
-            /** 目标文件文件夹 */
-            const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
+        // 转换 px
+        if (pxVwTestReg.test(val)) {
+          const important = decl.important;
+          // 添加桌面端、移动端媒体查询
+          appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
+            desktopViewAtRule,
+            landScapeViewAtRule,
+            sharedAtRult,
+            important,
+            decl,
+            unitPrecision,
+            fontViewportUnit,
+            replace,
+            viewportUnit: mobileUnit,
+            desktopWidth,
+            landscapeWidth,
+            matchPercentage: false,
+            expectedLengthVars,
+            disableAutoApply,
+            isLastProp: priorityProps.get(prop) === decl,
+            convertMobile: (number, unit, numberStr) => {
+              if (limitedWidth)
+                return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
+              else
+                return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
+            },
+            convertDesktop: (number, unit, numberStr) => convertNoFixedMediaQuery(number, desktopWidth, _viewportWidth, unitPrecision, unit, numberStr),
+            convertLandscape: (number, unit, numberStr) => convertNoFixedMediaQuery(number, landscapeWidth, _viewportWidth, unitPrecision, unit, numberStr),
+          });
+        } else if (
+          // 值是指定的变量名称，则加入进桌面端和横屏的媒体查询
+          (expectedLengthVars.length > 0 && expectedLengthVars.some(varStr => val.includes(varStr))) ||
+          // 默认行为，未指定长度变量列表，属性和长度有关，并且值包含变量 val(...)，则加入进桌面端和横屏的媒体查询
+          (expectedLengthVars.length === 0 && !disableAutoApply && lengthProps.includes(prop) && varTestReg.test(val))) {
+          const enabledDesktop = !disableDesktop;
+          const enabledLandscape = !disableLandscape;
+          appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
+            sharedAtRult,
+            desktopViewAtRule,
+            landScapeViewAtRule,
+            isLastProp: priorityProps.get(prop) === decl,
+          });
+        }
+      });
 
-            const newSharedFilePath = path.join(targetFileDir, sharedFile);
-            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
+      if (!walkedRule) return;
+      if (insideMediaQuery) return;
+      if (blackListedSelector) return;
+      containingBlockWidthDeclsMap.forEach((decl, prop) => {
+        if (decl == null) return;
+        appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
+          viewportWidth: _viewportWidth,
+          desktopRadio,
+          landscapeRadio,
+          desktopViewAtRule,
+          landScapeViewAtRule,
+          sharedAtRult,
+          unitPrecision,
+          fontViewportUnit,
+          replace,
+          viewportUnit: mobileUnit,
+          desktopWidth,
+          landscapeWidth,
+          maxDisplayWidth,
+          expectedLengthVars,
+          disableAutoApply,
+          isLRVars: rootContainingBlockList_LR.includes(prop),
+          isLastProp: priorityProps.get(prop) === decl,
+        });
+      });
+      walkedRule = false;
+      !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
+    });
 
-            if (appendedDesktop) {
-              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              if (sideAtRule.nodes.length > 0) css.append(sideAtRule); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
-            }
-            if (appendedShared) css.append(atImportShared);
-            const mobileCss = css.toString(); // without media query
-            const mobilePromise = extractFile(mobileCss, mobileFile, targetFileDir); // 提取移动端 css
-            atImportShared.remove();
+    const appendedDesktop = desktopViewAtRule.nodes.length > 0;
+    const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
+    const appendedShared = sharedAtRult.nodes.length > 0;
 
-            let sharedPromise = Promise.resolve();
-            if (appendedShared) {
-              mergeRules(sharedAtRult); // 合并相同选择器中的内容
-              removeDulplicateDecls(sharedAtRult); // 移除重复属性
-              const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
-              sharedPromise = extractFile(sharedCss, sharedFile, targetFileDir); // 提取公共 css
-            }
+    if (extract) {
+      /**
+       * 清空 css 内容，并拆分为 `@import`
+       * ```css
+       * @import url(mobile.css)
+       * @import url(landscape.css) screen and ...
+       * @import url(desktop.css) screen and ...
+       * ```
+       */
+      const matched = (file || '').match(/([^/\\]+)\.(\w+)(?:\?.+)?$/);
+      const name = matched && matched[1] || "UNEXPECTED_FILE";
+      const ext = matched && matched[2] || "css";
+      const mobileFile = `mobile.${name}.${ext}`;
+      const desktopFile = `desktop.${name}.${ext}`;
+      const landscapeFile = `landscape.${name}.${ext}`;
+      const sharedFile = `shared.${name}.${ext}`;
 
-            let desktopPromise = Promise.resolve();
-            if (appendedDesktop) {
-              const desktopCssRules = postcss.root(); // without media query
-              mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
-              // appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              desktopCssRules.append(desktopViewAtRule.nodes);
-              // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
-              // if (appendedShared) desktopCssRules.prepend(atImportShared);
-              const desktopCss = desktopCssRules.toString();
-              desktopPromise = extractFile(desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
-            }
+      /** 应用根目录 */
+      const rootDir = process.cwd();
+      /** 当前 css 文件路径 */
+      const curFilePath = from || '';
+      /** 目标文件夹 */
+      const targetDir = path.join(__dirname, ".temp");
+      /** 目标文件文件夹 */
+      const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
 
-            let landscapePromise = Promise.resolve();
-            if (appendedLandscape) {
-              const landscapeCssRules = postcss.root(); // without media query
-              mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
-              landscapeCssRules.append(landScapeViewAtRule.nodes);
-              // if (appendedShared) landscapeCssRules.prepend(atImportShared);
-              const landscapeCss = landscapeCssRules.toString();
-              landscapePromise = extractFile(landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
-            }
+      const newSharedFilePath = path.join(targetFileDir, sharedFile);
+      const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
 
-            // 清空文件内容，并替换为 @import，导入移动端、桌面端和横屏
-            const atImportMobile = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, mobileFile)})` });
-            const atImportDesktop = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, desktopFile)}) ${desktopViewAtRule.params}` });
-            const atImportLandscape = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, landscapeFile)}) ${landScapeViewAtRule.params}` });
-            css.walkRules(rule => {
-              rule.removeAll();
-            });
-            if (appendedLandscape) css.prepend(atImportLandscape);
-            if (appendedDesktop) css.prepend(atImportDesktop);
-            css.prepend(atImportMobile);
-            return Promise.all([mobilePromise, desktopPromise, landscapePromise, sharedPromise]);
-          } else {
-            if (appendedDesktop) {
-              mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
-              css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
-  
-              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              if (sideAtRule.nodes.length > 0) {
-                css.append(sideAtRule);
-              }
-            }
-            if (appendedLandscape) {
-              mergeRules(landScapeViewAtRule);
-              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
-              css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
-            }
-            if (appendedShared) {
-              mergeRules(sharedAtRult);
-              removeDulplicateDecls(sharedAtRult); // 移除重复属性
-              css.append(sharedAtRult); // 样式中添加公共媒体查询
-            }
-          }
-        },
-      };
-    },
+      if (appendedDesktop) {
+        appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+        if (sideAtRule.nodes.length > 0) css.append(sideAtRule); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
+      }
+      if (appendedShared) css.append(atImportShared);
+      const mobileCss = css.toString(); // without media query
+      const mobilePromise = extractFile(mobileCss, mobileFile, targetFileDir); // 提取移动端 css
+      atImportShared.remove();
+
+      let sharedPromise = Promise.resolve();
+      if (appendedShared) {
+        mergeRules(sharedAtRult); // 合并相同选择器中的内容
+        removeDulplicateDecls(sharedAtRult); // 移除重复属性
+        const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
+        sharedPromise = extractFile(sharedCss, sharedFile, targetFileDir); // 提取公共 css
+      }
+
+      let desktopPromise = Promise.resolve();
+      if (appendedDesktop) {
+        const desktopCssRules = postcss.root(); // without media query
+        mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+        removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+        // appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+        desktopCssRules.append(desktopViewAtRule.nodes);
+        // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
+        // if (appendedShared) desktopCssRules.prepend(atImportShared);
+        const desktopCss = desktopCssRules.toString();
+        desktopPromise = extractFile(desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
+      }
+
+      let landscapePromise = Promise.resolve();
+      if (appendedLandscape) {
+        const landscapeCssRules = postcss.root(); // without media query
+        mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
+        removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+        landscapeCssRules.append(landScapeViewAtRule.nodes);
+        // if (appendedShared) landscapeCssRules.prepend(atImportShared);
+        const landscapeCss = landscapeCssRules.toString();
+        landscapePromise = extractFile(landscapeCss, landscapeFile, targetFileDir); // 提取横屏 css
+      }
+
+      // 清空文件内容，并替换为 @import，导入移动端、桌面端和横屏
+      const atImportMobile = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, mobileFile)})` });
+      const atImportDesktop = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, desktopFile)}) ${desktopViewAtRule.params}` });
+      const atImportLandscape = postcss.atRule({ name: "import", params: `url(${path.join(targetFileDir, landscapeFile)}) ${landScapeViewAtRule.params}` });
+      css.walkRules(rule => {
+        rule.removeAll();
+      });
+      if (appendedLandscape) css.prepend(atImportLandscape);
+      if (appendedDesktop) css.prepend(atImportDesktop);
+      css.prepend(atImportMobile);
+      return Promise.all([mobilePromise, desktopPromise, landscapePromise, sharedPromise]);
+    } else {
+      if (appendedDesktop) {
+        mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
+        removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+        css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
+
+        appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
+        if (sideAtRule.nodes.length > 0) {
+          css.append(sideAtRule);
+        }
+      }
+      if (appendedLandscape) {
+        mergeRules(landScapeViewAtRule);
+        removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+        css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
+      }
+      if (appendedShared) {
+        mergeRules(sharedAtRult);
+        removeDulplicateDecls(sharedAtRult); // 移除重复属性
+        css.append(sharedAtRult); // 样式中添加公共媒体查询
+      }
+    }
   };
-};
+});
 
-module.exports.postcss = true;
 
 /**
  * 用于替换 webpack css-loader 配置中的 getLocalIdent。需要引入 css-loader
