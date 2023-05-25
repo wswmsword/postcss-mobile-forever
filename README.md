@@ -12,12 +12,20 @@
 
 npm 安装：
 ```bash
+## 最新的版本（postcss@^8.0.0）
 npm install --save-dev postcss postcss-mobile-forever
+
+## 最新的兼容版本（postcss@^6.0.0）
+npm install postcss-mobile-forever@legacy --save-dev
 ```
 
 yarn 安装：
 ```bash
+## 最新的版本（postcss@^8.0.0）
 yarn add -D postcss postcss-mobile-forever
+
+## 最新的兼容版本（postcss@^6.0.0）
+yarn add -D postcss-mobile-forever@legacy
 ```
 <details>
 <summary>
