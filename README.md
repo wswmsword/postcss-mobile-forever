@@ -2,6 +2,8 @@
 
 <img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
 
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成适应桌面端和横屏的媒体查询（*@media*）。
 
 > 如果您在用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
