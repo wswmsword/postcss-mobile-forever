@@ -2,6 +2,7 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const sveltePreprocess = require("svelte-preprocess");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 const path = require("path");
 
@@ -20,7 +21,8 @@ module.exports = {
   output: {
     path: path.join(__dirname, "build"),
     filename: "[name].js",
-    chunkFilename: "[name].[id].js"
+    chunkFilename: "[name].[id].js",
+    clean: true,
   },
   module: {
     rules: [
@@ -83,5 +85,15 @@ module.exports = {
       directory: path.join(__dirname, "build"),
     },
     hot: true
-  }
+  },
+  optimization: {
+    minimizer: [
+      "...",
+      new CssMinimizerPlugin(),
+    ],
+    runtimeChunk: "single",
+    // splitChunks: {
+    //   chunks: "all",
+    // },
+  },
 };

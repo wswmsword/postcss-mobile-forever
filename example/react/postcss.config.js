@@ -5,12 +5,11 @@ module.exports = {
       desktopWidth: 600,
       landscapeWidth: 450,
       border: true,
-      rootClass: "root-class",
-    }],
-    ["postcss-px-to-viewport", {
-      viewportWidth: 750,
-      viewportUnit: "vw",
-      mediaQuery: false,
+      rootSelector: ".root-class",
+      demoMode: true,
+      side: {
+        selector1: ".footer",
+      },
     }],
   ],
 };

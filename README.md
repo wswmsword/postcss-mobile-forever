@@ -8,7 +8,7 @@
 
 > 如果您在用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
 
-您可以在线查看 [React](https://wswmsword.github.io/examples/mobile-forever/react/)、[Vue](https://wswmsword.github.io/examples/mobile-forever/vue/) 和 [Svelte 范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，以及没有使用框架的[原生范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
+您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 ## 安装
 
@@ -59,8 +59,8 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询（默认方法），第二种方法限制视口单位的最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节；
-- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小。
+- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化；
+- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，对比与媒体查询方法的不同。
 
 <details>
 <summary>
@@ -236,6 +236,13 @@ cd example/react/
 npm install
 npm run start
 ```
+
+- [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
+- [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
+- [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
+- [访问 Svelte 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的媒体查询的源码](./example/svelte)；
+- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
+- [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 
 在“演示效果”一节中查看成功运行之后，不同屏幕的界面图片。
 

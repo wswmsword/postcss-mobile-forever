@@ -14,8 +14,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
     "postcss": "^8.4.21",
-    "postcss-mobile-forever": "2.4.1",
-    "postcss-px-to-viewport": "^1.1.1",
+    "postcss-mobile-forever": "file:../..",
     "vite": "^4.1.0"
   }
 }
