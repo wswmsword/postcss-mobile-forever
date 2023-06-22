@@ -114,24 +114,41 @@ import autoprefixer from 'autoprefixer'
 | rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
 | minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| side.width | number | N | 190 | 侧边配置，侧边内容宽度 |
-| side.gap | number | N | 18 | 侧边配置，侧边布局的上下左右间隔 |
-| side.selector1 | string | N | null | 侧边配置，左上侧边元素选择器 |
-| side.selector2 | string | N | null | 侧边配置，右上侧边元素选择器 |
-| side.selector3 | string | N | null | 侧边配置，右下侧边元素选择器 |
-| side.selector4 | string | N | null | 侧边配置，左下侧边元素选择器 |
-| comment.applyWithoutConvert | string | N | "apply-without-convert" | 自定义注释，直接添加进屏幕媒体查询，不转换 |
-| comment.rootContainingBlock | string | N | "root-containing-block" | 自定义注释，包含块注释 |
-| comment.notRootContainingBlock | string | N | "not-root-containing-block" | 自定义注释，非包含块注释 |
-| comment.ignoreNext | string | N | "mobile-ignore-next" | 自定义注释，忽略选择器内的转换 |
-| comment.ignoreLine | string | N | "mobile-ignore" | 自定义注释，忽略本行转换 |
-| customLengthProperty | any | N | | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
-| (c...y).rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
-| (c...y).rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
-| (c...y).ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
+| side | any | N | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间 |
+| comment | any | N | / | 自定义注释，改变注释的名称 |
+| customLengthProperty | any | N | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
 | experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
-> 插件默认将生成桌面端和横屏的媒体查询，可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
+下面是属性 `side` 的子属性，`side` 用于配制侧边内容：
+
+| Name | Type | isRequired | Default | Desc |
+|:--|:--|:--|:--|:--|
+| width | number | N | 190 | 侧边内容宽度 |
+| gap | number | N | 18 | 侧边布局的上下左右间隔 |
+| selector1 | string | N | null | 左上侧边元素选择器 |
+| selector2 | string | N | null | 右上侧边元素选择器 |
+| selector3 | string | N | null | 右下侧边元素选择器 |
+| selector4 | string | N | null | 左下侧边元素选择器 |
+
+下面是属性 `comment` 的子属性，`comment` 用于自定义注释：
+
+| Name | Type | isRequired | Default | Desc |
+|:--|:--|:--|:--|:--|
+| applyWithoutConvert | string | N | "apply-without-convert" | 直接添加进屏幕媒体查询，不转换 |
+| rootContainingBlock | string | N | "root-containing-block" | 包含块注释 |
+| notRootContainingBlock | string | N | "not-root-containing-block" | 非包含块注释 |
+| ignoreNext | string | N | "mobile-ignore-next" | 忽略选择器内的转换 |
+| ignoreLine | string | N | "mobile-ignore" | 忽略本行转换 |
+
+下面是属性 `customLengthProperty` 的子属性，`customLengthProperty` 用于指定需要添加到桌面端或横屏的自定义变量：
+
+| Name | Type | isRequired | Default | Desc |
+|:--|:--|:--|:--|:--|
+| rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
+| rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
+| ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
+
+> 插件默认将生成桌面端和横屏的媒体查询，这可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
 <details>
 <summary>
@@ -547,6 +564,10 @@ module.exports = {
 ## 协议
 
 查看 [MIT License](./LICENSE)。
+
+## 支持
+
+您可以提交 Issue 和 PR 来共同完善项目，点击 Watch 和 Star 来支持项目。
 
 ## 其它
 
