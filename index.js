@@ -11,7 +11,7 @@ const path = require('path');
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
-  pxVwTestReg, varTestReg,
+  preflightReg, varTestReg,
 } = require("./src/regexs");
 // const SubsequentPlugins = require("./src/subsequent-plugins");
 
@@ -322,8 +322,8 @@ module.exports = (options = {}) => {
             return;
           }
 
-          // 转换 px
-          if (pxVwTestReg.test(val)) {
+          // 预检正则，判断是否符合转换条件
+          if (preflightReg.test(val)) {
             const important = decl.important;
             // 添加桌面端、移动端媒体查询
             appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
@@ -342,7 +342,7 @@ module.exports = (options = {}) => {
               expectedLengthVars,
               disableAutoApply,
               isLastProp: priorityProps.get(prop) === decl,
-              convertMobile: (number, unit, numberStr) => {
+              convertMobile(number, unit, numberStr) {
                 if (limitedWidth)
                   return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
                 else
