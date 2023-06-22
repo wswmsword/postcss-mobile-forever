@@ -34,8 +34,7 @@
   },
   "homepage": "https://github.com/wswmsword/postcss-mobile-forever#readme",
   "devDependencies": {
-    "jest": "^29.4.2",
-    "postcss": "^8.0.0"
+    "jest": "^29.4.2"
   },
   "peerDependencies": {
     "postcss": "^8.0.0"
