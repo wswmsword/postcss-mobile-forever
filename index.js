@@ -1,6 +1,7 @@
 const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isMatchedStr, createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
   hasApplyWithoutConvertComment,
+  isMatchedSelectorProperty,
 } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider,
@@ -46,6 +47,9 @@ const defaults = {
   unitPrecision: 3,
   /** 选择器黑名单列表 */
   selectorBlackList: [],
+  /** 属性黑名单列表 */
+  propertyBlackList: {},
+  /** 属性值的黑名单列表 */
   valueBlackList: [],
   /** 是否处理某个属性？ */
   propList: ['*'],
@@ -145,7 +149,7 @@ module.exports = (options = {}) => {
   };
 
   const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth,
-    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, valueBlackList, rootContainingBlockSelectorList,
+    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList, rootContainingBlockSelectorList,
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
   } = opts;
   const { extract } = experimental || {};
@@ -295,7 +299,8 @@ module.exports = (options = {}) => {
           const val = decl.value;
 
           if (!satisfyPropList(prop)) return;
-          if (isMatchedStr(valueBlackList, val)) return;
+          if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
+          if (isMatchedStr(valueBlackList, val)) return; // 属性值是否在黑名单中
   
           if (prop === "position" && val === "fixed") return hadFixed = true;
           if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
@@ -372,6 +377,7 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
+            if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,

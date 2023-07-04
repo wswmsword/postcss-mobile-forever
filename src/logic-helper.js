@@ -105,7 +105,24 @@ const isMatchedStr = (list, str) => {
     if (typeof regex === 'string') return str.includes(regex);
     return str.match(regex);
   });
-}
+};
+
+/** 是否匹配选择器属性 */
+const isMatchedSelectorProperty = (propertyBlackList, selector, prop) => {
+  const propertyBlackListAry = [].concat(propertyBlackList);
+  for(const property of propertyBlackListAry) {
+    if (Object.prototype.toString.call(property) === "[object Object]") {
+      for(const propSelector in property) {
+        if (property.hasOwnProperty(propSelector) && propSelector === selector) {
+          const propValue = [].concat(property[propSelector]);
+          if (isMatchedStr(propValue, prop)) return true;
+        }
+      }
+    } else {
+      if (isMatchedStr([property], prop)) return true;
+    }
+  }
+};
 
 /** 选择器上方有根包含块的注释 */
 const hasRootContainingBlockComment = (rule, RCB_CMT) => {
@@ -115,7 +132,7 @@ const hasRootContainingBlockComment = (rule, RCB_CMT) => {
 /** 选择器前面有非根包含块的注释吗 */
 const hasNoneRootContainingBlockComment = (rule, NRCB_CMT) => {
   return hasNextComment(rule, NRCB_CMT);
-}
+};
 
 /** 是否有忽略转换的注释？ */
 const hasIgnoreComments = (decl, result, IN_CMT, IL_CMT) => {
@@ -303,6 +320,7 @@ module.exports = {
   createIncludeFunc,
   createExcludeFunc,
   isMatchedStr,
+  isMatchedSelectorProperty,
   convertPropValue,
   hasIgnoreComments,
   createContainingBlockWidthDecls,

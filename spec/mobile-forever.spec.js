@@ -110,6 +110,27 @@ describe("border", function() {
 });
 
 describe("ignore value", function() {
+
+  describe("propertyBlackList", function() {
+    it("should ignore expect property of selector", function() {
+      var input = ".rule { left: 75px; border: 1px solid salmon; } .l{}";
+      var output = ".rule { left: 75px; border: 1px solid salmon; } .l{}";
+
+      var processed = postcss(mobileToMultiDisplays({
+        propertyBlackList: {
+          ".rule": ["left", "border"],
+        },
+      })).process(input).css;
+      expect(processed).toBe(output);
+
+      var processed = postcss(mobileToMultiDisplays({
+        propertyBlackList: ["left", "border"],
+      })).process(input).css;
+      expect(processed).toBe(output);
+
+    });
+  });
+  
   describe("valueBlackList", function() {
     it("should ignore value of porperty if set valueBlackList", function() {
       var input = ".rule { left: 75px; border: 1px solid salmon; } .l{}";
