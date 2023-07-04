@@ -377,7 +377,6 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
-            if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,

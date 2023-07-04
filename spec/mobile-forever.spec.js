@@ -128,6 +128,10 @@ describe("ignore value", function() {
       })).process(input).css;
       expect(processed).toBe(output);
 
+      var processed = postcss(mobileToMultiDisplays({
+        propertyBlackList: "left",
+      })).process(input).css;
+      expect(processed).toBe(".rule { left: 75px; border: 0.133vw solid salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { border: 0.8px solid salmon; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { border: 0.567px solid salmon; } }");
     });
   });
   
