@@ -2,6 +2,8 @@ import { Plugin } from 'postcss'
 
 declare namespace mobileForever {
   type viewportWidthFunc = (file: string, selector: string) => number
+  type strOrReg = string | RegExp
+  type propertyBlackList = strOrReg | (strOrReg | { [s: string]: strOrReg | strOrReg[] })[]
 
   interface Options {
     /** 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 */
@@ -52,6 +54,9 @@ declare namespace mobileForever {
     /** 选择器黑名单，名单上的不转换 */
     selectorBlackList?: (string | RegExp)[]
 
+    /** 属性的黑名单列表，名单上的属性不被转换 */
+    propertyBlackList?: propertyBlackList
+
     /** 属性值黑名单，名单上的值不被转换 */
     valueBlackList?: (string | RegExp)[]
 
@@ -93,7 +98,7 @@ declare namespace mobileForever {
   function remakeExtractedGetLocalIdent(getLocalIdentOpts: getLocalIdentOpts): any
 
   interface side {
-    /** 侧边宽度 */
+    /** 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 */
     width?: number
     /** 上下左右间隔 */
     gap?: number
@@ -105,6 +110,14 @@ declare namespace mobileForever {
     selector3?: string
     /** 左下选择器 */
     selector4?: string
+    /** 左上侧边宽度，优先级大于 width */
+    width1?: number
+    /** 右上侧边宽度 */
+    width2?: number
+    /** 右下侧边宽度 */
+    width3?: number
+    /** 左下侧边宽度 */
+    width4?: number
   }
 
   interface comment {
