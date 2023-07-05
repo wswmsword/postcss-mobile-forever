@@ -260,7 +260,7 @@ describe("sider", function() {
 
   it("should generate right top sider", function() {
     var input = ".rule { left: 75px; } .l {}";
-    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: auto; right: calc(50% - 918px); bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: auto; right: calc(50% - 508px); bottom: auto; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
       side: {
         selector2: ".rule",
@@ -271,7 +271,7 @@ describe("sider", function() {
 
   it("should generate right bottom sider", function() {
     var input = ".rule { left: 75px; } .l {}";
-    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 918px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
+    var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 508px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
       side: {
         selector3: ".rule",

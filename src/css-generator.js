@@ -327,13 +327,25 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   }
 }
 
-function appendSider(postcss, atRule, w, gap, hadSide1, hadSide2, hadSide3, hadSide4, vw, selector1, selector2, selector3, selector4) {
-  const sideRule1 = hadSide1 ? postcss.rule({ selector: selector1 }).append(fixedPos, top(gap), sideL(vw, gap, w), autoDir("right"), autoDir("bottom"), width(w)) : null;
-  const sideRule2 = hadSide2 ? postcss.rule({ selector: selector2 }).append(fixedPos, top(gap), autoDir("left"), sideR(vw, gap, vw), autoDir("bottom"), width(w)) : null;
-  const sideRule3 = hadSide3 ? postcss.rule({ selector: selector3 }).append(fixedPos, autoDir("top"), autoDir("left"), sideR(vw, gap, vw), bottom(gap), width(w)) : null;
-  const sideRule4 = hadSide4 ? postcss.rule({ selector: selector4 }).append(fixedPos, autoDir("top"), sideL(vw, gap, w), autoDir("right"), bottom(gap), width(w)) : null;
-  const rules = [sideRule1, sideRule2, sideRule3, sideRule4].filter(r => r != null);
-  rules.forEach(R => atRule.append(R));
+function appendSiders(postcss, siders, desktopWidth, maxLandscapeDisplayHeight) {
+  const defaultSideW = 190;
+  const side1W = siders[0].width ?? defaultSideW;
+  const side2W = siders[1].width ?? defaultSideW;
+  const side3W = siders[2].width ?? defaultSideW;
+  const side4W = siders[3].width ?? defaultSideW;
+  const sideRule1 = siders[0].selector != null ? postcss.rule({ selector: siders[0].selector }).append(fixedPos, top(siders[0].gap), sideL(desktopWidth, siders[0].gap, side1W), autoDir("right"), autoDir("bottom"), width(side1W)) : null;
+  const sideRule2 = siders[1].selector != null ? postcss.rule({ selector: siders[1].selector }).append(fixedPos, top(siders[1].gap), autoDir("left"), sideR(desktopWidth, siders[1].gap, side2W), autoDir("bottom"), width(side2W)) : null;
+  const sideRule3 = siders[2].selector != null ? postcss.rule({ selector: siders[2].selector }).append(fixedPos, autoDir("top"), autoDir("left"), sideR(desktopWidth, siders[2].gap, side3W), bottom(siders[2].gap), width(side3W)) : null;
+  const sideRule4 = siders[3].selector != null ? postcss.rule({ selector: siders[3].selector }).append(fixedPos, autoDir("top"), sideL(desktopWidth, siders[3].gap, side4W), autoDir("right"), bottom(siders[3].gap), width(side4W)) : null;
+  const sidersRule = [[siders[0], sideRule1], [siders[1], sideRule2], [siders[2], sideRule3], [siders[3], sideRule4]].filter(s => s[1] != null);
+  const atRules = sidersRule.reduce((acc, [side, rule]) => {
+    const sideW = side.width ?? defaultSideW
+    const atRule = postcss
+      .atRule({ name: "media", params: `(min-width: ${desktopWidth + sideW * 2 + side.gap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] })
+      .append(rule);
+    return acc.concat(atRule);
+  }, []);
+  return atRules;
 }
 
 module.exports = {
@@ -344,7 +356,7 @@ module.exports = {
   appendConvertedFixedContainingBlockDecls,
   appendCentreRoot,
   appendCSSVar,
-  appendSider,
+  appendSiders,
   appendDisplaysRule,
   extractFile,
 };

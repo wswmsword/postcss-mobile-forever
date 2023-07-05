@@ -104,6 +104,24 @@ function percentToMediaQueryPx_FIXED(number, idealWidth, precision, numberStr) {
   return `${round(idealWidth / 100 * number, precision)}px`;
 }
 
+
+/** px 转为媒体查询中的 px，不带单位 */
+function pxToMediaQueryPx_noUnit(number, viewportWidth, idealWidth, unitPrecision, numberStr) {
+  const radio = idealWidth / viewportWidth;
+  const n = round(number * radio, unitPrecision);
+  return n;
+}
+
+/** vw 转为媒体查询中的 px，不带单位 */
+function vwToMediaQueryPx_noUnit(number, idealWidth, precision, numberStr) {
+  return round(idealWidth / 100 * number, precision);
+}
+
+/** 百分比 % 转为媒体查询中的 px，包含块为根元素，不带单位 */
+function percentToMediaQueryPx_FIXED_noUnit(number, idealWidth, precision, numberStr) {
+  return round(idealWidth / 100 * number, precision);
+}
+
 module.exports = {
   percentageToMaxViewUnit,
   vwToMaxViewUnit,
@@ -119,4 +137,7 @@ module.exports = {
   noUnitZeroToMediaQueryPx_FIXED_LR,
   vwToMediaQueryPx,
   percentToMediaQueryPx_FIXED,
+  pxToMediaQueryPx_noUnit,
+  vwToMediaQueryPx_noUnit,
+  percentToMediaQueryPx_FIXED_noUnit,
 };

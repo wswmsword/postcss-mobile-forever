@@ -4,10 +4,11 @@ const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeF
   isMatchedSelectorProperty,
 } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot, appendSider,
-  appendDisplaysRule, appendCSSVar, extractFile,
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot,
+  appendDisplaysRule, appendCSSVar, extractFile, appendSiders,
 } = require("./src/css-generator");
 const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
+const { pxToMediaQueryPx_noUnit, vwToMediaQueryPx_noUnit, percentToMediaQueryPx_FIXED_noUnit } = require("./src/unit-transfer");
 const path = require('path');
 
 const {
@@ -60,7 +61,7 @@ const defaults = {
   /** 侧边内容配置 */
   side: {
     /** 侧边宽度 */
-    width: 190,
+    width: null,
     /** 上下左右间隔 */
     gap: 18,
     /** 左上选择器 */
@@ -153,7 +154,7 @@ module.exports = (options = {}) => {
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
   } = opts;
   const { extract } = experimental || {};
-  const { width: sideWidth, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
+  const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
   const fontViewportUnit = "vw";
@@ -216,6 +217,27 @@ module.exports = (options = {}) => {
       let hadSider3 = false;
       let hadSider4 = false;
 
+      let siders = [{
+        atRule: null,
+        selector: side1,
+        width: sideW1 ?? sideWidth,
+        gap: sideGap,
+      }, {
+        atRule: null,
+        selector: side2,
+        width: sideW2 ?? sideWidth,
+        gap: sideGap,
+      }, {
+        atRule: null,
+        selector: side3,
+        width: sideW3 ?? sideWidth,
+        gap: sideGap,
+      }, {
+        atRule: null,
+        selector: side4,
+        width: sideW4 ?? sideWidth,
+        gap: sideGap,
+      }]; // { atRule, selector, width, gap }
       /** 一个选择器内优先级最高的各个属性 */
       const priorityProps = new Map();
 
@@ -377,6 +399,23 @@ module.exports = (options = {}) => {
           if (blackListedSelector) return;
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
+
+            let findedSide = null;
+            if (prop === "width" && (findedSide = siders.find(side => side.selector === selector))) {
+              const val = decl.value;
+              if (findedSide.width == null) {
+
+                const pxVal = + val.match(/(.*?)(?=px$)/)[1];
+                const vwVal = + val.match(/(.*?)(?=px$)/)[1];
+                const percVal = + val.match(/(.*?)(?=%$)/)[1];
+                let convertedSideVal = null;
+                if (pxVal != null) convertedSideVal = pxToMediaQueryPx_noUnit(pxVal, _viewportWidth, desktopWidth, unitPrecision);
+                else if (vwVal != null) convertedSideVal = vwToMediaQueryPx_noUnit(vwVal, desktopWidth, unitPrecision);
+                else if (hadFixed && percVal != null) convertedSideVal = percentToMediaQueryPx_FIXED_noUnit(percVal, desktopWidth, unitPrecision);
+                findedSide.width = convertedSideVal;
+              }
+            }
+
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,
@@ -435,8 +474,8 @@ module.exports = (options = {}) => {
             const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
 
             if (appendedDesktop) {
-              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              if (sideAtRule.nodes.length > 0) css.append(sideAtRule); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
+              const sidersMedia = appendSiders(postcss, siders, _minDesktopDisplayWidth, maxLandscapeDisplayHeight);
+              if (sidersMedia.length > 0) css.append(sidersMedia); // 侧边样式添加入移动端样式文件中，移动端样式文件也就是主样式文件
             }
             if (appendedShared) css.append(atImportShared);
             const mobileCss = css.toString(); // without media query
@@ -456,7 +495,6 @@ module.exports = (options = {}) => {
               const desktopCssRules = postcss.root(); // without media query
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
               removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
-              // appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
               desktopCssRules.append(desktopViewAtRule.nodes);
               // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
               // if (appendedShared) desktopCssRules.prepend(atImportShared);
@@ -492,9 +530,9 @@ module.exports = (options = {}) => {
               removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
               css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
   
-              appendSider(postcss, sideAtRule, sideWidth, sideGap, hadSider1, hadSider2, hadSider3, hadSider4, desktopWidth, side1, side2, side3, side4);
-              if (sideAtRule.nodes.length > 0) {
-                css.append(sideAtRule);
+              const sidersMedia = appendSiders(postcss, siders, _minDesktopDisplayWidth, maxLandscapeDisplayHeight);
+              if (sidersMedia.length > 0) {
+                css.append(sidersMedia);
               }
             }
             if (appendedLandscape) {
