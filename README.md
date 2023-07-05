@@ -110,6 +110,7 @@ import autoprefixer from 'autoprefixer'
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 | propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
+| propertyBlackList | propertyBlackList | N | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17) |
 | valueBlackList | (string\|RegExp)[] | N | [] | 属性值黑名单，名单上的值不转换 |
 | rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
 | minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
@@ -123,12 +124,16 @@ import autoprefixer from 'autoprefixer'
 
 | Name | Type | isRequired | Default | Desc |
 |:--|:--|:--|:--|:--|
-| width | number | N | 190 | 侧边内容宽度 |
+| width | number | N | 190 | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
 | gap | number | N | 18 | 侧边布局的上下左右间隔 |
 | selector1 | string | N | null | 左上侧边元素选择器 |
 | selector2 | string | N | null | 右上侧边元素选择器 |
 | selector3 | string | N | null | 右下侧边元素选择器 |
 | selector4 | string | N | null | 左下侧边元素选择器 |
+| width1 | string | N | number | 左上侧边宽度，优先级大于 width |
+| width2 | string | N | number | 右上侧边宽度 |
+| width3 | string | N | number | 右下侧边宽度 |
+| width4 | string | N | number | 左下侧边宽度 |
 
 下面是属性 `comment` 的子属性，`comment` 用于自定义注释：
 
