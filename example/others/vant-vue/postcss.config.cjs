@@ -6,6 +6,9 @@ module.exports = {
       landscapeWidth: 450,
       border: true,
       rootSelector: ".root-class",
+      propertyBlackList: {
+        ".van-icon": "font"
+      },
       rootContainingBlockSelectorList: ["van-tabbar"],
       demoMode: true,
       side: {
