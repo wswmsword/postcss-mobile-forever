@@ -186,9 +186,6 @@ module.exports = (options = {}) => {
       let landScapeViewAtRule = null;
       /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
       let sharedAtRult = null;
-      /** 侧边视图的媒体查询 */
-      let sideAtRule = null;
-
 
       let hadFixed = null;
       /** 当前选择器 */
@@ -211,11 +208,6 @@ module.exports = (options = {}) => {
       let walkedRule = false;
       /** 是否限制了最宽宽度？ */
       let limitedWidth = maxDisplayWidth != null;
-      /** 是否有侧边选择器？ */
-      let hadSider1 = false;
-      let hadSider2 = false;
-      let hadSider3 = false;
-      let hadSider4 = false;
 
       let siders = [{
         atRule: null,
@@ -251,8 +243,6 @@ module.exports = (options = {}) => {
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
           sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
-          /** 侧边视图媒体查询 */
-          sideAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth + sideWidth * 2 + sideGap * 2}px) and (min-height: ${maxLandscapeDisplayHeight}px)`, nodes: [] });
         },
         Rule(rule, postcss) {
           if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
@@ -288,11 +278,6 @@ module.exports = (options = {}) => {
               maxDisplayWidth,
             });
           }
-
-          hadSider1 = hadSider1 || selector === side1;
-          hadSider2 = hadSider2 || selector === side2;
-          hadSider3 = hadSider3 || selector === side3;
-          hadSider4 = hadSider4 || selector === side4;
 
           /** 有标志*非根包含块*的注释吗？ */
           const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
@@ -496,7 +481,6 @@ module.exports = (options = {}) => {
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
               removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
               desktopCssRules.append(desktopViewAtRule.nodes);
-              // if (sideAtRule.nodes.length > 0) desktopCssRules.append(sideAtRule);
               // if (appendedShared) desktopCssRules.prepend(atImportShared);
               const desktopCss = desktopCssRules.toString();
               desktopPromise = extractFile(desktopCss, desktopFile, targetFileDir); // 提取桌面端 css
