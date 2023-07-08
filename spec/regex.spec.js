@@ -6,23 +6,23 @@ const {
 
 describe("Regex", function() {
   it("preflightReg", function() {
-    var str = "12px";
+    var str = "12px"; // width: 12px
     var ok = preflightReg.test(str);
     expect(ok).toBe(true);
 
-    str = "url(12px)";
+    str = "url(12px)"; // background: url(12px)
     ok = preflightReg.test(str);
     expect(ok).toBe(true);
 
-    str = "22.4px/1 vant-icon";
+    str = "22.4px/1 vant-icon"; // font: 22.4px/1 vant-icon
     ok = preflightReg.test(str);
     expect(ok).toBe(true);
 
-    str = "22.4";
+    str = "22.4"; // line-height: 22.4
     ok = preflightReg.test(str);
     expect(ok).toBe(true);
 
-    str = "0 0";
+    str = "0 0"; // margin: 0 0
     ok = preflightReg.test(str);
     expect(ok).toBe(true);
   });
