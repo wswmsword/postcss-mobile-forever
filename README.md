@@ -97,16 +97,16 @@ import autoprefixer from 'autoprefixer'
 |:--|:--|:--|:--|:--|
 | viewportWidth | number\|(file: string, selector: string) => number | N | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
 | mobileUnit | string | N | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
-| maxDisplayWidth | number | N | null | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
+| maxDisplayWidth | number | N | / | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
 | desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| rootSelector | string | N | null | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
+| rootSelector | string | N | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean\|string | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
 | disableDesktop | boolean | N | false | 打开则不做桌面端适配 |
 | disableLandscape | boolean | N | false | 打开则不做移动端横屏适配 |
 | disableMobile | boolean | N | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw |
-| exclude | RegExp\|RegExp[] | N | null | 排除文件或文件夹 |
-| include | RegExp\|RegExp[] | N | null | 包括文件或文件夹 |
+| exclude | RegExp\|RegExp[] | N | / | 排除文件或文件夹 |
+| include | RegExp\|RegExp[] | N | / | 包括文件或文件夹 |
 | unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
 | propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
 | selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
@@ -120,38 +120,38 @@ import autoprefixer from 'autoprefixer'
 | customLengthProperty | any | N | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
 | experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
-下面是属性 `side` 的子属性，`side` 用于配制侧边内容：
+下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容：
 
-| Name | Type | isRequired | Default | Desc |
-|:--|:--|:--|:--|:--|
-| width | number | N | 190 | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
-| gap | number | N | 18 | 侧边布局的上下左右间隔 |
-| selector1 | string | N | null | 左上侧边元素选择器 |
-| selector2 | string | N | null | 右上侧边元素选择器 |
-| selector3 | string | N | null | 右下侧边元素选择器 |
-| selector4 | string | N | null | 左下侧边元素选择器 |
-| width1 | string | N | number | 左上侧边宽度，优先级大于 width |
-| width2 | string | N | number | 右上侧边宽度 |
-| width3 | string | N | number | 右下侧边宽度 |
-| width4 | string | N | number | 左下侧边宽度 |
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| width | number | 190 | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
+| gap | number | 18 | 侧边布局的上下左右间隔 |
+| selector1 | string | / | 左上侧边元素选择器 |
+| selector2 | string | / | 右上侧边元素选择器 |
+| selector3 | string | / | 右下侧边元素选择器 |
+| selector4 | string | / | 左下侧边元素选择器 |
+| width1 | number | / | 左上侧边宽度，优先级大于 width |
+| width2 | number | / | 右上侧边宽度 |
+| width3 | number | / | 右下侧边宽度 |
+| width4 | number | / | 左下侧边宽度 |
 
-下面是属性 `comment` 的子属性，`comment` 用于自定义注释：
+下面是属性 `comment` 的子属性，每一个属性都是可选的，`comment` 用于自定义注释：
 
-| Name | Type | isRequired | Default | Desc |
-|:--|:--|:--|:--|:--|
-| applyWithoutConvert | string | N | "apply-without-convert" | 直接添加进屏幕媒体查询，不转换 |
-| rootContainingBlock | string | N | "root-containing-block" | 包含块注释 |
-| notRootContainingBlock | string | N | "not-root-containing-block" | 非包含块注释 |
-| ignoreNext | string | N | "mobile-ignore-next" | 忽略选择器内的转换 |
-| ignoreLine | string | N | "mobile-ignore" | 忽略本行转换 |
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| applyWithoutConvert | string | "apply-without-convert" | 直接添加进屏幕媒体查询，不转换 |
+| rootContainingBlock | string | "root-containing-block" | 包含块注释 |
+| notRootContainingBlock | string | "not-root-containing-block" | 非包含块注释 |
+| ignoreNext | string | "mobile-ignore-next" | 忽略选择器内的转换 |
+| ignoreLine | string | "mobile-ignore" | 忽略本行转换 |
 
-下面是属性 `customLengthProperty` 的子属性，`customLengthProperty` 用于指定需要添加到桌面端或横屏的自定义变量：
+下面是属性 `customLengthProperty` 的子属性，每一个属性都是可选的，`customLengthProperty` 用于指定需要添加到桌面端或横屏的自定义变量：
 
-| Name | Type | isRequired | Default | Desc |
-|:--|:--|:--|:--|:--|
-| rootContainingBlockList_LR | string[] | N | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
-| rootContainingBlockList_NOT_LR | string[] | N | [] | 用于根包含块的，非 left、right 的自定义属性 |
-| ancestorContainingBlockList | string[] | N | [] | 用于非根包含块的自定义属性 |
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| rootContainingBlockList_LR | string[] | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
+| rootContainingBlockList_NOT_LR | string[] | [] | 用于根包含块的，非 left、right 的自定义属性 |
+| ancestorContainingBlockList | string[] | [] | 用于非根包含块的自定义属性 |
 
 > 插件默认将生成桌面端和横屏的媒体查询，这可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
