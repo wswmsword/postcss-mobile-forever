@@ -2,33 +2,27 @@
 
 <img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
 
-[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+<a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
-一款 PostCSS 插件，用于转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成适应桌面端和横屏的媒体查询（*@media*）。
+一款 PostCSS 插件，用于将固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件将转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成适应桌面端和横屏的媒体查询（*@media*）。
 
-> 如果您在用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
+> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
 
 您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 ## 安装
 
-npm 安装：
+npm 安装最新版本（基于 postcss@^8.0.0）（yarn 则是 `yarn add -D postcss postcss-mobile-forever`）：
 ```bash
-## 最新的版本（postcss@^8.0.0）
 npm install --save-dev postcss postcss-mobile-forever
+```
 
-## 最新的兼容版本（postcss@^6.0.0）
+npm 安装最新的兼容版本（基于 postcss@^6.0.0）（yarn 则是 `yarn add -D postcss-mobile-forever@legacy`）：
+
+```bash
 npm install postcss-mobile-forever@legacy --save-dev
 ```
 
-yarn 安装：
-```bash
-## 最新的版本（postcss@^8.0.0）
-yarn add -D postcss postcss-mobile-forever
-
-## 最新的兼容版本（postcss@^6.0.0）
-yarn add -D postcss-mobile-forever@legacy
-```
 <details>
 <summary>
 安装之后在 postcss.config.js 配置文件中引入，或者其它框架配置文件中引入。
@@ -58,9 +52,9 @@ import autoprefixer from 'autoprefixer'
 
 ## 简介
 
-插件使用两种方法让移动端视图处处可访问，第一种方法生成媒体查询（默认方法），第二种方法限制视口单位的最大值：
+插件使用两种方法生成具有最大宽度的伸缩视图，第一种方法生成媒体查询（默认方法），第二种方法使用 `min()` 之类的 CSS 函数限制最大值：
 - 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化；
-- 第二种方法**在转换 px 为视口单位的同时，限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同。
+- 第二种方法**在转换 px 为视口单位的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同。
 
 <details>
 <summary>
@@ -71,13 +65,8 @@ import autoprefixer from 'autoprefixer'
 - 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
 - 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
 - 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
-</details>
 
-> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第一种方法，生成媒体查询的方法。
-
-## 演示效果
-
-下面的三张图是使用本插件后，移动端、移动端横屏和桌面端的展示效果：
+下面的三张图是使用本插件生成媒体查询，移动端、移动端横屏和桌面端的展示效果：
 
 <table>
 	<tr>
@@ -90,41 +79,46 @@ import autoprefixer from 'autoprefixer'
 </table>
 
 在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
+</details>
+
+> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第一种方法，生成媒体查询的方法。
 
 ## 配置参数
 
-| Name | Type | isRequired | Default | Desc |
-|:--|:--|:--|:--|:--|
-| viewportWidth | number\|(file: string, selector: string) => number | N | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
-| mobileUnit | string | N | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
-| maxDisplayWidth | number | N | / | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
-| desktopWidth | number | N | 600 | 适配到桌面端时，展示的视图宽度 |
-| landscapeWidth | number | N | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| rootSelector | string | N | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
-| border | boolean\|string | N | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
-| disableDesktop | boolean | N | false | 打开则不做桌面端适配 |
-| disableLandscape | boolean | N | false | 打开则不做移动端横屏适配 |
-| disableMobile | boolean | N | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw |
-| exclude | RegExp\|RegExp[] | N | / | 排除文件或文件夹 |
-| include | RegExp\|RegExp[] | N | / | 包括文件或文件夹 |
-| unitPrecision | number | N | 3 | 单位精确到小数点后几位？ |
-| propList | string[] | N | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
-| selectorBlackList | (string\|RegExp)[] | N | [] | 选择器黑名单，名单上的不转换 |
-| propertyBlackList | propertyBlackList | N | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17) |
-| valueBlackList | (string\|RegExp)[] | N | [] | 属性值黑名单，名单上的值不转换 |
-| rootContainingBlockSelectorList | (string\|RegExp)[] | N | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
-| minDesktopDisplayWidth | number | N | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| maxLandscapeDisplayHeight | number | N | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| side | any | N | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间 |
-| comment | any | N | / | 自定义注释，改变注释的名称 |
-| customLengthProperty | any | N | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
-| experimental.extract | boolean | N | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
+下面的每一项都是可选的。
+
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| viewportWidth | number\|(file: string, selector: string) => number | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
+| mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
+| maxDisplayWidth | number | / | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
+| desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度 |
+| landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度 |
+| rootSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
+| border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
+| disableDesktop | boolean | false | 打开则不做桌面端适配 |
+| disableLandscape | boolean | false | 打开则不做移动端横屏适配 |
+| disableMobile | boolean | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw |
+| exclude | RegExp\|RegExp[] | / | 排除文件或文件夹 |
+| include | RegExp\|RegExp[] | / | 包括文件或文件夹 |
+| unitPrecision | number | 3 | 单位精确到小数点后几位？ |
+| propList | string[] | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
+| selectorBlackList | (string\|RegExp)[] | [] | 选择器黑名单，名单上的不转换 |
+| propertyBlackList | propertyBlackList | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17) |
+| valueBlackList | (string\|RegExp)[] | [] | 属性值黑名单，名单上的值不转换 |
+| rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
+| minDesktopDisplayWidth | number | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
+| maxLandscapeDisplayHeight | number | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
+| side | any | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间 |
+| comment | any | / | 自定义注释，改变注释的名称 |
+| customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
+| experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
 下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容：
 
 | Name | Type | Default | Desc |
 |:--|:--|:--|:--|
-| width | number | 190 | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
+| width | number | / | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
 | gap | number | 18 | 侧边布局的上下左右间隔 |
 | selector1 | string | / | 左上侧边元素选择器 |
 | selector2 | string | / | 右上侧边元素选择器 |
@@ -182,12 +176,16 @@ import autoprefixer from 'autoprefixer'
   "propList": ['*'],
   "mobileUnit": "vw",
   "side": {
-    "width": 190,
+    "width": null,
     "gap": 18,
     "selector1": null,
     "selector2": null,
     "selector3": null,
-    "selector4": null
+    "selector4": null,
+    "width1": null,
+    "width2": null,
+    "width3": null,
+    "width4": null
   },
   "comment": {
     "applyWithoutConvert": "apply-without-convert",
@@ -242,16 +240,18 @@ import autoprefixer from 'autoprefixer'
 - `/* mobile-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
 - `/* mobile-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换。
 
-## 单元测试
+## 单元测试与参与开发
 
 ```bash
 npm install
 npm run test
 ```
 
+修改源码后，编写单元测试，验证是否输出了预期的结果。在文件夹 `example/` 内提供了一些范例，可以用来模拟生产环境使用插件的场景，这些范例项目中依赖的 `postcss-mobile-forever` 来自源码，因此当修改源码后，可以通过在范例里 `npm i` 安装依赖，然后本地运行，通过浏览器验证自己的修改是否符合预期。
+
 ## 范例
 
-文件夹 `example` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
 
 ```bash
 cd example/react/
@@ -266,25 +266,21 @@ npm run start
 - [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
 - [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 
-在“演示效果”一节中查看成功运行之后，不同屏幕的界面图片。
-
-## 原理和输入输出范例
-
-查看[原理](./how-to-work.md)。
+## 输入输出范例和原理
 
 默认配置的输入范例：
 
 ```css
 .root-class {
-	width: 100%;
+  width: 100%;
 }
 
 .nav {
-	position: fixed;
-	width: 100%;
-	height: 72px;
-	left: 0;
-	top: 0;
+  position: fixed;
+  width   : 100%;
+  height  : 72px;
+  left    : 0;
+  top     : 0;
 }
 ```
 
@@ -292,53 +288,53 @@ npm run start
 
 ```css
 #app {
-	width: 100%;
+  width: 100%;
 }
 
 .nav {
-	position: fixed;
-	width   : 100%;
-	height  : 9.6vw;
-	left    : 0;
-	top     : 0;
+  position: fixed;
+  width   : 100%;
+  height  : 9.6vw;
+  left    : 0;
+  top     : 0;
 }
 
 /* 桌面端媒体查询 */
 @media (min-width: 600px) and (min-height: 640px) { /* 这里的 600 是默认值，可以自定义 */
-	#app {
-		max-width: 600px !important;
-	}
+  #app {
+    max-width: 600px !important;
+  }
 
-	.nav {
-		height: 57.6px;
-		top: 0;
-		left  : calc(50% - 300px); /* calc(50% - (600 / 2 - 0 * 600 / 750)px) */
-		width : 600px; /* 100% -> 600px */
-	}
+  .nav {
+    height: 57.6px;
+    top   : 0;
+    left  : calc(50% - 300px); /* calc(50% - (600 / 2 - 0 * 600 / 750)px) */
+    width : 600px; /* 100% -> 600px */
+  }
 }
 
 /* 移动端媒体查询 */
 @media (min-width: 600px) and (max-height: 640px),
 (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { /* 这里的 640 和 425 是默认值，可自定义 */
-	#app {
-		max-width: 425px !important;
-	}
+  #app {
+    max-width: 425px !important;
+  }
 
-	.nav {
-		height: 40.8px;
-		top: 0;
-		left  : calc(50% - 212.5px); /* calc(50% - (425 / 2 - 0 * 425 / 750)px) */
-		width : 425px; /* 100% -> 425px */
-	}
+  .nav {
+    height: 40.8px;
+    top   : 0;
+    left  : calc(50% - 212.5px); /* calc(50% - (425 / 2 - 0 * 425 / 750)px) */
+    width : 425px; /* 100% -> 425px */
+  }
 }
 
 /* 桌面端和移动端公共的媒体查询 */
 @media (min-width: 600px),
 (orientation: landscape) and (max-width: 600px) and (min-width: 425px) {
-	#app {
-		margin-left: auto !important;
-		margin-right: auto !important;
-	}
+  #app {
+    margin-left : auto !important;
+    margin-right: auto !important;
+  }
 }
 ```
 
@@ -372,7 +368,11 @@ npm run start
   top     : 0;
 }
 ```
+
+相比媒体查询，使用 maxDisplayWidth 限制宽度，生成的代码量更小。
 </details>
+
+查看[原理](./how-to-work.md)。
 
 ## 注意事项
 
@@ -383,8 +383,8 @@ rootSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 ```css
 /* not-root-containing-block */
 .class {
-	position: fixed;
-	left: 50%;
+  position: fixed;
+  left: 50%;
 }
 ```
 
@@ -422,7 +422,7 @@ rootSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 - 如果使用 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin) 自动插入样式产包，需要注意顺序，顺序可以通过 `optimization.splitChunks.cacheGroups.[group].priority` 来决定，优先级越高，插入到 html 的顺序越靠前。
 
 <details>
-<summary>查看使用 `experimental.extract` 的一份范例配置。</summary>
+<summary>查看使用 “experimental.extract” 的一份范例配置。</summary>
 
 ```javascript
 const path = require("path");
@@ -504,7 +504,7 @@ module.exports = {
 
 <details>
 <summary>
-关于 css 自定义属性，默认情况下，所有和长度相关的属性，如果使用了自定义属性，都会被添加入桌面端和横屏，这可能会带来一些冗余的添加，也可能会有一些转换的错误，转换的错误和包含块相关。
+关于 CSS 自定义属性，默认情况下，所有和长度相关的属性，如果使用了自定义属性，都会被添加入桌面端和横屏，这可能会带来一些冗余的添加，也可能会有一些转换的错误，转换的错误和包含块相关。
 </summary>
 
 下面的例子，默认的情况，`--len-a` 的值在桌面端会被转为 `60px`，横屏会被转为 `42.5px`，但是可以看到实际的应用场景中，定位是 fixed，因此包含块是根包含块，所以默认的转换是错误的，正确的转换应该是，桌面端会被转为 `calc(50% - 240px)`，横屏会被转为 `calc(50% - 170px)`。
@@ -552,7 +552,7 @@ module.exports = {
 
 </details>
 
-“多抓鱼”官网用百分比单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性和展示效果。虽然百分比单位牺牲了一点“完美还原度”，但是从灵活度和代码轻量的角度看，是个不错的选择。
+多抓鱼官网用百分比单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性和展示效果。虽然百分比单位牺牲了一点“完美还原度”，但是从灵活度和代码轻量的角度看，是个不错的选择。
 
 这样适配：
 - 保证内容可用，不会出现视口单位导致的“大屏大字”问题；
@@ -570,13 +570,30 @@ module.exports = {
 
 查看 [MIT License](./LICENSE)。
 
-## 支持
+## 支持和赞助
 
-您可以提交 Issue 和 PR 来共同完善项目，点击 Watch 和 Star 来支持项目。
+请随意 Issue、PR 和 Star，通过[爱发电](https://afdian.net/a/george-chen)进行赞助。
 
 ## 其它
 
-可以配合使用的项目：
+如果仅使用 [postcss-px-to-viewport](‌https://github.com/evrone/postcss-px-to-viewport)，可以通过 iframe 嵌套 vw 伸缩界面（[来源链接](https://github.com/evrone/postcss-px-to-viewport/issues/130#issuecomment-1641725322)），来达到限制最大宽度的目的，例如：
+
+```html
+<style>
+  #iframe {
+    max-width: 520px;
+    width: 100vw;
+    margin: 0 auto;
+    display: block;
+  }
+</style>
+<body>
+  <!-- vw-index.html 为 postcss-px-to-viewport 转换后的伸缩界面 -->
+  <iframe id="iframe" src="./vw-index.html" frameborder="0"></iframe>
+<body>
+```
+
+相关或者可以配合使用的项目：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
 - postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
 - media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
