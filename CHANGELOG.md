@@ -9,7 +9,7 @@
 ### Added
 - 添加属性用于设置高度限制；
 - 添加全宽注释用于在桌面端全宽展示部分元素；
-- 兼容逻辑宽高的属性计算；
+- 兼容逻辑宽高的属性计算。
 
 ### Changed
 - 插件更名；
@@ -18,6 +18,13 @@
 ### Fixed
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
+
+## [3.4.0] - 2023-07-21
+
+### Added
+- 添加属性黑名单 propertyBlackList；
+- 优化 side.width 选项，当某个侧边选择器内存在 width 属性的时候，且值类似 `12px`、`12vw`，直接取该值作为 side.width；
+- 添加 side.width1、side.width2、side.width3、side.width4。
 
 ## [3.3.2] - 2023-05-08
 
