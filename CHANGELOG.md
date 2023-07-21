@@ -19,6 +19,11 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [3.4.1] - 2023-07-21
+
+### Fixed
+- 移除 npm 包内的 `images/` 文件夹，减小体积、加快下载速度。
+
 ## [3.4.0] - 2023-07-21
 
 ### Added
