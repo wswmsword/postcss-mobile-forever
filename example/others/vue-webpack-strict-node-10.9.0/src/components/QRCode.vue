@@ -4,7 +4,8 @@
     <span class="decorate2"></span>
     <span class="decorate3"></span>
     <div class="text">
-      扫一扫
+      <span class="scan">SCAN</span>
+      <span class="me">ME</span>
     </div>
   </div>  
 </template>
@@ -24,13 +25,25 @@
 }
 
 .text {
-  font-size: 20px;
+  font-size: 22px;
   background-color: white;
   width: 79px;
   height: 79px;
   border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan {
   text-align: center;
-  line-height: 79px;
+  font-weight: bold;
+  line-height: 22px;
+}
+.me {
+  text-align: center;
+  font-size: 19px;
 }
 
 .decorate1, .decorate2, .decorate3 {

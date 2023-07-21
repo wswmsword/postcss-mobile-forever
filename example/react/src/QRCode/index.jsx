@@ -6,7 +6,8 @@ const QRCode = () => {
     <span className={styles.decorate2}></span>
     <span className={styles.decorate3}></span>
     <div className={styles.text}>
-      扫一扫
+      <span className={styles.scan}>SCAN</span>
+      <span className={styles.me}>ME</span>
     </div>
   </div>;
 };
