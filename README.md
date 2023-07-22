@@ -53,8 +53,8 @@ import autoprefixer from 'autoprefixer'
 ## 简介
 
 插件使用两种方法生成具有最大宽度的伸缩视图，第一种方法生成媒体查询（默认方法），第二种方法使用 `min()` 之类的 CSS 函数限制最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化；
-- 第二种方法**在转换 px 为视口单位的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同。
+- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化（查看[配置范例](./example/vanilla/postcss.config.js)）；
+- 第二种方法**在转换 px 为视口单位的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同（查看[配置范例](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）。
 
 <details>
 <summary>
@@ -145,7 +145,8 @@ import autoprefixer from 'autoprefixer'
 |:--|:--|:--|:--|
 | rootContainingBlockList_LR | string[] | [] | 用于根包含块的，left、right 的自定义属性，例如设置 `["--len-a", "--len-b"]` 后，`--len-a` 和 `--len-b` 的值会转换为用于 `left` 和 `right` 属性，并且包含块是根包含块的值，并添加到桌面端和横屏中 |
 | rootContainingBlockList_NOT_LR | string[] | [] | 用于根包含块的，非 left、right 的自定义属性 |
-| ancestorContainingBlockList | string[] | [] | 用于非根包含块的自定义属性 |
+| ancestorContainingBlockList | string[] | [] | 用于非根包含块的自定义属性，这些属性值不会被转换，但是会添加到桌面端和横屏，用于避免优先级问题 |
+| disableAutoApply | boolean | false | 关闭自定义属性自动添加到桌面端和横屏，设置上面的三个选项后，这个选项自动为 true |
 
 > 插件默认将生成桌面端和横屏的媒体查询，这可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
@@ -197,7 +198,8 @@ import autoprefixer from 'autoprefixer'
   "customLengthProperty": {
     "rootContainingBlockList_LR": [],
     "rootContainingBlockList_NOT_LR": [],
-    "ancestorContainingBlockList": []
+    "ancestorContainingBlockList": [],
+    "disableAutoApply": false
   },
   "experimental": {
     "extract": false
@@ -212,7 +214,7 @@ import autoprefixer from 'autoprefixer'
 虽然配置选项的数量看起来很多，但是只需要指定选项 rootSelector 和 viewportWidth 后，就可以输出适配竖屏、横屏和桌面端的结果。在桌面端和横屏的视图下，如果有样式和移动端竖屏不一致，再考虑配置其它选项。
 </summary>
 
-下面的配置会适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+下面的配置会激活第一种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
 ```json
 {
   "viewportWidth": 750,
@@ -220,7 +222,7 @@ import autoprefixer from 'autoprefixer'
 }
 ```
 
-下面的配置会限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
+下面的配置会激活第二种方法，使用 CSS 函数限制视口单位的最大值，而不生成媒体查询，当屏幕宽度超过 600px 后，视图不会再变化：
 ```json
 {
   "viewportWidth": 750,
