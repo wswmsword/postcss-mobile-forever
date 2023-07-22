@@ -464,6 +464,20 @@ describe("CSS variable, custom properties", function() {
     expect(processed).toBe(output);
   });
 
+  it("should convert fixed left or right percentage custom property with maxDisplayWidth", function() {
+    var input = ":root { --bb: 10%; --cc: 75px; --dd: 10%; } .rule { left: var(--bb); right: var(--cc); position: fixed; } .l{}";
+    var output = ":root { --bb: calc(50% - min(40%, 240px)); --cc: min(10vw, 60px); --dd: 10%; } .rule { left: var(--bb); right: var(--cc); position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      customLengthProperty: {
+        rootContainingBlockList_LR: ["--bb"],
+      },
+      maxDisplayWidth: 600,
+      disableDesktop: true,
+      disableLandscape: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
   it("should append var() to shared media query when enabled desktop and landscape", function() {
     var input = ".rule { border-bottom: var(--bb); } .l{}";
     var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
