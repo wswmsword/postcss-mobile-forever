@@ -18,20 +18,22 @@ const {
 // const SubsequentPlugins = require("./src/subsequent-plugins");
 
 const defaults = {
+  /** 页面最外层选择器，如 `#app`、`.root-class` */
+  rootSelector: "#app",
   /** 设计图宽度 */
   viewportWidth: 750,
+  /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
+  maxDisplayWidth: null,
+  /** 打开媒体查询，打开后将自动关闭 maxDisplayWidth */
+  enableMediaQuery: false,
   /** 桌面端宽度 */
   desktopWidth: 600,
   /** 移动端横屏宽度 */
   landscapeWidth: 425,
-  /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
-  maxDisplayWidth: null,
   /** 宽度断点，视图大于这个宽度，则页面使用桌面端宽度 */
   minDesktopDisplayWidth: null,
   /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
   maxLandscapeDisplayHeight: 640,
-  /** 页面最外层选择器，如 `#app`、`.root-class` */
-  rootSelector: "#app",
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -149,10 +151,13 @@ module.exports = (options = {}) => {
     },
   };
 
-  const { viewportWidth, desktopWidth, landscapeWidth, rootSelector, border, disableDesktop, disableLandscape, disableMobile, minDesktopDisplayWidth,
+  const { viewportWidth, enableMediaQuery, desktopWidth, landscapeWidth, rootSelector, border, disableMobile, minDesktopDisplayWidth,
     maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList, rootContainingBlockSelectorList,
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
   } = opts;
+  // const enabledMaxDisplay = !enableMediaQuery && (maxDisplayWidth != null);
+  const disableDesktop = enableMediaQuery ? opts.disableDesktop : true;
+  const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
   const { extract } = experimental || {};
   const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
@@ -207,7 +212,7 @@ module.exports = (options = {}) => {
       /** 不是被选择器包裹的属性不处理，例如 @font-face 中的属性 */
       let walkedRule = false;
       /** 是否限制了最宽宽度？ */
-      let limitedWidth = maxDisplayWidth != null;
+      let limitedWidth = !enableMediaQuery && (maxDisplayWidth != null);
 
       let siders = [{
         atRule: null,
@@ -275,6 +280,7 @@ module.exports = (options = {}) => {
               sharedAtRult,
               desktopWidth,
               landscapeWidth,
+              limitedWidth,
               maxDisplayWidth,
             });
           }
@@ -414,6 +420,7 @@ module.exports = (options = {}) => {
               viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
+              limitedWidth,
               maxDisplayWidth,
               expectedLengthVars,
               disableAutoApply,

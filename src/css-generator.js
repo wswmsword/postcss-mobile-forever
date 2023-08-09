@@ -58,6 +58,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   viewportUnit,
   desktopWidth,
   landscapeWidth,
+  limitedWidth,
   maxDisplayWidth,
   expectedLengthVars = [],
   isLRVars,
@@ -68,7 +69,6 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   const val = decl.value;
   const important = decl.important;
   const leftOrRight = prop === "left" || prop === "right" || isLRVars;
-  const limitedWidth = maxDisplayWidth != null;
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
     viewportWidth,
     desktopRadio,
@@ -294,11 +294,11 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   sharedAtRult,
   desktopWidth,
   landscapeWidth,
+  limitedWidth,
   maxDisplayWidth,
 }) {
   const hadBorder = !!border;
   const c = typeof border === "string" ? border : "#eee";
-  const limitedWidth = maxDisplayWidth != null;
   if (limitedWidth) {
     if (hadBorder) rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(borderL(c)), b(borderR(c)), b(minFullHeight), b(autoHeight), b(contentBox));
     else rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
