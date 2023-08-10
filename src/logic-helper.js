@@ -1,10 +1,14 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
-const { containingBlockWidthProps } = require("./constants");
+const { containingBlockWidthProps, horisontalContainingBlockLogicalProps, verticleContainingBlockLogicalProps } = require("./constants");
 const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
-const createContainingBlockWidthDecls = () => {
-  const mapArray = containingBlockWidthProps.reduce((prev, cur) => {
+const createContainingBlockWidthDecls = (isVerticalWritingMode) => {
+  /** 逻辑宽度属性，和包含块有关的属性 */
+  const logicalWidthProps = isVerticalWritingMode ? verticleContainingBlockLogicalProps : horisontalContainingBlockLogicalProps;
+  /** 所有和根包含块宽度有关的属性 */
+  const allContainingBlockWidthProps = containingBlockWidthProps.concat(logicalWidthProps);
+  const mapArray = allContainingBlockWidthProps.reduce((prev, cur) => {
     return prev.concat([[cur, null]]);
   }, []);
   return new Map(mapArray);
@@ -124,16 +128,6 @@ const isMatchedSelectorProperty = (propertyBlackList, selector, prop) => {
   }
 };
 
-/** 选择器上方有根包含块的注释 */
-const hasRootContainingBlockComment = (rule, RCB_CMT) => {
-  return hasNextComment(rule, RCB_CMT);
-};
-
-/** 选择器前面有非根包含块的注释吗 */
-const hasNoneRootContainingBlockComment = (rule, NRCB_CMT) => {
-  return hasNextComment(rule, NRCB_CMT);
-};
-
 /** 是否有忽略转换的注释？ */
 const hasIgnoreComments = (decl, result, IN_CMT, IL_CMT) => {
   let ignore = false;
@@ -184,6 +178,15 @@ const hasNextComment = (node, comment) => {
 const hasApplyWithoutConvertComment = (decl, result, AWC_CMT) => {
   return hasPrevComment(decl, AWC_CMT, result);
 };
+
+/** 选择器上方有根包含块的注释 */
+const hasRootContainingBlockComment = hasNextComment;
+
+/** 选择器前面有非根包含块的注释吗 */
+const hasNoneRootContainingBlockComment = hasNextComment;
+
+/** 选择器前面有书写模式的注释吗 */
+const hasWritingModeComment = hasNextComment;
 
 /** 获取匹配的数字和单位，转换 */
 const convertPropValue = (prop, val, {
@@ -326,6 +329,7 @@ module.exports = {
   createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment,
   hasRootContainingBlockComment,
+  hasWritingModeComment,
   convertNoFixedMediaQuery,
   convertFixedMediaQuery,
   convertMobile,

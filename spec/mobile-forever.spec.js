@@ -8,9 +8,7 @@ var postcss = require("postcss");
 var mobileToMultiDisplays = require("..");
 
 describe("mobile-forever", function() {
-  var baseOpts = {
-    disableMobile: true,
-  };
+
   it("should work on the readme example", function() {
     var input = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
     var output = "#app { width: 100%; max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; } .nav { position: fixed; width: min(100%, 560px); height: min(9.6vw, 53.76px); left: calc(50% - min(50%, 280px)); top: 0; }";
@@ -73,6 +71,98 @@ describe("mobile-forever", function() {
     var processed = postcss(mobileToMultiDisplays({
       enableMediaQuery: true,
     })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
+
+describe("logical property", function() {
+
+  /** 可以正常转换逻辑宽度属性 */
+  it("should convert logical property", function() {
+    var input = ".rule { inline-size: 75px; block-size: 75px; } .l{}";
+    var output = ".rule { inline-size: min(10vw, 60px); block-size: min(10vw, 60px); } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  /** 非根元素包含块，无需转换 */
+  it("should not convert logical property that has not root containing block", function() {
+    var input = ".rule { inline-size: 10%; block-size: 10%; } .l{}";
+    var output = ".rule { inline-size: 10%; block-size: 10%; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  /** 根元素包含块，将进行转换 */
+  it("should convert logical property that has root containing block", function() {
+    var input = ".rule { inline-size: 10%; block-size: 10%; position: fixed; } .l{}";
+    var output = ".rule { inline-size: min(10%, 60px); block-size: 10%; position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+
+    input = ".rule { inline-size: 10vw; block-size: 10vw; position: fixed; } .l{}";
+    output = ".rule { inline-size: min(10vw, 60px); block-size: min(10vw, 60px); position: fixed; } .l{}";
+    processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  /** 横向模式，根包含块，将进行转换 */
+  it("should convert logical property in horisontal-mode", function() {
+    var input = ".rule { inline-size: 10%; block-size: 10%; position: fixed; writing-mode: horizontal-tb; } .l{}";
+    var output = ".rule { inline-size: min(10%, 60px); block-size: 10%; position: fixed; writing-mode: horizontal-tb; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+
+
+    input = ".rule { inline-size: 10%; block-size: 10%; position: fixed; } .l{}";
+    output = ".rule { inline-size: min(10%, 60px); block-size: 10%; position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+      horizontalWritingSelectorList: [".rule"], })).process(input).css;
+    expect(processed).toBe(output);
+
+
+    input = ".rule { inline-size: 10%; block-size: 10%; } .l{}";
+    output = ".rule { inline-size: min(10%, 60px); block-size: 10%; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+      horizontalWritingSelectorList: [".rule"],
+      rootContainingBlockSelectorList: [".rule"], })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  /** 横向模式，非包含块，将不进行转换 */
+  it("should not convert logical property that has not root containing block in horisontal-mode", function() {
+    var input = ".rule { inline-size: 10%; block-size: 10%; writing-mode: horizontal-tb; } .l{}";
+    var output = ".rule { inline-size: 10%; block-size: 10%; writing-mode: horizontal-tb; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  /** 纵向模式，根包含快，进行转换 */
+  it("should convert logical property in vertical-mode", function() {
+    var input = ".rule { inline-size: 10%; block-size: 10%; writing-mode: vertical-rl; position: fixed; } .l{}";
+    var output = ".rule { inline-size: 10%; block-size: min(10%, 60px); writing-mode: vertical-rl; position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+
+    input = ".rule { inline-size: 10%; block-size: 10%; position: fixed; } .l{}";
+    output = ".rule { inline-size: 10%; block-size: min(10%, 60px); position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+      verticalWritingSelectorList: [".rule"], })).process(input).css;
+    expect(processed).toBe(output);
+
+    input = "/* vertical-writing-mode */ .rule { inline-size: 10%; block-size: 10%; position: fixed; } .l{}";
+    output = ".rule { inline-size: 10%; block-size: min(10%, 60px); position: fixed; } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600 })).process(input).css;
+    expect(processed).toBe(output);
+
+    input = "/* vertical-writing-mode */ /* root-containing-block */ .rule { inline-size: 10%; block-size: 10%; } .l{}";
+    output = ".rule { inline-size: 10%; block-size: min(10%, 60px); } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600 })).process(input).css;
     expect(processed).toBe(output);
   });
 });

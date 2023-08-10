@@ -2,12 +2,14 @@ const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeF
   hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
   hasApplyWithoutConvertComment,
   isMatchedSelectorProperty,
+  hasWritingModeComment,
 } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConvertedFixedContainingBlockDecls, appendCentreRoot,
   appendDisplaysRule, appendCSSVar, extractFile, appendSiders,
 } = require("./src/css-generator");
-const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment } = require("./src/constants");
+const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment,
+  verticalComment } = require("./src/constants");
 const { pxToMediaQueryPx_noUnit, vwToMediaQueryPx_noUnit, percentToMediaQueryPx_FIXED_noUnit } = require("./src/unit-transfer");
 const path = require('path');
 
@@ -58,6 +60,8 @@ const defaults = {
   propList: ['*'],
   /** 包含块是根元素的选择器列表 */
   rootContainingBlockSelectorList: [],
+  /** 纵向书写模式的选择器列表 */
+  verticalWritingSelectorList: [],
   /** 移动端竖屏转换单位 */
   mobileUnit: "vw",
   /** 侧边内容配置 */
@@ -87,6 +91,8 @@ const defaults = {
     ignoreNext: ignoreNextComment,
     /** 忽略本行转换 */
     ignoreLine: ignorePrevComment,
+    /** 纵向书写模式 */
+    verticalWritingMode: verticalComment,
   },
   /** 添加标识，用于调试 */
   demoMode: false,
@@ -152,15 +158,16 @@ module.exports = (options = {}) => {
   };
 
   const { viewportWidth, enableMediaQuery, desktopWidth, landscapeWidth, rootSelector, border, disableMobile, minDesktopDisplayWidth,
-    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList, rootContainingBlockSelectorList,
+    maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList,
+    rootContainingBlockSelectorList, verticalWritingSelectorList,
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
   } = opts;
-  // const enabledMaxDisplay = !enableMediaQuery && (maxDisplayWidth != null);
   const disableDesktop = enableMediaQuery ? opts.disableDesktop : true;
   const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
   const { extract } = experimental || {};
   const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
-  const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT } = comment;
+  const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT,
+    horizontalWritingMode: HWM_CMT, verticalWritingMode: VWM_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
   const fontViewportUnit = "vw";
   const replace = true;
@@ -192,7 +199,10 @@ module.exports = (options = {}) => {
       /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
       let sharedAtRult = null;
 
+      /** 当前选择器是否是 fixed 布局 */
       let hadFixed = null;
+      /** 当前选择器是否是纵向书写模式 */
+      let isVerticalWritingMode = false;
       /** 当前选择器 */
       let selector = null;
       /** 视图宽度 */
@@ -253,9 +263,9 @@ module.exports = (options = {}) => {
           if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
           walkedRule = true;
           hadFixed = false;
+          isVerticalWritingMode = false;
           insideMediaQuery = false;
           blackListedSelector = false;
-          containingBlockWidthDeclsMap = createContainingBlockWidthDecls();
           selector = rule.selector;
 
           if (isMatchedStr(selectorBlackList, selector))
@@ -285,14 +295,7 @@ module.exports = (options = {}) => {
             });
           }
 
-          /** 有标志*非根包含块*的注释吗？ */
-          const notRootContainingBlock = hasNoneRootContainingBlockComment(rule, NRCB_CMT);
-          if (notRootContainingBlock) containingBlockWidthDeclsMap = new Map();
-          /** 有标志*根包含块*的注释吗？ */
-          const hadRootContainingBlock = hasRootContainingBlockComment(rule, RCB_CMT) || isMatchedStr(rootContainingBlockSelectorList, selector);
-          if (hadRootContainingBlock) hadFixed = true;
-
-          /** 标记优先级最高的各个属性 */
+          // 标记优先级最高的各个属性
           priorityProps.clear();
           rule.walkDecls(decl => {
             const important = decl.important;
@@ -301,7 +304,21 @@ module.exports = (options = {}) => {
             if (mapProp == null || important || !mapProp.important) {
               priorityProps.set(prop, decl);
             }
-          })
+
+            const val = decl.value;
+            if (prop === "writing-mode" && ["vertical-rl", "vertical-lr", "sideways-rl", "sideways-lr", "tb", "tb-rl"].includes(val))
+              isVerticalWritingMode = true;
+          });
+
+          if (hasRootContainingBlockComment(rule, RCB_CMT) || // 有标志*根包含块*的注释吗？
+            isMatchedStr(rootContainingBlockSelectorList, selector))
+            hadFixed = true;
+          if (hasWritingModeComment(rule, VWM_CMT) || // 有标志*纵向书写模式*的注释吗？
+            isMatchedStr(verticalWritingSelectorList, selector))
+            isVerticalWritingMode = true;
+          if (hasNoneRootContainingBlockComment(rule, NRCB_CMT)) // 有标志*非根包含块*的注释吗？
+            containingBlockWidthDeclsMap = new Map();
+          else containingBlockWidthDeclsMap = createContainingBlockWidthDecls(isVerticalWritingMode);
         },
         Declaration(decl, postcss) {
           if (!walkedRule) return; // 不是 Rule 的属性则不转换

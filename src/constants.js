@@ -80,6 +80,7 @@ module.exports = {
   notRootCBComment: "not-root-containing-block",
   rootCBComment: "root-containing-block",
   applyComment: "apply-without-convert",
+  verticalComment: "vertical-writing-mode",
   /** position fixed 时依赖屏幕宽度的属性，https://jameshfisher.com/2019/12/29/what-are-css-percentages/ */
   containingBlockWidthProps: [
     "left", "right",
@@ -121,4 +122,12 @@ module.exports = {
     "border-width", "block-size", "background", "background-position", "background-position-x", "background-position-y", "background-size",
     "backdrop-filter",
   ],
+  /** 书写模式为横向时，百分比可能取根包含块的逻辑属性 */
+  horisontalContainingBlockLogicalProps: ["inline-size", "max-inline-size", "min-inline-size",
+    "padding-inline", "padding-inline-end", "padding-inline-start",
+    "inset-inline", "inset-inline-end", "inset-inline-start"],
+  /** 书写模式为纵向时，百分比可能取根包含块的逻辑属性 */
+  verticleContainingBlockLogicalProps: ["block-size", "max-block-size", "min-block-size",
+    "padding-block", "padding-block-end", "padding-block-start",
+    "inset-block", "inset-block", "inset-block-start"],
 }
