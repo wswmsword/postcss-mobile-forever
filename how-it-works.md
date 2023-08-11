@@ -48,7 +48,9 @@
 
 需要了解哪些属性的百分比尺寸，是基于包含块的宽度计算的，一共有下面这些属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
 
-下面是具体的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
+此外还有[逻辑宽高属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)，当 fixed 定位时，逻辑宽高属性也是基于根包含块的，具体哪个属性是基于根包含块计算，会根据书写模式切换，当横向书写模式，`inline-size` 取根包含块计算，当纵向书写模式，`block-size` 取根包含块计算。逻辑属性不只上面提到的两个，大体这些属性名称都包含 *inline* 和 *block*，具体可以查看 `constants.js` 内的 `horisontalContainingBlockLogicalProps` 和 `verticleContainingBlockLogicalProps`。
+
+下面是具体的计算方法，媒体查询模式下的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
 - 属性是除了 left 和 right 的属性，单位使用 vw 或百分号（%），
 	- 计算方式为 `(idealClientWidth / 100 * number)px`；
 - 属性是除了 left 和 right 的属性，单位使用 px，
@@ -70,3 +72,5 @@
 - 以上值的重新计算，目的是保证每个端口的视图完全一致。
 
 </details>
+
+上面是媒体查询模式的计算方式，CSS 函数的计算方式与之不同。

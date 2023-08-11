@@ -300,7 +300,7 @@ npm run start
 输入范例：
 
 ```css
-.root-class {
+#app {
   width: 100%;
 }
 
@@ -449,7 +449,7 @@ appSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 - 如果使用 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin) 自动插入样式产包，需要注意顺序，顺序可以通过 `optimization.splitChunks.cacheGroups.[group].priority` 来决定，优先级越高，插入到 html 的顺序越靠前。
 
 <details>
-<summary>查看使用 “experimental.extract” 的一份范例配置。</summary>
+<summary>查看使用“experimental.extract”的一份范例配置。</summary>
 
 ```javascript
 const path = require("path");
