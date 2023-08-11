@@ -12,6 +12,9 @@ declare namespace mobileForever {
     /** 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` */
     maxDisplayWidth?: number
 
+    /** 打开媒体查询模式，打开后将自动关闭 maxDisplayWidth */
+    enableMediaQuery?: boolean
+
     /** 适配到桌面端时，展示的视图宽度 */
     desktopWidth?: number
 
@@ -25,7 +28,7 @@ declare namespace mobileForever {
     maxLandscapeDisplayHeight?: number
 
     /** 页面最外层选择器，如 `#app`、`.root-class` */
-    rootSelector?: string
+    appSelector?: string
 
     /** 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 */
     border?: boolean | string
@@ -62,6 +65,9 @@ declare namespace mobileForever {
 
     /** 包含块是根元素的选择器列表 */
     rootContainingBlockSelectorList?: (string | RegExp)[]
+
+    /** 纵向书写模式的选择器列表 */
+    verticalWritingSelectorList?: (string | RegExp)[]
 
     /** 竖屏要转换成什么视口单位？ */
     mobileUnit?: string;
@@ -131,6 +137,8 @@ declare namespace mobileForever {
     ignoreNext?: string
     /** 忽略本行转换 */
     ignoreLine?: string
+    /** 纵向书写模式 */
+    verticalWritingMode?: string
   }
 
   interface getLocalIdentOpts {
