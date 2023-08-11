@@ -4,6 +4,7 @@ module.exports = {
       viewportWidth: 750,
       desktopWidth: 600,
       landscapeWidth: 450,
+      disableMobile: true,
       border: true,
       rootClass: "root-class",
     }),

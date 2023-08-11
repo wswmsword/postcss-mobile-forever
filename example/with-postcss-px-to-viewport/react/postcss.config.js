@@ -5,6 +5,7 @@ module.exports = {
       desktopWidth: 600,
       landscapeWidth: 450,
       border: true,
+      disableMobile: true,
       rootClass: "root-class",
     }],
     ["postcss-px-to-viewport", {

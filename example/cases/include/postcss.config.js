@@ -2,7 +2,8 @@ module.exports = {
   plugins: [
     ["postcss-mobile-forever", {
       viewportWidth: 750,
-      rootSelector: "#root",
+      enableMediaQuery: true,
+      appSelector: "#root",
       demoMode: true,
       include: /pages\/mobile\//,
       side: {
