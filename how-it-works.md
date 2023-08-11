@@ -35,13 +35,20 @@
 - 使用 CSS 函数 `min()` 或 `max()`；
 - 举例，当前配置为 `{ viewportWidth: 750, maxDisplayWidth: 600 }`，
 	- 转换前，`width: 75px;`，
-	- 转换后，`width: min(10vw, 60px);`。
+	- 转换后，`width: min(10vw, 60px);`；
+	- 对于 fixed 定位的 left 和 right 属性，有不一样的处理，
+		- 例如，转换前，`left: 0;`，
+		- 转换后，`left: calc(50% - min(50%, 300px));`。
 
 ---
 
 当需要把竖屏视图居中展示时，fixed 定位的元素需要重新计算，让元素回到视图中，而不是左右的空白区域。例如 `position: fixed; left: 0;` 在宽屏上，应该处于居中的视图中，而不是屏幕最左侧。
 
-如果元素的长度单位是百分比，那么这个百分比是基于[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)计算的。大部分情况，元素的包含块是它的父级元素，因此插件不需要进行转换，但是当元素处于 fixed 定位时，元素的包含块就可能是根元素 `<html>`（visual viewport），这时的宽度是浏览器宽度，所以插件需要把此时依赖浏览器宽度的属性进行转换，这样不管浏览器宽度怎么变化，视图才能始终居中。下面是具体的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
+如果元素的长度单位是百分比，那么这个百分比是基于[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)计算的。大部分情况，元素的包含块是它的父级元素，因此插件不需要进行转换，但是当元素处于 fixed 定位时，元素的包含块就可能是根元素 `<html>`（visual viewport），这时的宽度是浏览器宽度，所以插件需要把此时依赖浏览器宽度的属性进行转换，这样不管浏览器宽度怎么变化，视图才能始终居中。
+
+需要了解哪些属性的百分比尺寸，是基于包含块的宽度计算的，一共有下面这些属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
+
+下面是具体的计算方法（fixed 定位的元素，其百分比宽度大部分情况依赖浏览器宽度，但也存在特殊情况，请查看“注意事项”一节来应对特殊情况）：
 - 属性是除了 left 和 right 的属性，单位使用 vw 或百分号（%），
 	- 计算方式为 `(idealClientWidth / 100 * number)px`；
 - 属性是除了 left 和 right 的属性，单位使用 px，

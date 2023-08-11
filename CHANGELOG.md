@@ -7,30 +7,49 @@
 ## [Unreleased]
 
 ### Added
+
 - 添加属性用于设置高度限制；
 - 添加全宽注释用于在桌面端全宽展示部分元素；
-- 兼容逻辑宽高的属性计算。
+- 令应用根元素成为包含块，使 fixed 定位的元素基于应用的根元素，利用诸如“transform 或 perspective 的值不是 none”等特性，替换目前使用 CSS 函数计算的方式。
 
 ### Changed
-- 插件更名；
-- 插件拆分。
+
+- 插件拆分，例如。
 
 ### Fixed
+
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
-## [3.4.1] - 2023-07-21
+## [4.0.0] - 2023-08-11
+
+### Changed
+
+- 使用 CSS 函数作为默认限制最大宽度的默认方法，其次为媒体查询；
+- rootSelector 更名为 appSelector。
+
+### Added
+
+- 支持逻辑宽的属性计算，例如横向书写模式下的 inline-size、纵向书写模式下的 block-size；
+- 添加选项 enableMediaQuery，用于打开媒体查询模式，否则默认为 max-display-width 模式；
+- 添加选项 verticalWritingSelectorList，用于添加没有标明属性 `writing-mode`，但是是纵向书写模式的选择器；
+- 添加选项 `comment.verticalWritingMode`，使用注释，表明某个选择器是纵向书写模式。
+
+## [3.4.2] - 2023-07-21
 ### Fixed
+
 - 移除 npm 包内的 `example/` 文件夹，减小体积、加快下载速度。
 
 ## [3.4.1] - 2023-07-21
 
 ### Fixed
+
 - 移除 npm 包内的 `images/` 文件夹，减小体积、加快下载速度。
 
 ## [3.4.0] - 2023-07-21
 
 ### Added
+
 - 添加属性黑名单 propertyBlackList；
 - 优化 side.width 选项，当某个侧边选择器内存在 width 属性的时候，且值类似 `12px`、`12vw`，直接取该值作为 side.width；
 - 添加 side.width1、side.width2、side.width3、side.width4。
@@ -38,47 +57,56 @@
 ## [3.3.2] - 2023-05-08
 
 ### Fixed
+
 - 修复在打开选项 maxDisplayWidth 时，会在根元素陷入死循环问题；
 - 修复在打开选项 maxDisplayWidth 时，选项 border 的功能和预期相反的问题。
 
 ## [3.3.1] - 2023-04-21
 
 ### Fixed
+
 - 添加 valueBlackList 类型定义。
 
 ## [3.3.0] - 2023-04-21
 
 ### Added
+
 - 添加选项 valueBlackList，指定的值不进行转换，例如可以指定 `["1px solid black"]`，指定之后本地和引入的仓库样式包含 `1px solid black` 的值都将不被转换 [#7](https://github.com/wswmsword/postcss-mobile-forever/issues/7)。
 
 ## [3.2.3] - 2023-04-18
 
 ### Fixed
+
 - 修复 viewportWidth 选项是函数的配置下，非包含块属性的值在桌面端和横屏会被转换为 `NaN` 的问题 [#6](https://github.com/wswmsword/postcss-mobile-forever/issues/6)。
 
 ## [3.2.2] - 2023-04-10
 
 ### Fixed
+
 - 修复十六进制颜色值的尾部包含数字可能被转换的问题 [#4](https://github.com/wswmsword/postcss-mobile-forever/issues/4)。
 
 ## [3.2.1] - 2023-03-29
 
 ### Fixed
+
 - 修复共享媒体查询的属性，会覆盖原选择器中更高优先级的属性的问题。
 
 ## [3.2.0] - 2023-03-26
 
 ### Added
+
 - 添加 `customLengthProperty` 选项，用于解决 css 变量的转换问题。
 
 ## [3.1.0] - 2023-03-25
 
 ### Added
+
 - 添加 `experimental.extract` 选项，用于拆分桌面端与横屏样式，用于代码分割优化产包。
 
 ## [3.0.0] - 2023-03-12
 
 ### Changed
+
 - 整理入参；
 - 删除 fontViewportUnit、replace；
 - 删除 rootSelector；
@@ -89,15 +117,18 @@
 ## [2.4.1] - 2023-03-11
 
 ### Fixed
+
 - 更新类型包。
 
 ## [2.4.0] - 2023-03-10
 
 ### Added
+
 - 添加自定义注释；
 - 新增桌面端或移动端横屏空白区域填充内容，如在左右空白区域放置原视图内的部分信息。
 
 ### Fixed
+
 - 修复生成 `.0` 的问题；
 - 修复正则匹配 css 变量中单位问题；
 - 修复属性覆盖问题，使用 `/* apply-without-convert */` 防止覆盖，例如 `left: 10px;` 覆盖 `left: auto;` 的问题。
@@ -105,67 +136,81 @@
 ## [2.3.3] - 2023-03-07
 
 ### Added
+
 - 添加参数用于识别某选择器的包含块是根元素，例如第三方库的根元素包含块选择器属性计算。
 
 ## [2.3.2] - 2023-03-04
 
 ### Added
+
 - 添加 TypeScript 声明文件。
 
 ## [2.3.1] - 2023-03-03
 
 ### Fixed
+
 - 修复 CSS 变量（`var(...)`）被相同属性的非 CSS 变量的值覆盖的问题。
 
 ## [2.3.0] - 2023-03-03
 
 ### Added
+
 - 添加 maxDisplayWidth 参数，限制视口单位的最大宽度，弥补媒体查询的还原度问题；
 - 添加注释用于确认当前元素是根包含块，`/* root-containing-block */`。
 
 ### Fixed
+
 - 修复 fixed 定位元素 left 或 right 属性在值的单位为百分号时计算错误问题；
 - 修复非 fixed 定位元素的属性值为百分号时计算错误问题。
 
 ## [2.2.2] - 2023-03-01
 
 ### Fixed
+
 - 修复源码包含媒体查询导致剩余代码未转换的问题。
 
 ### Added
+
 - 添加 border 参数传递颜色字符串，用于设置边框颜色。
 
 ## [2.2.1] - 2023-02-27
 
 ### Docs
+
 - 更新文档。
 
 ## [2.2.0] - 2023-02-27
 
 ### Added
+
 - 处理不带单位的纯数字，如 0；
 - 添加根元素选择器参数 rootSelector。
 
 ### Fixed
+
 - 修复媒体查询中缩写属性（padding）覆盖媒体查询外非缩写属性（padding-top）问题。
 
 ## [2.1.2] - 2023-02-25
 
 ### Changed
+
 - 项目名称使用 postcss-mobile-forever 替换 postcss-mobile-to-multi-displays。
 
 ## [2.1.1] - 2023-02-24
 
 ### Fixed
+
 - 修复视口宽度无法设置函数问题；
 - 修复转换受 At 规则影响的问题。
 
 ## [2.1.0] - 2023-02-23
 
 ### Changed
+
 - 移除 pass1px 属性。
 
 ### Added
+
 - 非移动端竖屏，fixed 定位的百分比元素可正常定位至视图内；
 - 非移动端竖屏，fixed 定位的视口单位元素可正常定位至视图内；
 - 非移动端竖屏，视口单位转换为 px；
@@ -174,6 +219,7 @@
 ## [2.0.0] - 2023-02-20
 
 ### Changed
+
 - 迁移至 postcss8.0.0；
 - 宽度、高度断点的属性名称变更为 minDesktopDisplayWidth 和 maxLandscapeDisplayHeight；
 - 属性过滤列表和选择器黑名单的作用范围从仅移动端竖屏调整至所有屏幕；
@@ -182,50 +228,61 @@
 ## [1.3.2] - 2023-02-20
 
 ### Added
+
 - 添加属性 mobileConfig.viewportUnit 用于移动端竖屏；
 - 添加 `/* px-to-viewport-ignore */` 和 `/* px-to-viewport-ignore-next */`。
 
 ### Fixed
+
 - 修复穿戴设备屏幕上的显示效果。
 
 ## [1.3.1] - 2023-02-19
 
 ### Added
+
 - 属性 viewportWidth 允许传入函数。
 
 ## [1.3.0] - 2023-02-18
 
 ### Added
+
 - 添加移动端竖屏的配置属性。
 
 ## [1.2.0] - 2023-02-17
 
 ### Added
+
 - 添加移动端竖屏转换视口单位功能；
 - 添加属性 unitPrecision 用于精确小数点。
 
 ### Fixed
+
 - 修复完善正则匹配，不匹配 url、单引号、双引号里的值。
 
 ## [1.1.0] - 2023-02-15
 
 ### Added
+
 - 添加属性 include 和 exclude 过滤条件。
 
 ## [1.0.2] - 2023-02-14
 
 ### Added
+
 - 添加 Vue 和 Svelte 范例。
 
 ### Fixed
+
 - 修复媒体查询的“或者”问题、遗漏“px”问题。
 
 ## [1.0.1] - 2023-02-13
 
 ### Added
+
 - 添加 React 范例。
 
 ### Fixed
+
 - 修复 px 正则；
 - 修复 1px 转换问题。
 

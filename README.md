@@ -4,7 +4,7 @@
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
-一款 PostCSS 插件，用于将固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件将转换视口单位（*px->vw*），限制视图最大宽度（*min(vw, px)*），生成适应桌面端和横屏的媒体查询（*@media*）。
+一款 PostCSS 插件，用于将固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件可以转换视口单位（*px->vw*）、限制视图最大宽度（*min(vw, px)*）、生成适应桌面端和横屏的媒体查询（*@media*）。
 
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
 
@@ -23,6 +23,8 @@ npm 安装最新的兼容版本（基于 postcss@^6.0.0）（yarn 则是 `yarn a
 npm install postcss-mobile-forever@legacy --save-dev
 ```
 
+查看[兼容版本的 mobile-forever 文档](./README_LEGACY.md)，目前兼容版本不支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的处理。
+
 <details>
 <summary>
 安装之后在 postcss.config.js 配置文件中引入，或者其它框架配置文件中引入。
@@ -39,9 +41,9 @@ import autoprefixer from 'autoprefixer'
 		plugins: [
 			autoprefixer(),
 			mobile({ // <---- 这里
-				rootSelector: '#app',
+				appSelector: '#app',
 				viewportWidth: 375,
-				border: false,
+				maxDisplayWidth: 580,
 			}),
 		],
 	},
@@ -52,13 +54,13 @@ import autoprefixer from 'autoprefixer'
 
 ## 简介
 
-插件使用两种方法生成具有最大宽度的伸缩视图，第一种方法生成媒体查询（默认方法），第二种方法使用 `min()` 之类的 CSS 函数限制最大值：
-- 第一种方法**把 px 转换为用于移动端视图的视口单位，生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化（查看[配置范例](./example/vanilla/postcss.config.js)）；
-- 第二种方法**在转换 px 为视口单位的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同（查看[配置范例](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）。
+插件使用两种方法生成具有最大宽度的伸缩视图，原理上，第一种方法会利用 `min()` 之类的 CSS 函数，第二种方法则是生成媒体查询：
+- 第一种方法**在转换 px 为视口单位（默认 vw）的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同（查看[配置范例](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）；
+- 第二种方法**把 px 转换为视口单位（默认 vw），生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化（查看[配置范例](./example/vanilla/postcss.config.js)）。
 
 <details>
 <summary>
-插件生成的媒体查询，期望覆盖手机、平板、笔记本，以及竖屏或横屏的多种屏幕。
+媒体查询模式，也即第二种方法，期望覆盖手机、平板、笔记本，以及竖屏或横屏的多种屏幕。
 </summary>
 
 - 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
@@ -79,9 +81,9 @@ import autoprefixer from 'autoprefixer'
 </table>
 
 在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
-</details>
 
-> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第一种方法，生成媒体查询的方法。
+> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第二种方法，生成媒体查询的方法。
+</details>
 
 ## 配置参数
 
@@ -91,13 +93,14 @@ import autoprefixer from 'autoprefixer'
 |:--|:--|:--|:--|
 | viewportWidth | number\|(file: string, selector: string) => number | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
 | mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
-| maxDisplayWidth | number | / | 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` |
+| maxDisplayWidth | number | / | 限制视口单位的最大宽度 |
+| enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth` |
 | desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| rootSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
+| appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
 | border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
-| disableDesktop | boolean | false | 打开则不做桌面端适配 |
-| disableLandscape | boolean | false | 打开则不做移动端横屏适配 |
+| disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery` |
+| disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery` |
 | disableMobile | boolean | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw |
 | exclude | RegExp\|RegExp[] | / | 排除文件或文件夹 |
 | include | RegExp\|RegExp[] | / | 包括文件或文件夹 |
@@ -107,14 +110,15 @@ import autoprefixer from 'autoprefixer'
 | propertyBlackList | propertyBlackList | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17) |
 | valueBlackList | (string\|RegExp)[] | [] | 属性值黑名单，名单上的值不转换 |
 | rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
+| verticalWritingSelectorList | (string\|RegExp)[] | [] | 纵向书写模式的选择器列表，效果和在选择器顶部标注注释 `/* vertical-writing-mode */` 相同 |
 | minDesktopDisplayWidth | number | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
 | maxLandscapeDisplayHeight | number | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| side | any | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间 |
-| comment | any | / | 自定义注释，改变注释的名称 |
-| customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，var(...)），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏 |
+| side | any | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间，后文将介绍它的若干子属性 |
+| comment | any | / | 自定义注释，改变注释的名称，后文将介绍它的若干子属性 |
+| customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，`var(...)`），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，后文将介绍它的若干子属性 |
 | experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
-下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容：
+下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容，只有当打开媒体查询模式、`disableDesktop` 为 false 的时候，`side` 将生效：
 
 | Name | Type | Default | Desc |
 |:--|:--|:--|:--|
@@ -138,8 +142,9 @@ import autoprefixer from 'autoprefixer'
 | notRootContainingBlock | string | "not-root-containing-block" | 非包含块注释 |
 | ignoreNext | string | "mobile-ignore-next" | 忽略选择器内的转换 |
 | ignoreLine | string | "mobile-ignore" | 忽略本行转换 |
+| verticalWritingMode | string | "vertical-writing-mode" | 纵向书写模式 |
 
-下面是属性 `customLengthProperty` 的子属性，每一个属性都是可选的，`customLengthProperty` 用于指定需要添加到桌面端或横屏的自定义变量：
+下面是属性 `customLengthProperty` 的子属性，每一个属性都是可选的，`customLengthProperty` 有两个作用，一个是指定转换方式，例如基于根包含块的 `left` 和 `right`，则需要 `customLengthProperty.rootContainingBlockList_LR` 进行指定，来得到正确的转换结果，另一个作用是，在媒体查询模式下，避免所有和长度有关的使用 CSS 变量的属性，都被添加到媒体查询中，用于指定真正需要添加到桌面端或横屏的自定义变量：
 
 | Name | Type | Default | Desc |
 |:--|:--|:--|:--|
@@ -147,8 +152,6 @@ import autoprefixer from 'autoprefixer'
 | rootContainingBlockList_NOT_LR | string[] | [] | 用于根包含块的，非 left、right 的自定义属性 |
 | ancestorContainingBlockList | string[] | [] | 用于非根包含块的自定义属性，这些属性值不会被转换，但是会添加到桌面端和横屏，用于避免优先级问题 |
 | disableAutoApply | boolean | false | 关闭自定义属性自动添加到桌面端和横屏，设置上面的三个选项后，这个选项自动为 true |
-
-> 插件默认将生成桌面端和横屏的媒体查询，这可以通过参数 `disableDesktop` 和 `disableLandscape` 关闭。通过设置 `maxDisplayWidth`，并打开 `disableDesktop` 和 `disableLandscape`，这种方法不会生成媒体查询，但是同样会限制视口宽度。
 
 <details>
 <summary>
@@ -159,11 +162,12 @@ import autoprefixer from 'autoprefixer'
 {
   "viewportWidth": 750,
   "maxDisplayWidth": null,
+  "enableMediaQuery": false,
   "desktopWidth": 600,
   "landscapeWidth": 425,
   "minDesktopDisplayWidth": null,
   "maxLandscapeDisplayHeight": 640,
-  "rootSelector": null,
+  "appSelector": "#app",
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
@@ -174,6 +178,7 @@ import autoprefixer from 'autoprefixer'
   "selectorBlackList": [],
   "valueBlackList": [],
   "rootContainingBlockSelectorList": [],
+  "verticalWritingSelectorList": [],
   "propList": ['*'],
   "mobileUnit": "vw",
   "side": {
@@ -193,7 +198,8 @@ import autoprefixer from 'autoprefixer'
     "rootContainingBlock": "root-containing-block",
     "notRootContainingBlock": "not-root-containing-block",
     "ignoreNext": "mobile-ignore-next",
-    "ignoreLine": "mobile-ignore"
+    "ignoreLine": "mobile-ignore",
+    "verticalWritingMode": "vertical-writing-mode"
   },
   "customLengthProperty": {
     "rootContainingBlockList_LR": [],
@@ -211,36 +217,46 @@ import autoprefixer from 'autoprefixer'
 
 <details>
 <summary>
-虽然配置选项的数量看起来很多，但是只需要指定选项 rootSelector 和 viewportWidth 后，就可以输出适配竖屏、横屏和桌面端的结果。在桌面端和横屏的视图下，如果有样式和移动端竖屏不一致，再考虑配置其它选项。
+虽然配置选项的数量看起来很多，但是只需要指定选项 viewportWidth 后，就可以输出伸缩视图的结果，通常我们还需要让伸缩视图具有最大宽度，只要再添加 appSelector 和 maxDisplayWidth，即可完成。开发中，如果在浏览器看到，宽屏的视图有和在移动端视图不一样的地方，再考虑配置其它选项。
 </summary>
 
-下面的配置会激活第一种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+下面的配置会激活第一种方法，使用 CSS 函数限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
+
 ```json
 {
   "viewportWidth": 750,
-  "rootSelector": "#app"
+  "appSelector": "#app",
+  "maxDisplayWidth": 600
 }
 ```
 
-下面的配置会激活第二种方法，使用 CSS 函数限制视口单位的最大值，而不生成媒体查询，当屏幕宽度超过 600px 后，视图不会再变化：
+下面的配置会激活第二种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+
 ```json
 {
   "viewportWidth": 750,
-  "maxDisplayWidth": 600,
-  "rootSelector": "#app",
-  "disableDesktop": true,
-  "disableLandscape": true
+  "appSelector": "#app",
+  "enableMediaQuery": true
+}
+```
+
+如果暂时不希望优化视图在大屏的可访问性，不做最大宽度的限制，可以像下面这样配置：
+
+```json
+{
+  "viewportWidth": 750
 }
 ```
 
 </details>
 
 标记注释：
-- `/* apply-without-convert */`，将属性不经过转换，直接添加到桌面端和横屏（可用于属性覆盖的情况）；
+- `/* apply-without-convert */`，标记在一行属性之后，表示属性不经过转换，将直接添加到桌面端和横屏（可用于属性覆盖的情况）；
 - `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
 - `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
 - `/* mobile-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
-- `/* mobile-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换。
+- `/* mobile-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换；
+- `/* vertical-writing-mode */`，标记在选择器上面，表示当前选择器是纵向书写模式，内部的逻辑属性需要被转换。
 
 ## 单元测试与参与开发
 
@@ -250,6 +266,8 @@ npm run test
 ```
 
 修改源码后，编写单元测试，验证是否输出了预期的结果。在文件夹 `example/` 内提供了一些范例，可以用来模拟生产环境使用插件的场景，这些范例项目中依赖的 `postcss-mobile-forever` 来自源码，因此当修改源码后，可以通过在范例里 `npm i` 安装依赖，然后本地运行，通过浏览器验证自己的修改是否符合预期。
+
+一起开发，让程序的变量命名更合适、性能和功能更好。
 
 ## 范例
 
@@ -270,7 +288,16 @@ npm run start
 
 ## 输入输出范例和原理
 
-默认配置的输入范例：
+插件配置：
+
+```json
+{
+  "appSelector": "#app",
+  "maxDisplayWidth": 560
+}
+```
+
+输入范例：
 
 ```css
 .root-class {
@@ -286,7 +313,38 @@ npm run start
 }
 ```
 
-默认配置的输出范例：
+输出范例：
+
+```css
+#app {
+  width       : 100%;
+  max-width   : 560px !important;
+  margin-left : auto !important;
+  margin-right: auto !important;
+}
+
+.nav {
+  position: fixed;
+  width   : min(100%, 560px);
+  height  : min(9.6vw, 53.76px);
+  left    : calc(50% - min(50%, 280px));
+  top     : 0;
+}
+```
+
+<details>
+<summary>查看打开选项 enableMediaQuery，媒体查询模式下的输出范例。</summary>
+
+插件配置：
+
+```json
+{
+  "appSelector": "#app",
+  "enableMediaQuery": true
+}
+```
+
+输出范例：
 
 ```css
 #app {
@@ -340,45 +398,14 @@ npm run start
 }
 ```
 
-<details>
-<summary>查看使用选项 maxDisplayWidth 限制宽度，关闭媒体查询的输出范例。</summary>
-
-配置：
-```json
-{
-  "rootSelector": "#app",
-  "maxDisplayWidth": 560,
-  "disableDesktop": true,
-  "disableLandscape": true,
-}
-```
-
-输出范例
-```css
-#app {
-  width       : 100%;
-  max-width   : 560px !important;
-  margin-left : auto !important;
-  margin-right: auto !important;
-}
-
-.nav {
-  position: fixed;
-  width   : min(100%, 560px);
-  height  : min(9.6vw, 53.76px);
-  left    : calc(50% - min(50%, 280px));
-  top     : 0;
-}
-```
-
-相比媒体查询，使用 maxDisplayWidth 限制宽度，生成的代码量更小。
+相比使用 CSS 函数，使用媒体查询限制宽度，生成的代码量更大。
 </details>
 
-查看[原理](./how-to-work.md)。
+查看[原理](./how-it-works.md)。
 
 ## 注意事项
 
-rootSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
+appSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
 默认情况，插件会把所有 fixed 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
 
@@ -411,8 +438,6 @@ rootSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 }
 ```
 </details>
-
-插件暂时不支持转换和包含块的 `logical-width`、`logical-height`、`block-size`、`inline-size` 有关的属性。
 
 插件转换的是选择器中的属性的值，不转换 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的属性，例如 `@font-face` 中的属性。
 
@@ -459,7 +484,7 @@ module.exports = {
           options: {
             postcssOptions: [
               ["postcss-mobile-forever", {
-                rootSelector: ".root-class",
+                appSelector: ".root-class",
                 experimental: {
                   extract: isProdMode, // 生产环境打开文件的提取
                 },
@@ -532,7 +557,7 @@ module.exports = {
 
 </details>
 
-本插件的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
+本插件媒体查询模式的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
 
 ## 期望效果
 
@@ -595,12 +620,10 @@ module.exports = {
 <body>
 ```
 
-相关或者可以配合使用的项目：
+与本项目有关或者可以配合使用的项目：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
 - postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
 - media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
-
-百分比值受包含块（Containing Block）宽度影响的属性：`left`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`margin`、`max-width`、`min-width`、`padding-bottom`、`padding-left`、`padding-right`、`padding-top`、`padding`、`right`、`shape-margin`、`text-indent`、`width`。
 
 对于包含块，插件默认的处理方式不能处理下面的情况，如果某个情况设置在祖先元素上，那么当前定位为 fixed 元素的包含块就是那个祖先元素，而插件默认所有的 fixed 元素的包含块是浏览器窗口（visual viewport）：
 - transform 或 perspective 的值不是 none；
