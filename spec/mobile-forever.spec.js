@@ -483,12 +483,11 @@ describe("CSS variable, custom properties", function() {
     })).process(input).css;
     expect(processed).toBe(output);
 
-    var input = ":root { --bb: 75px; } .rule { border-bottom: var(--bb); } .l{}";
-    var output = ":root { --bb: 10vw; } .rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px) and (min-height: 640px) { :root { --bb: calc(50% - 240px); } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { :root { --bb: calc(50% - 170px); } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var input = ":root { --bb: 75px; --cc: 75px; } .rule { border-bottom: var(--bb); border-top: var(--cc); } .l{}";
+    var output = ":root { --bb: calc(50% - min(240px, 40%)); --cc: min(10vw, 60px); } .rule { border-bottom: var(--bb); border-top: var(--cc); } .l{}";
     var processed = postcss(mobileToMultiDisplays({
-      enableMediaQuery: true,
+      maxDisplayWidth: 600,
       customLengthProperty: {
-        disableAutoApply: true,
         rootContainingBlockList_LR: ["--bb"],
       }
     })).process(input).css;
