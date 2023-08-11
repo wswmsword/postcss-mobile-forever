@@ -16,7 +16,7 @@ describe("mobile-forever", function() {
     expect(processed).toBe(output);
 
     var processed = postcss(mobileToMultiDisplays({
-      rootSelector: "#app",
+      appSelector: "#app",
       enableMediaQuery: true,
     })).process(input).css;
     var output2 = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } .nav { height: 57.6px; top: 0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } .nav { height: 40.8px; top: 0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
@@ -172,7 +172,7 @@ describe("border", function() {
     var input = ".rule { left: 75px; }";
     var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; box-sizing: content-box; }";
     var processed = postcss(mobileToMultiDisplays({
-      rootSelector: ".rule",
+      appSelector: ".rule",
       border: true,
       maxDisplayWidth: 620,
     })).process(input).css;
@@ -183,7 +183,7 @@ describe("border", function() {
     var input = ".rule { left: 75px; }";
     var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; }";
     var processed = postcss(mobileToMultiDisplays({
-      rootSelector: ".rule",
+      appSelector: ".rule",
       maxDisplayWidth: 620,
     })).process(input).css;
     expect(processed).toBe(output);
@@ -193,7 +193,7 @@ describe("border", function() {
     var input = ".rule { left: 75px; } .l{}";
     var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-sizing: content-box; border-left: 1px solid #eee; border-right: 1px solid #eee; min-height: 100vh; height: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
-      rootSelector: ".rule",
+      appSelector: ".rule",
       border: true,
       enableMediaQuery: true,
     })).process(input).css;
@@ -204,7 +204,7 @@ describe("border", function() {
     var input = ".rule { left: 75px; } .l{}";
     var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
-      rootSelector: ".rule",
+      appSelector: ".rule",
       enableMediaQuery: true,
     })).process(input).css;
     expect(processed).toBe(output);
@@ -348,7 +348,7 @@ describe("shared media query of landscape and desktop", function() {
     var output = ".rule { margin-left: 10vw !important; margin-left: 750px; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { margin-left: 60px !important; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { margin-left: 42.5px !important; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays({
       enableMediaQuery: true,
-      rootSelector: ".rule"
+      appSelector: ".rule"
     })).process(input).css;
     expect(processed).toBe(output);
   });
@@ -472,8 +472,8 @@ describe("CSS variable, custom properties", function() {
   });
 
   it("should apply custom property when enable disableAutoApply and expect customLengthProperty", function() {
-    var input = ".rule { border-bottom: var(--bb); } .l{}";
-    var output = ".rule { border-bottom: var(--bb); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
+    var input = ".rule { border-bottom: var(--bb); border-top: var(--cc); } .l{}";
+    var output = ".rule { border-bottom: var(--bb); border-top: var(--cc); } .l{} @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { border-bottom: var(--bb); } }";
     var processed = postcss(mobileToMultiDisplays({
       enableMediaQuery: true,
       customLengthProperty: {
@@ -786,24 +786,24 @@ describe("maxDisplayWidth", function() {
   });
 });
 
-describe("rootSelector", function() {
-  var options = { rootSelector: "#app", enableMediaQuery: true, }
+describe("appSelector", function() {
+  var options = { appSelector: "#app", enableMediaQuery: true, }
 
-  it("should centre the rootSelector element on page", function() {
+  it("should centre the appSelector element on page", function() {
     var input = "#app { color: salmon; } .l{}";
     var output = "#app { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
     expect(processed).toBe(output);
   });
 
-  it("should not centre the selector that different with rootSelector on page", function() {
+  it("should not centre the selector that different with appSelector on page", function() {
     var input = "div#app { color: salmon; } .l{}";
     var output = "div#app { color: salmon; } .l{}"
     var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
     expect(processed).toBe(output);
   });
 
-  it("should centre the rootSelector element on page", function() {
+  it("should centre the appSelector element on page", function() {
     var input = "#app { color: salmon; } .l{}";
     var output = "#app { color: salmon; } .l{} @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
     var processed = postcss(mobileToMultiDisplays(options)).process(input).css;

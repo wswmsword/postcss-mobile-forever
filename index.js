@@ -21,7 +21,7 @@ const {
 
 const defaults = {
   /** 页面最外层选择器，如 `#app`、`.root-class` */
-  rootSelector: "#app",
+  appSelector: "#app",
   /** 设计图宽度 */
   viewportWidth: 750,
   /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
@@ -78,6 +78,10 @@ const defaults = {
     selector3: null,
     /** 左下选择器 */
     selector4: null,
+    width1: null,
+    width2: null,
+    width3: null,
+    width4: null,
   },
   /** 自定义注释名称 */
   comment: {
@@ -104,7 +108,7 @@ const defaults = {
     rootContainingBlockList_NOT_LR: [],
     /** 祖先包含块属性 */
     ancestorContainingBlockList: [],
-    /** 关闭自动添加到桌面端和横屏 */
+    /** 关闭自动添加到桌面端和横屏，设置了以上三个任意选项后，该值强制为 true */
     disableAutoApply: false,
   },
   /** 实验性功能 */
@@ -130,10 +134,13 @@ const hasExcludeFile = createExcludeFunc(TYPE_REG, TYPE_ARY);
  * 视口类型可以分为 3 种，分别是移动端竖屏、移动端横屏以及桌面端。
  *
  * 插件 postcss-px-to-viewport 用于解决移动端竖屏适配问题。
- * 本插件用于解决在只有 1 套 UI 的情况下，适配移动端横屏和桌面端的问题。
+ * 本插件用于解决在只有 1 套 UI 的情况下，适配移动端竖屏、横屏和桌面端的问题。
  *
  * 通过媒体查询设置在移动端横屏和桌面端两种情况下的 app 视口宽度，根据视口宽度和设计图
  * 宽度的比例，将两种情况的 px 元素的比例计算后的尺寸放入媒体查询中。
+ * 
+ * 以上是本插件的一种模式，即媒体查询模式，这种模式生成代码量大，因此插件提供
+ * 了另一种生成代码量小、功能效果近似的模式，也即 max-display-width 模式。
  */
 module.exports = (options = {}) => {
   const opts = {
@@ -157,7 +164,7 @@ module.exports = (options = {}) => {
     },
   };
 
-  const { viewportWidth, enableMediaQuery, desktopWidth, landscapeWidth, rootSelector, border, disableMobile, minDesktopDisplayWidth,
+  const { viewportWidth, enableMediaQuery, desktopWidth, landscapeWidth, appSelector, border, disableMobile, minDesktopDisplayWidth,
     maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList,
     rootContainingBlockSelectorList, verticalWritingSelectorList,
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
@@ -166,8 +173,7 @@ module.exports = (options = {}) => {
   const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
   const { extract } = experimental || {};
   const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
-  const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT,
-    horizontalWritingMode: HWM_CMT, verticalWritingMode: VWM_CMT } = comment;
+  const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT, verticalWritingMode: VWM_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
   const fontViewportUnit = "vw";
   const replace = true;
@@ -282,7 +288,7 @@ module.exports = (options = {}) => {
           landscapeRadio = landscapeWidth / _viewportWidth;
 
           // 设置页面最外层 class 的最大宽度，并居中
-          if (selector === rootSelector) {
+          if (selector === appSelector) {
             appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
               rule,
               desktopViewAtRule,
