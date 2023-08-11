@@ -17,12 +17,11 @@ const {
   /** 用于验证字符串是否为“数字px”的形式 */
   preflightReg, varTestReg,
 } = require("./src/regexs");
-// const SubsequentPlugins = require("./src/subsequent-plugins");
 
 const defaults = {
   /** 页面最外层选择器，如 `#app`、`.root-class` */
   appSelector: "#app",
-  /** 设计图宽度 */
+  /** 标准视图宽度 */
   viewportWidth: 750,
   /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
   maxDisplayWidth: null,
