@@ -559,6 +559,8 @@ module.exports = {
 
 本插件媒体查询模式的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
 
+使用插件转换后的浏览器兼容性情况：媒体查询模式下会利用 CSS 函数 `calc()`，因此兼容性略有降低，Opera Mini 完全不可用，max-display-width 模式利用了 CSS 函数 `max()`、`min()` 以及 `calc()`，会有兼容性问题，IE、Opera Mini、QQ 浏览器 13.1 完全不可用，具体可以查看 [caniuse min(), max()](https://caniuse.com/css-math-functions)、[caniuse calc()](https://caniuse.com/calc)。
+
 ## 期望效果
 
 在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 做得很好，桌面端和移动端虽然基本公用一套 UI（移动端竖屏 UI），但访问无障碍，没有巨大字体和全宽的问题。
