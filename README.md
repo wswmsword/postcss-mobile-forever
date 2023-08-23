@@ -10,6 +10,10 @@
 
 您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
+> **⚠️ Warning**
+>
+> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能通过浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发）进行界面的放大或缩小，因此存在可访问性问题，不能满足 [WCAG 2.1 的成功标准 1.4.4 调整文本(AA 级)](https://www.w3.org/Translations/WCAG21-zh/#resize-text)。查看一份[关于 vw 伸缩视图的可访问性说明](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+
 ## 安装
 
 npm 安装最新版本（基于 postcss@^8.0.0）（yarn 则是 `yarn add -D postcss postcss-mobile-forever`）：
