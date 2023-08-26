@@ -567,7 +567,7 @@ module.exports = {
 
 ## 期望效果
 
-在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 公用一套 UI（移动端竖屏 UI），访问无障碍，没有巨大字体和全宽的问题。
+在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book)（多抓鱼）公用一套 UI，访问无障碍，没有巨大字体和全宽的问题。
 
 <details>
 <summary>
