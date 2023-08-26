@@ -6,13 +6,13 @@
 
 一款 PostCSS 插件，用于将固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件可以转换视口单位（*px->vw*）、限制视图最大宽度（*min(vw, px)*）、生成适应桌面端和横屏的媒体查询（*@media*）。
 
-> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而失去可访问性，希望界面在达到某一个合适的宽度后就不再伸缩（限制最大宽度），您可以使用本插件。
+> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
 您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
 > **⚠️ Warning**
 >
-> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能通过浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发）进行界面的放大或缩小，因此存在可访问性问题，不能满足 [WCAG 2.1 的成功标准 1.4.4 调整文本(AA 级)](https://www.w3.org/Translations/WCAG21-zh/#resize-text)。查看一份[关于 vw 伸缩视图的可访问性说明](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能通过浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发）进行界面的放大或缩小，因此存在可访问性问题，不能满足 [WCAG 2.1 的成功标准 1.4.4 调整文本（AA 级）](https://www.w3.org/Translations/WCAG21-zh/#resize-text)。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
 ## 安装
 
@@ -567,7 +567,7 @@ module.exports = {
 
 ## 期望效果
 
-在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 做得很好，桌面端和移动端虽然基本公用一套 UI（移动端竖屏 UI），但访问无障碍，没有巨大字体和全宽的问题。
+在不同设备上，[*duozhuayu.com*](https://www.duozhuayu.com/book) 公用一套 UI（移动端竖屏 UI），访问无障碍，没有巨大字体和全宽的问题。
 
 <details>
 <summary>
@@ -585,11 +585,7 @@ module.exports = {
 
 </details>
 
-多抓鱼官网用百分比单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图。从上面的展示效果来看，在不同的设备上，这种小版心布局仍然有不错的兼容性和展示效果。虽然百分比单位牺牲了一点“完美还原度”，但是从灵活度和代码轻量的角度看，是个不错的选择。
-
-这样适配：
-- 保证内容可用，不会出现视口单位导致的“大屏大字”问题；
-- 在非前端适配方案失效时，前端有兜底自适应适配，终端用户仍可访问。
+多抓鱼官网用*百分比*单位做适配，最大宽度是 600px，小于这个宽度则向内挤压，大于这个宽度则居中移动端竖屏视图，这种小版心布局在不同尺寸屏幕的设备上，展示效果很好。这样的适配方法舍弃了对设计稿的“完美”还原，相应的，代码没有了预处理，更轻量了，没有了“完美”的限制，开发的过程也变得灵活，对于一种布局，有很多方式实现适配，而且，这样适配也能很好地触发浏览器的缩放功能，满足了[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)。
 
 ## CHANGELOG
 
