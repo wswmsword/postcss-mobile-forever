@@ -418,9 +418,9 @@ module.exports = (options = {}) => {
               const val = decl.value;
               if (findedSide.width == null) {
 
-                const pxVal = + val.match(/(.*?)(?=px$)/)[1];
-                const vwVal = + val.match(/(.*?)(?=px$)/)[1];
-                const percVal = + val.match(/(.*?)(?=%$)/)[1];
+                const pxVal = + val.match(/(.*?)(?=px$)/)?.[1];
+                const vwVal = + val.match(/(.*?)(?=vw$)/)?.[1];
+                const percVal = + val.match(/(.*?)(?=%$)/)?.[1];
                 let convertedSideVal = null;
                 if (pxVal != null) convertedSideVal = pxToMediaQueryPx_noUnit(pxVal, _viewportWidth, desktopWidth, unitPrecision);
                 else if (vwVal != null) convertedSideVal = vwToMediaQueryPx_noUnit(vwVal, desktopWidth, unitPrecision);

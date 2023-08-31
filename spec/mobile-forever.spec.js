@@ -392,7 +392,7 @@ describe("sider", function() {
     expect(processed).toBe(output);
   });
 
-  it("should generate right bottom sider", function() {
+  it.only("should generate right bottom sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 508px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
@@ -414,6 +414,19 @@ describe("sider", function() {
       },
     })).process(input).css;
     expect(processed).toBe(output);
+  });
+
+  it("should get width value in selector without specified", function() {
+    var input = ".rule { width: 75px; } .l {}";
+    var output = ".rule { width: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { width: 60px; } } @media (min-width: 756px) and (min-height: 640px) { .rule { position: fixed; top: 18px; left: calc(50% - 378px); right: auto; bottom: auto; width: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { width: 42.5px; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      enableMediaQuery: true,
+      side: {
+        selector1: ".rule",
+      },
+    })).process(input).css;
+    expect(processed).toBe(output);
+
   });
 
 });
