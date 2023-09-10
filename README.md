@@ -12,7 +12,7 @@
 
 > **⚠️ Warning**
 >
-> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能通过浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发）进行界面的放大或缩小，因此存在可访问性问题，不能满足 [WCAG 2.1 的成功标准 1.4.4 调整文本（AA 级）](https://www.w3.org/Translations/WCAG21-zh/#resize-text)。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
 ## 安装
 
