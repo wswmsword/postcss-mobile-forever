@@ -4,7 +4,7 @@
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
-一款 PostCSS 插件，用于将固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件可以转换视口单位（*px->vw*）、限制视图最大宽度（*min(vw, px)*）、生成适应桌面端和横屏的媒体查询（*@media*）。
+一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件可以转换视口单位（*px->vw*）、限制视图最大宽度（*min(vw, px)*）、生成适应桌面端和横屏的媒体查询（*@media*）。
 
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
@@ -12,7 +12,7 @@
 
 > **⚠️ Warning**
 >
-> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键 <kbd>CMD/Ctrl</kbd>+<kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
 ## 安装
 
@@ -91,11 +91,21 @@ import autoprefixer from 'autoprefixer'
 
 ## 配置参数
 
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数，下方配置代表应用已是基于 `750px` 的宽度开发，经过 mobile-forever 转换后可以让应用视图的限制在 `600px` 以内的宽度伸缩：
+
+```json
+{
+  "viewportWidth": 750,
+  "appSelector": "#app",
+  "maxDisplayWidth": 600
+}
+```
+
 下面的每一项都是可选的。
 
 | Name | Type | Default | Desc |
 |:--|:--|:--|:--|
-| viewportWidth | number\|(file: string, selector: string) => number | 750 | 设计图宽度，可以传递函数动态生成设计图宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375 的设计图宽度 |
+| viewportWidth | number\|(file: string, selector: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度 |
 | mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
 | maxDisplayWidth | number | / | 限制视口单位的最大宽度 |
 | enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth` |
@@ -599,9 +609,9 @@ module.exports = {
 
 查看 [MIT License](./LICENSE)。
 
-## 支持和赞助
+## 支持、赞助和付费咨询
 
-请随意 Issue、PR 和 Star，通过[爱发电](https://afdian.net/a/george-chen)进行赞助。
+请随意 Issue、PR 和 Star，通过[爱发电](https://afdian.net/a/george-chen)进行赞助，爱发电中有一项“[咨询提问专用红烧牛肉面](https://afdian.net/order/create?plan_id=d4e7801e59ab11ee90a652540025c377&product_type=0)”用于付费咨询。
 
 ## 其它
 
