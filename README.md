@@ -4,7 +4,12 @@
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
-一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。该插件可以转换视口单位（*px->vw*）、限制视图最大宽度（*min(vw, px)*）、生成适应桌面端和横屏的媒体查询（*@media*）。
+一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 具备以下特性：
+
+- 转换视口单位（*px->vw*）；
+- 生成适应桌面端和横屏的媒体查询（*@media*）；
+- 限制视图最大宽度（*min(vw, px)*）；
+- 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
@@ -455,7 +460,11 @@ appSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 
 插件转换的是选择器中的属性的值，不转换 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的属性，例如 `@font-face` 中的属性。
 
-关于 `experimental.extract` 选项：
+<details>
+<summary>
+展开查看关于 `experimental.extract` 选项的一些说明。
+</summary>
+
 - 打开选项后，样式文件会被分割为 `mobile.xxx.css`、`landscape.xxx.css` 和 `desktop.xxx.css`，这有利于使用代码分割进行产包优化;
 - 该选项需要设置 [css-loader](https://github.com/webpack-contrib/css-loader) 的 `modules.getLocalIdent` 选项，需要从本插件导入 `remakeExtractedGetLocalIdent` 函数进行传递，这是为了防止选择器名称中的哈希值出现错误（哈希值会通过文件路径计算，而被分割的文件路径是不同的）；
 - 暂时不支持热重载，可以仅在生产模式下打开该选项；
@@ -463,7 +472,7 @@ appSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 - 如果使用 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin) 自动插入样式产包，需要注意顺序，顺序可以通过 `optimization.splitChunks.cacheGroups.[group].priority` 来决定，优先级越高，插入到 html 的顺序越靠前。
 
 <details>
-<summary>查看使用“experimental.extract”的一份范例配置。</summary>
+<summary>展开查看使用“experimental.extract”的一份范例配置。</summary>
 
 ```javascript
 const path = require("path");
@@ -543,6 +552,8 @@ module.exports = {
 
 </details>
 
+</details>
+
 <details>
 <summary>
 关于 CSS 自定义属性，默认情况下，所有和长度相关的属性，如果使用了自定义属性，都会被添加入桌面端和横屏，这可能会带来一些冗余的添加，也可能会有一些转换的错误，转换的错误和包含块相关。
@@ -615,13 +626,17 @@ module.exports = {
 
 ## 其它
 
-如果仅使用 [postcss-px-to-viewport](‌https://github.com/evrone/postcss-px-to-viewport)，可以通过 iframe 嵌套 vw 伸缩界面（[来源链接](https://github.com/evrone/postcss-px-to-viewport/issues/130#issuecomment-1641725322)），来达到限制最大宽度的目的，例如：
+如果仅使用 [postcss-px-to-viewport](‌https://github.com/evrone/postcss-px-to-viewport)，并且项目无路由，可以通过 iframe 嵌套 vw 伸缩界面（[来源链接](https://github.com/evrone/postcss-px-to-viewport/issues/130#issuecomment-1641725322)），来达到限制最大宽度的目的，例如：
 
 ```html
 <style>
+  body {
+    margin: 0;
+  }
   #iframe {
     max-width: 520px;
-    width: 100vw;
+    width: 100%;
+    height: 100%;
     margin: 0 auto;
     display: block;
   }
@@ -634,6 +649,7 @@ module.exports = {
 
 与本项目有关或者可以配合使用的项目：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
+- postcss-px-to-clamp，[*https://github.com/wangguangyou/postcss-px-to-clamp*](https://github.com/wangguangyou/postcss-px-to-clamp)，postcss 插件，用于转换 px，并且限制最大和最小值。
 - postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
 - media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
 
