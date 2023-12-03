@@ -137,21 +137,6 @@ import autoprefixer from 'autoprefixer'
 | customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，`var(...)`），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，后文将介绍它的若干子属性 |
 | experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 
-下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容，只有当打开媒体查询模式、`disableDesktop` 为 false 的时候，`side` 将生效：
-
-| Name | Type | Default | Desc |
-|:--|:--|:--|:--|
-| width | number | / | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
-| gap | number | 18 | 侧边布局的上下左右间隔 |
-| selector1 | string | / | 左上侧边元素选择器 |
-| selector2 | string | / | 右上侧边元素选择器 |
-| selector3 | string | / | 右下侧边元素选择器 |
-| selector4 | string | / | 左下侧边元素选择器 |
-| width1 | number | / | 左上侧边宽度，优先级大于 width |
-| width2 | number | / | 右上侧边宽度 |
-| width3 | number | / | 右下侧边宽度 |
-| width4 | number | / | 左下侧边宽度 |
-
 下面是属性 `comment` 的子属性，每一个属性都是可选的，`comment` 用于自定义注释：
 
 | Name | Type | Default | Desc |
@@ -171,6 +156,28 @@ import autoprefixer from 'autoprefixer'
 | rootContainingBlockList_NOT_LR | string[] | [] | 用于根包含块的，非 left、right 的自定义属性 |
 | ancestorContainingBlockList | string[] | [] | 用于非根包含块的自定义属性，这些属性值不会被转换，但是会添加到桌面端和横屏，用于避免优先级问题 |
 | disableAutoApply | boolean | false | 关闭自定义属性自动添加到桌面端和横屏，设置上面的三个选项后，这个选项自动为 true |
+
+<details>
+<summary>
+还有一些属性可以把页面上某个部分在宽屏设备上转移到侧边，例如可以把在移动端底部的二维码转移到桌面端的侧边栏区域以利用空白区域，这些属性不常用，您可以展开查看具体属性情况。
+</summary>
+
+下面是属性 `side` 的子属性，每一个属性都是可选的，`side` 用于配制侧边内容，只有当打开媒体查询模式、`disableDesktop` 为 false 的时候，`side` 将生效：
+
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| width | number | / | 侧边宽度，如果指定的选择器下有 width 属性，则无需设置 |
+| gap | number | 18 | 侧边布局的上下左右间隔 |
+| selector1 | string | / | 左上侧边元素选择器 |
+| selector2 | string | / | 右上侧边元素选择器 |
+| selector3 | string | / | 右下侧边元素选择器 |
+| selector4 | string | / | 左下侧边元素选择器 |
+| width1 | number | / | 左上侧边宽度，优先级大于 width |
+| width2 | number | / | 右上侧边宽度 |
+| width3 | number | / | 右下侧边宽度 |
+| width4 | number | / | 左下侧边宽度 |
+
+</details>
 
 <details>
 <summary>
