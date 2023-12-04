@@ -1,0 +1,21 @@
+{
+  "name": "mobile-forever",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.0.3",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-mobile-forever": "^4.0.0",
+    "postcss-preset-env": "^9.3.0"
+  }
+}

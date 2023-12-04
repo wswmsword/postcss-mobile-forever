@@ -96,7 +96,7 @@ import autoprefixer from 'autoprefixer'
 
 ## 配置参数
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数，下方配置代表应用已是基于 `750px` 的宽度开发，经过 mobile-forever 转换后可以让应用视图的限制在 `600px` 以内的宽度伸缩：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方配置表示了，应用已是基于 `750px` 的宽度开发，经过 mobile-forever 转换后，应用视图将被限制在 `600px` 以内的宽度伸缩：
 
 ```json
 {
@@ -276,7 +276,7 @@ import autoprefixer from 'autoprefixer'
 
 </details>
 
-标记注释：
+也可以通过在样式文件中添加注释，来标记局部的尺寸该如何转换，下面是一些标记注释：
 - `/* apply-without-convert */`，标记在一行属性之后，表示属性不经过转换，将直接添加到桌面端和横屏（可用于属性覆盖的情况）；
 - `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
 - `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
@@ -297,7 +297,7 @@ npm run test
 
 ## 范例
 
-文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/)、[Next.js](https://nextjs.org/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
 
 ```bash
 cd example/react/
@@ -305,11 +305,12 @@ npm install
 npm run start
 ```
 
+- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
+- [查看 Next.js 的限制最大宽度的源码](./example/nextjs/)；
 - [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
 - [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
 - [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
 - [访问 Svelte 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的媒体查询的源码](./example/svelte)；
-- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
 - [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 
 ## 输入输出范例和原理
