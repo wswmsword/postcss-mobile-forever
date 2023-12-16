@@ -11,6 +11,8 @@
 - 限制视图最大宽度（*min(vw, px)*）；
 - 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
+postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，postcss-mobile-forever 用于编译阶段，scale-view 用于运行阶段。
+
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
 您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
@@ -59,6 +61,9 @@ import autoprefixer from 'autoprefixer'
 }
 // 省略……
 ```
+
+https://github.com/webpack-contrib/postcss-loader/issues/172
+
 </details>
 
 ## 简介
@@ -676,6 +681,7 @@ module.exports = {
 - postcss-px-to-clamp，[*https://github.com/wangguangyou/postcss-px-to-clamp*](https://github.com/wangguangyou/postcss-px-to-clamp)，postcss 插件，用于转换 px，并且限制最大和最小值。
 - postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
 - media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
+- scale-view，[*https://github.com/wswmsword/scale-view*](https://github.com/wswmsword/scale-view)，运行时转换伸缩尺寸，可用于框架中的行内样式，查看 [#17](https://github.com/wswmsword/postcss-mobile-forever/issues/17)。
 
 对于包含块，插件默认的处理方式不能处理下面的情况，如果某个情况设置在祖先元素上，那么当前定位为 fixed 元素的包含块就是那个祖先元素，而插件默认所有的 fixed 元素的包含块是浏览器窗口（visual viewport）：
 - transform 或 perspective 的值不是 none；
