@@ -4,18 +4,44 @@
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
-一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 具备以下特性：
+一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
-- 转换视口单位（*px->vw*）；
-- 生成适应桌面端和横屏的媒体查询（*@media*）；
-- 限制视图最大宽度（*min(vw, px)*）；
+- 转换用于伸缩视图的视口单位（*px->vw*）；
+- 提供两种方法限制伸缩视图的最大宽度：
+  - 生成适应桌面端和横屏的媒体查询（*@media*）；
+  - 利用 CSS 函数限制视口单位最大值（*min(vw, px)*）；
 - 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
-postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，postcss-mobile-forever 用于编译阶段，scale-view 用于运行阶段。
+<details>
+<summary>
+使用媒体查询限制最大宽度的方法，能够为桌面端与横屏各自设置最大宽度。
+</summary>
 
-> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/)（后简称 *px2vw*） 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
+您可以查看一个[在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
 
-您可以在线查看[一个范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
+- 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
+- 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
+- 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
+- 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
+
+下面的三张图是使用本插件生成媒体查询，移动端、移动端横屏和桌面端的展示效果：
+
+<table>
+	<tr>
+		<td><img src="./images/portrait.png" alt="移动端的展示效果" /></td>
+		<td><img src="./images/landscape.png" alt="移动端横屏的展示效果" /></td>
+	</tr>
+	<tr>
+		<td colspan="2"><img src="./images/desktop.png" alt="桌面端的展示效果" /></td>
+	</tr>
+</table>
+
+在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
+
+> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第二种方法，生成媒体查询的方法。
+</details>
+
+> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
 > **⚠️ Warning**
 >
@@ -64,39 +90,6 @@ import autoprefixer from 'autoprefixer'
 
 https://github.com/webpack-contrib/postcss-loader/issues/172
 
-</details>
-
-## 简介
-
-插件使用两种方法生成具有最大宽度的伸缩视图，原理上，第一种方法会利用 `min()` 之类的 CSS 函数，第二种方法则是生成媒体查询：
-- 第一种方法**在转换 px 为视口单位（默认 vw）的同时，使用 CSS 函数限制视图的最大宽度**，当视图超过指定宽度，视图将以指定宽度居中于屏幕，这种方法的代码量相比生成媒体查询会更小，您可以查看[一个在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，对比与媒体查询方法的不同（查看[配置范例](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）；
-- 第二种方法**把 px 转换为视口单位（默认 vw），生成用于桌面端和横屏的媒体查询**，移动端视图会以两种合适的宽度，居中展示在横屏和桌面端的屏幕上，具体的媒体查询断点请查看“原理和输入输出范例”一节，您可以查看文档开头提供的范例，在不同设备上观察视图变化（查看[配置范例](./example/vanilla/postcss.config.js)）。
-
-<details>
-<summary>
-媒体查询模式，也即第二种方法，期望覆盖手机、平板、笔记本，以及竖屏或横屏的多种屏幕。
-</summary>
-
-- 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
-- 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
-- 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
-- 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
-
-下面的三张图是使用本插件生成媒体查询，移动端、移动端横屏和桌面端的展示效果：
-
-<table>
-	<tr>
-		<td><img src="./images/portrait.png" alt="移动端的展示效果" /></td>
-		<td><img src="./images/landscape.png" alt="移动端横屏的展示效果" /></td>
-	</tr>
-	<tr>
-		<td colspan="2"><img src="./images/desktop.png" alt="桌面端的展示效果" /></td>
-	</tr>
-</table>
-
-在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
-
-> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第二种方法，生成媒体查询的方法。
 </details>
 
 ## 配置参数
@@ -436,6 +429,8 @@ npm run start
 查看[原理](./how-it-works.md)。
 
 ## 注意事项
+
+插件提供了两个方法限制伸缩视图的最大宽度。使用媒体查询的方法会生成较多代码量，但是可以分别设置桌面端与横屏的不同最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[配置](./example/vanilla/postcss.config.js)）；使用 CSS 函数的方法生成代码量较少，只能设置单个最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[配置](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）。
 
 appSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
 
