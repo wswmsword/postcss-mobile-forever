@@ -1,4 +1,4 @@
-const { removeDulplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isMatchedStr, createContainingBlockWidthDecls,
+const { removeDuplicateDecls, mergeRules, createRegArrayChecker, createIncludeFunc, createExcludeFunc, isMatchedStr, createContainingBlockWidthDecls,
   hasNoneRootContainingBlockComment, hasRootContainingBlockComment, hasIgnoreComments, convertNoFixedMediaQuery, convertMaxMobile, convertMobile,
   hasApplyWithoutConvertComment,
   isMatchedSelectorProperty,
@@ -204,7 +204,7 @@ module.exports = (options = {}) => {
       /** 移动端横屏下的媒体查询 */
       let landScapeViewAtRule = null;
       /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-      let sharedAtRult = null;
+      let sharedAtRule = null;
 
       /** 当前选择器是否是 fixed 布局 */
       let hadFixed = null;
@@ -264,7 +264,7 @@ module.exports = (options = {}) => {
           const landscapeMediaStr_2 = `(max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px) and (orientation: landscape)`;
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
-          sharedAtRult = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+          sharedAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
         },
         Rule(rule, postcss) {
           if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
@@ -294,7 +294,7 @@ module.exports = (options = {}) => {
               rule,
               desktopViewAtRule,
               landScapeViewAtRule,
-              sharedAtRult,
+              sharedAtRule,
               desktopWidth,
               landscapeWidth,
               limitedWidth,
@@ -345,7 +345,7 @@ module.exports = (options = {}) => {
           // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
           if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) {
             appendDisplaysRule(!disableDesktop, !disableLandscape, prop, val, decl.important, selector, postcss, {
-              sharedAtRult,
+              sharedAtRule,
               desktopViewAtRule,
               landScapeViewAtRule,
               isShare: priorityProps.get(prop) === decl,
@@ -372,7 +372,7 @@ module.exports = (options = {}) => {
             appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
               desktopViewAtRule,
               landScapeViewAtRule,
-              sharedAtRult,
+              sharedAtRule,
               important,
               decl,
               unitPrecision,
@@ -402,7 +402,7 @@ module.exports = (options = {}) => {
             const enabledDesktop = !disableDesktop;
             const enabledLandscape = !disableLandscape;
             appendCSSVar(enabledDesktop, enabledLandscape, prop, val, decl.important, selector, postcss, {
-              sharedAtRult,
+              sharedAtRule,
               desktopViewAtRule,
               landScapeViewAtRule,
               isLastProp: priorityProps.get(prop) === decl,
@@ -416,10 +416,10 @@ module.exports = (options = {}) => {
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
 
-            let findedSide = null;
-            if (prop === "width" && (findedSide = siders.find(side => side.selector === selector))) {
+            let foundSide = null;
+            if (prop === "width" && (foundSide = siders.find(side => side.selector === selector))) {
               const val = decl.value;
-              if (findedSide.width == null) {
+              if (foundSide.width == null) {
 
                 const pxVal = + val.match(/(.*?)(?=px$)/)?.[1];
                 const vwVal = + val.match(/(.*?)(?=vw$)/)?.[1];
@@ -428,7 +428,7 @@ module.exports = (options = {}) => {
                 if (pxVal != null) convertedSideVal = pxToMediaQueryPx_noUnit(pxVal, _viewportWidth, desktopWidth, unitPrecision);
                 else if (vwVal != null) convertedSideVal = vwToMediaQueryPx_noUnit(vwVal, desktopWidth, unitPrecision);
                 else if (hadFixed && percVal != null) convertedSideVal = percentToMediaQueryPx_FIXED_noUnit(percVal, desktopWidth, unitPrecision);
-                findedSide.width = convertedSideVal;
+                foundSide.width = convertedSideVal;
               }
             }
 
@@ -438,7 +438,7 @@ module.exports = (options = {}) => {
               landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
-              sharedAtRult,
+              sharedAtRule,
               unitPrecision,
               fontViewportUnit,
               replace,
@@ -460,7 +460,7 @@ module.exports = (options = {}) => {
         OnceExit(css, postcss) {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;
           const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
-          const appendedShared = sharedAtRult.nodes.length > 0;
+          const appendedShared = sharedAtRule.nodes.length > 0;
 
           if (extract) {
             /**
@@ -489,7 +489,7 @@ module.exports = (options = {}) => {
             const targetFileDir = path.join(targetDir, curFilePath.replace(/[^/\\]*$/, '').replace(rootDir, ''));
 
             const newSharedFilePath = path.join(targetFileDir, sharedFile);
-            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRult.params}` });
+            const atImportShared = postcss.atRule({ name: "import", params: `url(${newSharedFilePath}) ${sharedAtRule.params}` });
 
             if (appendedDesktop) {
               const sidersMedia = appendSiders(postcss, siders, _minDesktopDisplayWidth, maxLandscapeDisplayHeight);
@@ -502,9 +502,9 @@ module.exports = (options = {}) => {
 
             let sharedPromise = Promise.resolve();
             if (appendedShared) {
-              mergeRules(sharedAtRult); // 合并相同选择器中的内容
-              removeDulplicateDecls(sharedAtRult); // 移除重复属性
-              const sharedCss = postcss.root().append(sharedAtRult.nodes).toString(); // without media query
+              mergeRules(sharedAtRule); // 合并相同选择器中的内容
+              removeDuplicateDecls(sharedAtRule); // 移除重复属性
+              const sharedCss = postcss.root().append(sharedAtRule.nodes).toString(); // without media query
               sharedPromise = extractFile(sharedCss, sharedFile, targetFileDir); // 提取公共 css
             }
 
@@ -512,7 +512,7 @@ module.exports = (options = {}) => {
             if (appendedDesktop) {
               const desktopCssRules = postcss.root(); // without media query
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+              removeDuplicateDecls(desktopViewAtRule); // 移除重复属性
               desktopCssRules.append(desktopViewAtRule.nodes);
               // if (appendedShared) desktopCssRules.prepend(atImportShared);
               const desktopCss = desktopCssRules.toString();
@@ -523,7 +523,7 @@ module.exports = (options = {}) => {
             if (appendedLandscape) {
               const landscapeCssRules = postcss.root(); // without media query
               mergeRules(landScapeViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+              removeDuplicateDecls(landScapeViewAtRule); // 移除重复属性
               landscapeCssRules.append(landScapeViewAtRule.nodes);
               // if (appendedShared) landscapeCssRules.prepend(atImportShared);
               const landscapeCss = landscapeCssRules.toString();
@@ -544,7 +544,7 @@ module.exports = (options = {}) => {
           } else {
             if (appendedDesktop) {
               mergeRules(desktopViewAtRule); // 合并相同选择器中的内容
-              removeDulplicateDecls(desktopViewAtRule); // 移除重复属性
+              removeDuplicateDecls(desktopViewAtRule); // 移除重复属性
               css.append(desktopViewAtRule); // 样式中添加桌面端媒体查询
   
               const sidersMedia = appendSiders(postcss, siders, _minDesktopDisplayWidth, maxLandscapeDisplayHeight);
@@ -554,13 +554,13 @@ module.exports = (options = {}) => {
             }
             if (appendedLandscape) {
               mergeRules(landScapeViewAtRule);
-              removeDulplicateDecls(landScapeViewAtRule); // 移除重复属性
+              removeDuplicateDecls(landScapeViewAtRule); // 移除重复属性
               css.append(landScapeViewAtRule); // 样式中添加横屏媒体查询
             }
             if (appendedShared) {
-              mergeRules(sharedAtRult);
-              removeDulplicateDecls(sharedAtRult); // 移除重复属性
-              css.append(sharedAtRult); // 样式中添加公共媒体查询
+              mergeRules(sharedAtRule);
+              removeDuplicateDecls(sharedAtRule); // 移除重复属性
+              css.append(sharedAtRule); // 样式中添加公共媒体查询
             }
           }
         },
@@ -613,7 +613,7 @@ module.exports.remakeExtractedGetLocalIdent = function({ defaultGetLocalIdent, g
     const cStr = bStr.replace(/(?<=[\\/])(?:landscape|desktop|mobile|shared)\.([^\\/]*)$/, (_, file) => file); // remove 'landscape\.|desktop\.|mobile\.|shared.'
     const newContext = {
       ...context,
-      resourcePath: cStr, // remaked resource path
+      resourcePath: cStr, // remade resource path
     };
     if (getLocalIdent) {
       return getLocalIdent(newContext, localIdentName, localName, options);

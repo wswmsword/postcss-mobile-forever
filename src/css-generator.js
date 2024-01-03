@@ -51,7 +51,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
-  sharedAtRult,
+  sharedAtRule,
   unitPrecision,
   fontViewportUnit,
   replace,
@@ -76,7 +76,7 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     landscapeRadio,
     desktopViewAtRule,
     landScapeViewAtRule,
-    sharedAtRult,
+    sharedAtRule,
     important,
     decl,
     unitPrecision,
@@ -119,13 +119,13 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
 
 /** 桌面和横屏添加选择器属性 */
 function appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
-  sharedAtRult,
+  sharedAtRule,
   desktopViewAtRule,
   landScapeViewAtRule,
   isShare,
 }) {
   if (enabledDesktop && enabledLandscape && isShare) {
-    sharedAtRult.append(postcss.rule({ selector }).append({
+    sharedAtRule.append(postcss.rule({ selector }).append({
       prop: prop, // 属性
       value: val,
       important, // 值的尾部有 important 则添加
@@ -152,7 +152,7 @@ function appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, importa
 function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
   desktopViewAtRule,
   landScapeViewAtRule,
-  sharedAtRult,
+  sharedAtRule,
   important,
   decl,
   replace,
@@ -220,7 +220,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       }
     }
     appendCSSVar(shouldAppendDesktopVar, shouldAppendLandscape, prop, val, important, selector, postcss, {
-      sharedAtRult,
+      sharedAtRule,
       desktopViewAtRule,
       landScapeViewAtRule,
       isLastProp,
@@ -230,13 +230,13 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
 
 /** 由于不能直接检测 css 变量的值，不能获取变量内部是否包含 px 等单位，所以无法转换，因此将 css 变量统一移到共享媒体查询中，防止 css 变量被转换过的低优先级的属性覆盖 */
 function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
-  sharedAtRult,
+  sharedAtRule,
   desktopViewAtRule,
   landScapeViewAtRule,
   isLastProp,
 }) {
   appendDisplaysRule(enabledDesktop, enabledLandscape, prop, val, important, selector, postcss, {
-    sharedAtRult,
+    sharedAtRule,
     desktopViewAtRule,
     landScapeViewAtRule,
     isShare: isLastProp,
@@ -247,7 +247,7 @@ function appendCSSVar(enabledDesktop, enabledLandscape, prop, val, important, se
 function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
   landScapeViewAtRule,
-  sharedAtRult,
+  sharedAtRule,
   desktopWidth,
   landscapeWidth
 }) {
@@ -261,7 +261,7 @@ function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, 
     // 桌面和移动端横屏
     desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth)));
     landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth)));
-    sharedAtRult.append(postcss.rule({ selector }).append(marginL, marginR));
+    sharedAtRule.append(postcss.rule({ selector }).append(marginL, marginR));
   }
 }
 
@@ -269,7 +269,7 @@ function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, 
 function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
   landScapeViewAtRule,
-  sharedAtRult,
+  sharedAtRule,
   desktopWidth,
   landscapeWidth,
   borderColor,
@@ -284,7 +284,7 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
     // 桌面和移动端横屏
     desktopViewAtRule.append(postcss.rule({ selector }).append(maxWidth(desktopWidth)));
     landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth)));
-    sharedAtRult.append(postcss.rule({ selector }).append(marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
+    sharedAtRule.append(postcss.rule({ selector }).append(marginL, marginR, contentBox, borderL(borderColor), borderR(borderColor), minFullHeight, autoHeight));
   }
 }
 
@@ -292,7 +292,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   rule,
   desktopViewAtRule,
   landScapeViewAtRule,
-  sharedAtRult,
+  sharedAtRule,
   desktopWidth,
   landscapeWidth,
   limitedWidth,
@@ -317,7 +317,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
     appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
       desktopViewAtRule,
       landScapeViewAtRule,
-      sharedAtRult,
+      sharedAtRule,
       desktopWidth,
       landscapeWidth,
       borderColor: c,
@@ -326,7 +326,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
     appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
       desktopViewAtRule,
       landScapeViewAtRule,
-      sharedAtRult,
+      sharedAtRule,
       desktopWidth,
       landscapeWidth,
     });

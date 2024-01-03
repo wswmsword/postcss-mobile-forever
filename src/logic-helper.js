@@ -15,7 +15,7 @@ const createContainingBlockWidthDecls = (isVerticalWritingMode) => {
 }
 
 /** 移除重复属性 */
-const removeDulplicateDecls = (node) => {
+const removeDuplicateDecls = (node) => {
   node.walkRules(rule => {
     const walked = { props: [], propNodes: [] }
     rule.walkDecls(decl => {
@@ -329,7 +329,7 @@ const convertMaxMobile_FIXED = (number, unit, maxDisplayWidth, viewportWidth, un
 };
 
 module.exports = {
-  removeDulplicateDecls,
+  removeDuplicateDecls,
   mergeRules,
   createRegArrayChecker,
   createIncludeFunc,
