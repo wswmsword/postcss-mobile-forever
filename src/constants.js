@@ -29,6 +29,11 @@ module.exports = {
     value: `${w}px`,
     important: true,
   }),
+  minWidth: w => ({
+    prop: 'min-width',
+    value: `${w}px`,
+    important: true,
+  }),
   minFullHeight: {
     prop: 'min-height',
     value: '100vh',

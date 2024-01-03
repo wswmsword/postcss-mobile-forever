@@ -134,6 +134,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | comment | any | / | 自定义注释，改变注释的名称，后文将介绍它的若干子属性 |
 | customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，`var(...)`），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，后文将介绍它的若干子属性 |
 | experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
+| experimental.minDisplayWidth | number | / | 限制最小宽度，和 `maxDisplayWidth` 搭配使用 |
 
 下面是属性 `comment` 的子属性，每一个属性都是可选的，`comment` 用于自定义注释：
 
@@ -232,7 +233,8 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
     "disableAutoApply": false
   },
   "experimental": {
-    "extract": false
+    "extract": false,
+    "minDisplayWidth": null,
   }
 }
 ```

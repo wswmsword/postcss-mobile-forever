@@ -1,6 +1,6 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { containingBlockWidthProps, horisontalContainingBlockLogicalProps, verticleContainingBlockLogicalProps } = require("./constants");
-const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit } = require("./unit-transfer");
+const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit, pxToClampLength, vwToClampLength, percentageToClampLength } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createContainingBlockWidthDecls = (isVerticalWritingMode) => {
@@ -282,11 +282,16 @@ const convertMobile = (prop, number, unit, viewportWidth, unitPrecision, fontVie
 };
 
 /** 转换移动竖屏，限制最大宽度 */
-const convertMaxMobile = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr) => {
+const convertMaxMobile = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth) => {
+  const isClamp = minDisplayWidth != null;
   if (unit === "px")
-    return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
+    return isClamp ?
+      pxToClampLength(number, maxDisplayWidth, minDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop) :
+      pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
   else if (unit === "vw")
-    return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
+    return isClamp ?
+      vwToClampLength(number, maxDisplayWidth, minDisplayWidth, numberStr, unitPrecision) :
+      vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
   else return `${number}${unit}`;
 }
 
@@ -306,13 +311,20 @@ const convertMaxMobile_FIXED_LR = (number, unit, maxDisplayWidth, viewportWidth,
 };
 
 /** 转换移动端竖屏，包含块是根元素 */
-const convertMaxMobile_FIXED = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr) => {
+const convertMaxMobile_FIXED = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth) => {
+  const isClamp = minDisplayWidth != null;
   if (unit === "px") {
-    return pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
+    return isClamp ?
+      pxToClampLength(number, maxDisplayWidth, minDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop) :
+      pxToMaxViewUnit(number, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop);
   } else if (unit === "vw") {
-    return vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
+    return isClamp ?
+      vwToClampLength(number, maxDisplayWidth, minDisplayWidth, numberStr, unitPrecision) :
+      vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
   } else if (unit === '%') {
-    return percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
+    return isClamp ?
+      percentageToClampLength(number, maxDisplayWidth, minDisplayWidth, numberStr, unitPrecision) :
+      percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
   } else return `${numberStr}${unit}`;
 };
 

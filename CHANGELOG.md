@@ -21,6 +21,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.0.1] - 2024-01-03
+
+### Added
+
+- 支持限制最小宽度（实验），`experimental.minDisplayWidth`，[#14](https://github.com/wswmsword/postcss-mobile-forever/issues/14)、[#21](https://github.com/wswmsword/postcss-mobile-forever/issues/21)。
+
 ## [4.0.0] - 2023-08-11
 
 ### Changed

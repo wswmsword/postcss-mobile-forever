@@ -114,6 +114,8 @@ const defaults = {
   experimental: {
     /** 是否拆分桌面端和横屏样式文件，提取移动端、桌面端和横屏代码，使用 `@import` 引入 */
     extract: false,
+    /** 视图展示的最小宽度 */
+    minDisplayWidth: null,
   }
 };
 
@@ -170,7 +172,7 @@ module.exports = (options = {}) => {
   } = opts;
   const disableDesktop = enableMediaQuery ? opts.disableDesktop : true;
   const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
-  const { extract } = experimental || {};
+  const { extract, minDisplayWidth } = experimental || {};
   const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT, verticalWritingMode: VWM_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
@@ -297,6 +299,7 @@ module.exports = (options = {}) => {
               landscapeWidth,
               limitedWidth,
               maxDisplayWidth,
+              minDisplayWidth,
             });
           }
 
@@ -384,7 +387,7 @@ module.exports = (options = {}) => {
               isLastProp: priorityProps.get(prop) === decl,
               convertMobile(number, unit, numberStr) {
                 if (limitedWidth)
-                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr);
+                  return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
                 else
                   return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
               },
@@ -444,6 +447,7 @@ module.exports = (options = {}) => {
               landscapeWidth,
               limitedWidth,
               maxDisplayWidth,
+              minDisplayWidth,
               expectedLengthVars,
               disableAutoApply,
               isLRVars: rootContainingBlockList_LR.includes(prop),

@@ -392,7 +392,7 @@ describe("sider", function() {
     expect(processed).toBe(output);
   });
 
-  it.only("should generate right bottom sider", function() {
+  it("should generate right bottom sider", function() {
     var input = ".rule { left: 75px; } .l {}";
     var output = ".rule { left: 10vw; } .l {} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 1016px) and (min-height: 640px) { .rule { position: fixed; top: auto; left: auto; right: calc(50% - 508px); bottom: 18px; width: 190px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }";
     var processed = postcss(mobileToMultiDisplays({
@@ -1318,5 +1318,46 @@ describe("include and exclude", function() {
       from: "/mobile/main.css",
     }).css;
     expect(processed).toBe(converted);
+  });
+});
+
+describe("experimental", function() {
+
+  describe("minDisplayWidth", function() {
+    var baseOpts = {
+      appSelector: "#app",
+      maxDisplayWidth: 1000,
+      experimental: {
+        minDisplayWidth: 700,
+      }
+    }
+
+    it("should clamp root element width", function() {
+      var input = "#app { min-height: 100vh; }";
+      var output = "#app { min-height: 100vh; max-width: 1000px !important; margin-left: auto !important; margin-right: auto !important; min-width: 700px !important; }";
+      var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+      expect(processed).toBe(output);
+    });
+
+    it("should clamp px", function() {
+      var input = ".rule { width: 60px }";
+      var output = ".rule { width: clamp(56px, 8vw, 80px) }";
+      var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+      expect(processed).toBe(output);
+    });
+
+    it("should clamp vw", function() {
+      var input = ".rule { width: 60vw }";
+      var output = ".rule { width: clamp(420px, 60vw, 600px) }";
+      var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+      expect(processed).toBe(output);
+    });
+
+    it("should clamp %", function() {
+      var input = ".rule { width: 60%; position: fixed; }";
+      var output = ".rule { width: clamp(420px, 60%, 600px); position: fixed; }";
+      var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+      expect(processed).toBe(output);
+    });
   });
 });
