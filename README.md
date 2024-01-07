@@ -7,9 +7,9 @@
 一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
 - 转换用于伸缩视图的视口单位（*px->vw*）；
-- 提供两种方法限制伸缩视图的最大宽度：
-  - 生成适应桌面端和横屏的媒体查询（*@media*）；
-  - 利用 CSS 函数限制视口单位最大值（*min(vw, px)*）；
+- 提供两种方法限制伸缩视图的最大宽度，
+  - 生成适应桌面端和横屏的媒体查询（*@media*），
+  - 或是利用 CSS 函数限制视口单位最大值（*min(vw, px)*）；
 - 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
 <details>
@@ -94,7 +94,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 ## 配置参数
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方配置表示了，应用已是基于 `750px` 的宽度开发，经过 mobile-forever 转换后，应用视图将被限制在 `600px` 以内的宽度伸缩：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 以内的宽度伸缩，当宽度大于 `600px`，视图将不改变：
 
 ```json
 {
@@ -136,18 +136,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
 | experimental.minDisplayWidth | number | / | 限制最小宽度，和 `maxDisplayWidth` 搭配使用 |
 
-下面是属性 `comment` 的子属性，每一个属性都是可选的，`comment` 用于自定义注释：
-
-| Name | Type | Default | Desc |
-|:--|:--|:--|:--|
-| applyWithoutConvert | string | "apply-without-convert" | 直接添加进屏幕媒体查询，不转换 |
-| rootContainingBlock | string | "root-containing-block" | 包含块注释 |
-| notRootContainingBlock | string | "not-root-containing-block" | 非包含块注释 |
-| ignoreNext | string | "mobile-ignore-next" | 忽略选择器内的转换 |
-| ignoreLine | string | "mobile-ignore" | 忽略本行转换 |
-| verticalWritingMode | string | "vertical-writing-mode" | 纵向书写模式 |
-
-下面是属性 `customLengthProperty` 的子属性，每一个属性都是可选的，`customLengthProperty` 有两个作用，一个是指定转换方式，例如基于根包含块的 `left` 和 `right`，则需要 `customLengthProperty.rootContainingBlockList_LR` 进行指定，来得到正确的转换结果，另一个作用是，在媒体查询模式下，避免所有和长度有关的使用 CSS 变量的属性，都被添加到媒体查询中，用于指定真正需要添加到桌面端或横屏的自定义变量：
+下面是属性 `customLengthProperty` 的子属性，用于自定义变量，并且每一个属性都是可选的。`customLengthProperty` 有两个作用，一个是指定转换方式，例如基于根包含块的 `left` 和 `right`，则需要 `customLengthProperty.rootContainingBlockList_LR` 进行指定，来得到正确的转换结果，另一个作用是，在媒体查询模式下，避免所有和长度有关的使用 CSS 变量的属性，都被添加到媒体查询中，用于指定真正需要添加到桌面端或横屏的自定义变量：
 
 | Name | Type | Default | Desc |
 |:--|:--|:--|:--|
@@ -178,9 +167,67 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
+也可以通过在样式文件中添加注释，来标记局部的尺寸该如何转换，下面是一些标记注释：
+- `/* apply-without-convert */`，标记在一行属性之后，表示属性不经过转换，将直接添加到桌面端和横屏（可用于属性覆盖的情况）；
+- `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
+- `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
+- `/* mobile-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
+- `/* mobile-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换；
+- `/* vertical-writing-mode */`，标记在选择器上面，表示当前选择器是纵向书写模式，内部的逻辑属性需要被转换。
+
+<details>
+<summary>标记注释的名称可以通过属性自定义，这些属性不常用，您可以展开查看属性的具体说明。</summary>
+
+下面是属性 `comment` 的子属性，每一个属性都是可选的，`comment` 用于自定义注释：
+
+| Name | Type | Default | Desc |
+|:--|:--|:--|:--|
+| applyWithoutConvert | string | "apply-without-convert" | 直接添加进屏幕媒体查询，不转换 |
+| rootContainingBlock | string | "root-containing-block" | 包含块注释 |
+| notRootContainingBlock | string | "not-root-containing-block" | 非包含块注释 |
+| ignoreNext | string | "mobile-ignore-next" | 忽略选择器内的转换 |
+| ignoreLine | string | "mobile-ignore" | 忽略本行转换 |
+| verticalWritingMode | string | "vertical-writing-mode" | 纵向书写模式 |
+</details>
+
 <details>
 <summary>
-查看默认的配置参数。
+虽然配置选项的数量看起来很多，但是只需要指定选项 viewportWidth 后，就可以输出伸缩视图的结果，通常我们还需要让伸缩视图具有最大宽度，只要再添加 appSelector 和 maxDisplayWidth，即可完成。开发中，如果在浏览器看到了宽屏的视图有和在移动端视图不一样的地方，再考虑配置其它选项也不迟。
+</summary>
+
+下面的配置会激活第一种方法，使用 CSS 函数限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
+
+```json
+{
+  "viewportWidth": 750,
+  "appSelector": "#app",
+  "maxDisplayWidth": 600
+}
+```
+
+下面的配置会激活第二种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+
+```json
+{
+  "viewportWidth": 750,
+  "appSelector": "#app",
+  "enableMediaQuery": true
+}
+```
+
+如果暂时不希望优化视图在大屏的可访问性，不做最大宽度的限制，可以像下面这样配置：
+
+```json
+{
+  "viewportWidth": 750
+}
+```
+
+</details>
+
+<details>
+<summary>
+展开查看默认的配置参数。
 </summary>
 
 ```json
@@ -241,49 +288,6 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
-<details>
-<summary>
-虽然配置选项的数量看起来很多，但是只需要指定选项 viewportWidth 后，就可以输出伸缩视图的结果，通常我们还需要让伸缩视图具有最大宽度，只要再添加 appSelector 和 maxDisplayWidth，即可完成。开发中，如果在浏览器看到，宽屏的视图有和在移动端视图不一样的地方，再考虑配置其它选项。
-</summary>
-
-下面的配置会激活第一种方法，使用 CSS 函数限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
-
-```json
-{
-  "viewportWidth": 750,
-  "appSelector": "#app",
-  "maxDisplayWidth": 600
-}
-```
-
-下面的配置会激活第二种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
-
-```json
-{
-  "viewportWidth": 750,
-  "appSelector": "#app",
-  "enableMediaQuery": true
-}
-```
-
-如果暂时不希望优化视图在大屏的可访问性，不做最大宽度的限制，可以像下面这样配置：
-
-```json
-{
-  "viewportWidth": 750
-}
-```
-
-</details>
-
-也可以通过在样式文件中添加注释，来标记局部的尺寸该如何转换，下面是一些标记注释：
-- `/* apply-without-convert */`，标记在一行属性之后，表示属性不经过转换，将直接添加到桌面端和横屏（可用于属性覆盖的情况）；
-- `/* root-containing-block */`，标记在选择器上面，用于表示当前选择器的包含块是根元素，是浏览器窗口（如果选择器中已有“`position: fixed;`”，则无需标注该注释）；
-- `/* not-root-containing-block */`，标记在选择器上面，用于表示当前选择器所属元素的包含块不是根元素；
-- `/* mobile-ignore-next */`，标记在一行属性的上面，表示下一行属性不需要进行转换；
-- `/* mobile-ignore */`，标记在一行属性后面，表示当前行属性不需要进行转换；
-- `/* vertical-writing-mode */`，标记在选择器上面，表示当前选择器是纵向书写模式，内部的逻辑属性需要被转换。
-
 ## 单元测试与参与开发
 
 ```bash
@@ -319,8 +323,9 @@ npm run start
 
 ```json
 {
-  "appSelector": "#app",
-  "maxDisplayWidth": 560
+  "viewportWidth": 750,
+  "maxDisplayWidth": 560,
+  "appSelector": "#app"
 }
 ```
 
