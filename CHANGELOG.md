@@ -8,9 +8,7 @@
 
 ### Added
 
-- 添加属性用于设置高度限制；
-- 添加全宽注释用于在桌面端全宽展示部分元素；
-- 令应用根元素成为包含块，使 fixed 定位的元素基于应用的根元素，利用诸如“transform 或 perspective 的值不是 none”等特性，替换目前使用 CSS 函数计算的方式。
+- 添加全宽注释用于在桌面端全宽展示部分元素。
 
 ### Changed
 
@@ -20,6 +18,13 @@
 
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
+
+## [4.1.0] - 2024-01-09
+
+### Added
+
+- 添加选项 appContainingBlock，值为 `'manual'|'auto'|'calc'`，默认为 `calc`，用于指定通过插件主动计算的方式，矫正 `fixed` 定位的元素;
+- 添加选项 necessarySelectorWhenAuto，用于值为 `auto` 的 appContainingBlock。
 
 ## [4.0.1] - 2024-01-03
 

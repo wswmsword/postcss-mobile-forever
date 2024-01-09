@@ -4,6 +4,10 @@
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
+> **⚠️ Warning**
+>
+> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+
 一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
 - 转换用于伸缩视图的视口单位（*px->vw*）；
@@ -42,10 +46,6 @@
 </details>
 
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
-
-> **⚠️ Warning**
->
-> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
 ## 安装
 
@@ -115,6 +115,8 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度 |
 | landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度 |
 | appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
+| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto` |
+| necessarySelectorWhenAuto | string | / | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 往内一层的元素选择器，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性 |
 | border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
 | disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery` |
 | disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery` |
@@ -240,6 +242,8 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
   "minDesktopDisplayWidth": null,
   "maxLandscapeDisplayHeight": 640,
   "appSelector": "#app",
+  "appContainingBlock": "calc",
+  "necessarySelectorWhenAuto": null,
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
