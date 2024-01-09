@@ -79,6 +79,30 @@ module.exports = {
     prop: "bottom",
     value: `${b}px`,
   }),
+  gpuLayer: {
+    prop: "transform",
+    value: "translateZ(0)"
+  },
+  fullW: {
+    prop: "width",
+    value: "100%",
+    important: true,
+  },
+  fullH: {
+    prop: "height",
+    value: "100%",
+    important: true,
+  },
+  fullHVh: {
+    prop: "height",
+    value: "100vh",
+    important: true,
+  },
+  autoOverflow: {
+    prop: "overflow",
+    value: "auto",
+    important: true,
+  },
   demoModeSelector: ".DEMO_MODE::before",
   ignoreNextComment: "mobile-ignore-next",
   ignorePrevComment: "mobile-ignore",

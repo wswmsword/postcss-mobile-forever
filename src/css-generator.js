@@ -1,4 +1,5 @@
 const { marginL, marginR, maxWidth, borderR, borderL, contentBox, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth } = require("./constants");
+const { bookObj: b } = require("./utils");
 const {
   convertPropValue,
   convertFixedMediaQuery,
@@ -95,21 +96,25 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
           if (limitedWidth) {
             return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, numberStr);
           } else {
-            return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+            return mobileConverter();
           }
         } else {
           if (limitedWidth) {
             return convertMaxMobile_FIXED(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
           } else {
-            return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+            return mobileConverter();
           }
         }
       } else {
         if (limitedWidth) {
           return convertMaxMobile(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
         } else {
-          return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
+          return mobileConverter();
         }
+      }
+
+      function mobileConverter() {
+        return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
       }
     },
     convertDesktop: (number, unit, numberStr) => convertFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
@@ -308,10 +313,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
       rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
       isClamp && rule.append(b(minWidth(minDisplayWidth)));
     }
-    rule.processedLimitedWidthBorder = true; // 做标记，防止死循环
-    function b(obj) {
-      return { ...obj, book: 1, };
-    }
+    rule.processedLimitedCentreWidth = true; // 做标记，防止死循环
   }
   if (hadBorder) {
     appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {

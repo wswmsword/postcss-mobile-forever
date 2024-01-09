@@ -9,9 +9,12 @@ const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendConv
   appendDisplaysRule, appendCSSVar, extractFile, appendSiders,
 } = require("./src/css-generator");
 const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment,
-  verticalComment } = require("./src/constants");
+  verticalComment,
+  gpuLayer, fullW, fullH, autoOverflow, fullHVh
+} = require("./src/constants");
 const { pxToMediaQueryPx_noUnit, vwToMediaQueryPx_noUnit, percentToMediaQueryPx_FIXED_noUnit } = require("./src/unit-transfer");
 const path = require('path');
+const { bookObj } = require("./src/utils");
 
 const {
   /** 用于验证字符串是否为“数字px”的形式 */
@@ -35,6 +38,10 @@ const defaults = {
   minDesktopDisplayWidth: null,
   /** 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度 */
   maxLandscapeDisplayHeight: 640,
+  /** 用于指定应用根元素作为包含块 */
+  appContainingBlock: "calc", // manual | auto | calc
+  /** 指定 appContainingBlock auto 后的应用第二级选择器名称 */
+  necessarySelectorWhenAuto: null,
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -169,6 +176,8 @@ module.exports = (options = {}) => {
     maxLandscapeDisplayHeight, include, exclude, unitPrecision, side, demoMode, selectorBlackList, propertyBlackList, valueBlackList,
     rootContainingBlockSelectorList, verticalWritingSelectorList,
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
+    appContainingBlock,
+    necessarySelectorWhenAuto,
   } = opts;
   const disableDesktop = enableMediaQuery ? opts.disableDesktop : true;
   const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
@@ -230,6 +239,10 @@ module.exports = (options = {}) => {
       let walkedRule = false;
       /** 是否限制了最宽宽度？ */
       let limitedWidth = !enableMediaQuery && (maxDisplayWidth != null);
+      /** 忽略矫正 fixed 定位 */
+      const ignoreToCorrectFixed = ["manual", "auto"].includes(appContainingBlock);
+      /** 需要添加到应用根元素的样式，该样式用于指定根元素为包含块 */
+      const autoAppContainingBlock = appContainingBlock === "auto";
 
       let siders = [{
         atRule: null,
@@ -254,6 +267,8 @@ module.exports = (options = {}) => {
       }]; // { atRule, selector, width, gap }
       /** 一个选择器内优先级最高的各个属性 */
       const priorityProps = new Map();
+      /** 给侧边用的存储宽度属性的 */
+      let widthValForSiders = null;
 
       return {
         Once(_, postcss) {
@@ -267,13 +282,14 @@ module.exports = (options = {}) => {
           sharedAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
         },
         Rule(rule, postcss) {
-          if (rule.processedLimitedWidthBorder) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
+          if (rule.processedLimitedCentreWidth || rule.processedAutoAppContainingBlock) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
           walkedRule = true;
           hadFixed = false;
           isVerticalWritingMode = false;
           insideMediaQuery = false;
           blackListedSelector = false;
           selector = rule.selector;
+          widthValForSiders = null;
 
           if (isMatchedStr(selectorBlackList, selector))
             return blackListedSelector = true;
@@ -301,6 +317,15 @@ module.exports = (options = {}) => {
               maxDisplayWidth,
               minDisplayWidth,
             });
+
+            if (autoAppContainingBlock) {
+              rule.append(bookObj(gpuLayer), bookObj(fullHVh))
+            }
+          }
+
+          if (selector === necessarySelectorWhenAuto && autoAppContainingBlock) {
+            rule.append(bookObj(fullW), bookObj(fullH), bookObj(autoOverflow));
+            rule.processedAutoAppContainingBlock = true;
           }
 
           // 标记优先级最高的各个属性
@@ -318,29 +343,31 @@ module.exports = (options = {}) => {
               isVerticalWritingMode = true;
           });
 
-          if (hasRootContainingBlockComment(rule, RCB_CMT) || // 有标志*根包含块*的注释吗？
-            isMatchedStr(rootContainingBlockSelectorList, selector))
-            hadFixed = true;
+          if (!ignoreToCorrectFixed)
+            if (hasRootContainingBlockComment(rule, RCB_CMT) || // 有标志*根包含块*的注释吗？
+              isMatchedStr(rootContainingBlockSelectorList, selector))
+              hadFixed = true;
           if (hasWritingModeComment(rule, VWM_CMT) || // 有标志*纵向书写模式*的注释吗？
             isMatchedStr(verticalWritingSelectorList, selector))
             isVerticalWritingMode = true;
-          if (hasNoneRootContainingBlockComment(rule, NRCB_CMT)) // 有标志*非根包含块*的注释吗？
+          if (ignoreToCorrectFixed || hasNoneRootContainingBlockComment(rule, NRCB_CMT)) // 有标志*非根包含块*的注释吗？或者指定了忽略转换百分比单位
             containingBlockWidthDeclsMap = new Map();
           else containingBlockWidthDeclsMap = createContainingBlockWidthDecls(isVerticalWritingMode);
         },
         Declaration(decl, postcss) {
+          const prop = decl.prop;
+          const val = decl.value;
+          if (prop === "width") widthValForSiders = val;
           if (!walkedRule) return; // 不是 Rule 的属性则不转换
           if (insideMediaQuery) return; // 不转换媒体查询中的属性
           if (decl.book) return; // 被标记过不转换
           if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
-          const prop = decl.prop;
-          const val = decl.value;
 
           if (!satisfyPropList(prop)) return;
           if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
           if (isMatchedStr(valueBlackList, val)) return; // 属性值是否在黑名单中
-  
-          if (prop === "position" && val === "fixed") return hadFixed = true;
+
+          if (prop === "position" && val === "fixed" && !ignoreToCorrectFixed) return hadFixed = true;
           if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
           // 如果有标注不转换注释，直接添加到桌面端和横屏，不进行转换
           if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) {
@@ -353,16 +380,19 @@ module.exports = (options = {}) => {
             return;
           }
 
-          // 该属性是用于设置根包含块的变量属性
-          const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
-          isRootContainingBlockProp && (hadFixed = true);
-          // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
-          if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
-            const important = decl.important;
-            const mapDecl = containingBlockWidthDeclsMap.get(prop);
-            if (mapDecl == null || important || !mapDecl.important)
-              containingBlockWidthDeclsMap.set(prop, decl);
-            return;
+          // 是否忽略百分比转换？如果不忽略，则需要收集哪些属性会涉及到根包含块
+          if (!ignoreToCorrectFixed) {
+            // 该属性是用于设置根包含块的变量属性
+            const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
+            isRootContainingBlockProp && (hadFixed = true);
+            // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
+            if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
+              const important = decl.important;
+              const mapDecl = containingBlockWidthDeclsMap.get(prop);
+              if (mapDecl == null || important || !mapDecl.important)
+                containingBlockWidthDeclsMap.set(prop, decl);
+              return;
+            }
           }
 
           // 预检正则，判断是否符合转换条件
@@ -416,22 +446,6 @@ module.exports = (options = {}) => {
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
 
-            let foundSide = null;
-            if (prop === "width" && (foundSide = siders.find(side => side.selector === selector))) {
-              const val = decl.value;
-              if (foundSide.width == null) {
-
-                const pxVal = + val.match(/(.*?)(?=px$)/)?.[1];
-                const vwVal = + val.match(/(.*?)(?=vw$)/)?.[1];
-                const percVal = + val.match(/(.*?)(?=%$)/)?.[1];
-                let convertedSideVal = null;
-                if (pxVal != null) convertedSideVal = pxToMediaQueryPx_noUnit(pxVal, _viewportWidth, desktopWidth, unitPrecision);
-                else if (vwVal != null) convertedSideVal = vwToMediaQueryPx_noUnit(vwVal, desktopWidth, unitPrecision);
-                else if (hadFixed && percVal != null) convertedSideVal = percentToMediaQueryPx_FIXED_noUnit(percVal, desktopWidth, unitPrecision);
-                foundSide.width = convertedSideVal;
-              }
-            }
-
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
               desktopRadio,
@@ -454,6 +468,28 @@ module.exports = (options = {}) => {
               isLastProp: priorityProps.get(prop) === decl,
             });
           });
+          // 自动获取并转换 sider 的宽度
+          let foundSide = null;
+          if (widthValForSiders && (foundSide = siders.find(side => side.selector === selector))) {
+            if (foundSide.width == null) {
+              let convertedSideVal = null;
+              const pxVal = widthValForSiders.match(/(.*?)(?=px$)/)?.[1];
+              if (pxVal != null) {
+                convertedSideVal = pxToMediaQueryPx_noUnit(+pxVal, _viewportWidth, desktopWidth, unitPrecision);
+              } else {
+                const vwVal = widthValForSiders.match(/(.*?)(?=vw$)/)?.[1];
+                if (vwVal != null) {
+                  convertedSideVal = vwToMediaQueryPx_noUnit(+vwVal, desktopWidth, unitPrecision);
+                } else {
+                  const percVal = hadFixed ? widthValForSiders.match(/(.*?)(?=%$)/)?.[1] : null;
+                  if (percVal != null) {
+                    convertedSideVal = percentToMediaQueryPx_FIXED_noUnit(+percVal, desktopWidth, unitPrecision);
+                  }
+                }
+              }
+              foundSide.width = convertedSideVal;
+            }
+          }
           walkedRule = false;
           !addedDemo && demoMode && demoModeSelector === selector && (appendDemoContent(postcss, demoModeSelector, rule, desktopViewAtRule, landScapeViewAtRule, disableDesktop, disableLandscape, disableMobile), addedDemo = true);
         },
