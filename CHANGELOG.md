@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.1] - 2024-01-10
+
+### Fixed
+
+- 添加 appContainingBlock、necessarySelectorWhenAuto、minDisplayWidth 类型定义。
+
 ## [4.1.0] - 2024-01-09
 
 ### Added

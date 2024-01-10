@@ -8,7 +8,7 @@
 >
 > 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
-一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的移动端视图转为具有最大宽度的可伸缩的移动端视图。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
+一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图转为可跟随宽度变化而等比例伸缩的视图，这种伸缩视图常见于移动端页面。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
 - 转换用于伸缩视图的视口单位（*px->vw*）；
 - 提供两种方法限制伸缩视图的最大宽度，
@@ -82,8 +82,8 @@ import autoprefixer from 'autoprefixer'
 				viewportWidth: 375,
 				maxDisplayWidth: 580,
 			}),
-		],
-	},
+		]
+	}
 }
 // 省略……
 ```
@@ -255,7 +255,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
   "valueBlackList": [],
   "rootContainingBlockSelectorList": [],
   "verticalWritingSelectorList": [],
-  "propList": ['*'],
+  "propList": ["*"],
   "mobileUnit": "vw",
   "side": {
     "width": null,
@@ -285,7 +285,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
   },
   "experimental": {
     "extract": false,
-    "minDisplayWidth": null,
+    "minDisplayWidth": null
   }
 }
 ```
@@ -594,7 +594,7 @@ module.exports = {
 {
   // ...其它配置
   customLengthProperty: {
-    rootContainingBlockList_LR: ["--len-a"],
+    rootContainingBlockList_LR: ["--len-a"]
   }
 }
 ```
@@ -661,7 +661,10 @@ module.exports = {
 
 ## 其它
 
-如果仅使用 [postcss-px-to-viewport](‌https://github.com/evrone/postcss-px-to-viewport)，并且项目无路由，可以通过 iframe 嵌套 vw 伸缩界面（[来源链接](https://github.com/evrone/postcss-px-to-viewport/issues/130#issuecomment-1641725322)），来达到限制最大宽度的目的，例如：
+<details>
+<summary>
+如果仅使用 postcss-px-to-viewport，并且项目无路由，可以通过 iframe 嵌套 vw 伸缩界面（<a href="https://github.com/evrone/postcss-px-to-viewport/issues/130#issuecomment-1641725322">来源链接</a>），来达到限制最大宽度的目的。
+</summary>
 
 ```html
 <style>
@@ -681,6 +684,7 @@ module.exports = {
   <iframe id="iframe" src="./vw-index.html" frameborder="0"></iframe>
 <body>
 ```
+</details>
 
 与本项目有关或者可以配合使用的项目：
 - postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
