@@ -1,4 +1,4 @@
-import { Plugin } from 'postcss'
+import { Plugin } from "postcss"
 
 declare namespace mobileForever {
   type viewportWidthFunc = (file: string, selector: string) => number
@@ -29,6 +29,12 @@ declare namespace mobileForever {
 
     /** 页面最外层选择器，如 `#app`、`.root-class` */
     appSelector?: string
+
+    /** 矫正 fixed 定位元素的方式 */
+    appContainingBlock?: "calc" | "manual" | "auto"
+
+    /** 指定 `appSelector` 往内一层的元素选择器，当 `appContainingBlock` 值为 `auto` 时，需要设置该属性 */
+    necessarySelectorWhenAuto?: string
 
     /** 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 */
     border?: boolean | string
@@ -96,8 +102,12 @@ declare namespace mobileForever {
 
     /** 实验性功能 */
     experimental?: {
+
       /** 分离桌面、横屏、移动端样式 */
       extract?: boolean
+
+      /** 最小视图宽度，媒体查询模式不可用 */
+      minDisplayWidth?: number
     }
   }
 
