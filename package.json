@@ -1,6 +1,6 @@
 {
   "name": "postcss-mobile-forever",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "一款 postcss 插件，让移动端视图处处可访问。To adapt different displays by one mobile viewport.",
   "main": "index.js",
   "types": "postcss-mobile-forever.d.ts",
