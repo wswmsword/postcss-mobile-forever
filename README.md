@@ -305,7 +305,7 @@ npm run test
 
 ## 范例
 
-文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/)、[Next.js](https://nextjs.org/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
+文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/)、[Next.js](https://nextjs.org/)、[Nuxt](https://nuxt.com/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
 
 ```bash
 cd example/react/
@@ -315,6 +315,7 @@ npm run start
 
 - [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
 - [查看 Next.js 的限制最大宽度的源码](./example/nextjs/)；
+- [查看 Nuxt 的限制最大宽度的源码](./example/nuxtjs/)；
 - [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
 - [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
 - [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
