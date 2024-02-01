@@ -706,6 +706,7 @@ module.exports = {
 - [CSS syntax validator](https://csstree.github.io/docs/validator.html)，遵守 W3C 标准的在线 CSS 语法检测器；
 - “[What are CSS percentages?](https://jameshfisher.com/2019/12/29/what-are-css-percentages/)”，罗列了百分比取包含块（Containing Block）宽度的属性；
 - [CSS 的简写属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)，罗列了所有的简写属性；
+- [Definition of "containing block"](https://www.w3.org/TR/CSS2/visudet.html#containing-block-details)，W3C Recommendation；
 - [postcss-bud](https://github.com/wswmsword/postcss-bud)，一款 PostCSS 插件，用于保持视图横竖居中于屏幕；
 - [CSS3 Media Queries overview](http://cssmediaqueries.com/overview.html)，一个网站，展示本机当前应用的媒体查询；
 - “[Don't target specific devices or sizes!](https://stackoverflow.com/a/20350990)”，一条答案，解释为什么不应该通过设备类型适配界面；
