@@ -5,7 +5,8 @@ module.exports = {
       enableMediaQuery: true,
       appSelector: "#root",
       demoMode: true,
-      include: /pages\/mobile\//,
+      include: [/pages/],
+      exclude: [/pages\/desktop/, /pages\/headset/],
       side: {
         selector1: ".footer",
       }
