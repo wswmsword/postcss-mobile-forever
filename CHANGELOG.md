@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.2] - 2024-03-08
+
+### Fixed
+
+- 修复不转换 CSS 函数 `var()` 回退值的问题，[#25](https://github.com/wswmsword/postcss-mobile-forever/issues/25)。
+
 ## [4.1.1] - 2024-01-10
 
 ### Fixed

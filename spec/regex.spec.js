@@ -49,6 +49,15 @@ describe("Regex", function() {
     expect(n).toBe(undefined);
 
     unitContentMatchReg.lastIndex = 0;
+    str = "var(--test12px, var(--nested-var, 12px))";
+    n = unitContentMatchReg.exec(str)[1];
+    expect(n).toBe("var(--test12px,");
+    n = unitContentMatchReg.exec(str)[1];
+    expect(n).toBe("var(--nested-var,");
+    n = unitContentMatchReg.exec(str)[2];
+    expect(n).toBe("12");
+
+    unitContentMatchReg.lastIndex = 0;
     str = "1.2vw \"Fira Sans\", sans-serif"
     n = unitContentMatchReg.exec(str)[2];
     expect(n).toBe("1.2");
@@ -91,6 +100,10 @@ describe("Regex", function() {
     expect(ok).toBe(true);
     
     str = "var(var()";
+    ok = varTestReg.test(str);
+    expect(ok).toBe(true);
+
+    str = "var(--v, var(--b2, white))";
     ok = varTestReg.test(str);
     expect(ok).toBe(true);
 

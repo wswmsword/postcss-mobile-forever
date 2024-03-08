@@ -94,7 +94,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 ## 配置参数
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 以内的宽度伸缩，当宽度大于 `600px`，视图将不改变：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例伸缩，当宽度大于 `600px`，视图将不改变：
 
 ```json
 {
@@ -482,7 +482,7 @@ appSelector 所在元素的居中属性会被占用，如果开启了 `border`�
 
 <details>
 <summary>
-展开查看关于 `experimental.extract` 选项的一些说明。
+展开查看关于“experimental.extract”选项的一些说明。
 </summary>
 
 - 打开选项后，样式文件会被分割为 `mobile.xxx.css`、`landscape.xxx.css` 和 `desktop.xxx.css`，这有利于使用代码分割进行产包优化;

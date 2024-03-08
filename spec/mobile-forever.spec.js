@@ -715,6 +715,24 @@ describe("CSS variable, custom properties", function() {
     var processed = postcss(mobileToMultiDisplays({ enableMediaQuery: true, })).process(input).css;
     expect(processed).toBe(output);
   });
+
+  it("should handle var() with fallback value", function() {
+    var input = ".rule { font-size: var(--row-font-size, 14px); }";
+    var output = ".rule { font-size: var(--row-font-size, min(1.867vw, 11.2px)); }";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should handle nested var()", function() {
+    var input = ".rule { font-size: var(--row-font-size, var(--nested-font-size, 14px)); }";
+    var output = ".rule { font-size: var(--row-font-size, var(--nested-font-size, min(1.867vw, 11.2px))); }";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
 });
 
 describe("maxDisplayWidth", function() {
