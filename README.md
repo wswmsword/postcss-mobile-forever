@@ -18,6 +18,15 @@
 
 <details>
 <summary>
+查看使用 postcss-mobile-forever 适配移动端的流程图，以理解配置的过程和一些关键的配置选项。
+</summary>
+
+<img src="./images/flow-chart.jpg" alt="一张展示使用 postcss-mobile-forever 适配移动端的流程图" />
+
+</details>
+
+<details>
+<summary>
 使用媒体查询限制最大宽度的方法，能够为桌面端与横屏各自设置最大宽度。
 </summary>
 
