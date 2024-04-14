@@ -1,0 +1,12 @@
+body {
+  margin: 0;
+}
+
+
+#app-containing-block {
+  width: 100%;
+}
+
+.root-class {
+  width: 100%;
+}

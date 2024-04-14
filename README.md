@@ -18,10 +18,10 @@
 
 <details>
 <summary>
-查看使用 postcss-mobile-forever 适配移动端的流程图，以理解配置的过程和一些关键的配置选项。
+查看使用 postcss-mobile-forever 适配移动端视图的流程图，以理解配置的过程和一些关键的配置选项。
 </summary>
 
-<img src="./images/flow-chart.jpg" alt="一张展示使用 postcss-mobile-forever 适配移动端的流程图" />
+<img src="./images/flow-chart.png" alt="一张展示使用 postcss-mobile-forever 适配移动端的流程图" />
 
 </details>
 
@@ -115,37 +115,37 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 下面的每一项都是可选的。
 
-| Name | Type | Default | Desc |
-|:--|:--|:--|:--|
-| viewportWidth | number\|(file: string, selector: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度 |
-| mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？ |
-| maxDisplayWidth | number | / | 限制视口单位的最大宽度 |
-| enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth` |
-| desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度 |
-| landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度 |
-| appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式 |
-| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto` |
-| necessarySelectorWhenAuto | string | / | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 往内一层的元素选择器，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性 |
-| border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 |
-| disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery` |
-| disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery` |
-| disableMobile | boolean | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw |
-| exclude | RegExp\|RegExp[] | / | 排除文件或文件夹 |
-| include | RegExp\|RegExp[] | / | 包括文件或文件夹 |
-| unitPrecision | number | 3 | 单位精确到小数点后几位？ |
-| propList | string[] | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md) |
-| selectorBlackList | (string\|RegExp)[] | [] | 选择器黑名单，名单上的不转换 |
-| propertyBlackList | propertyBlackList | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17) |
-| valueBlackList | (string\|RegExp)[] | [] | 属性值黑名单，名单上的值不转换 |
-| rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同 |
-| verticalWritingSelectorList | (string\|RegExp)[] | [] | 纵向书写模式的选择器列表，效果和在选择器顶部标注注释 `/* vertical-writing-mode */` 相同 |
-| minDesktopDisplayWidth | number | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| maxLandscapeDisplayHeight | number | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况 |
-| side | any | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间，后文将介绍它的若干子属性 |
-| comment | any | / | 自定义注释，改变注释的名称，后文将介绍它的若干子属性 |
-| customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，`var(...)`），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，后文将介绍它的若干子属性 |
-| experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节 |
-| experimental.minDisplayWidth | number | / | 限制最小宽度，和 `maxDisplayWidth` 搭配使用 |
+| Name | Type | Default | Desc                                                                                                                                                                                                                                                                                        |
+|:--|:--|:--|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| viewportWidth | number\|(file: string, selector: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度                                                                                                                                         |
+| mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？                                                                                                                                                                                                                                                                        |
+| maxDisplayWidth | number | / | 限制视口单位的最大宽度                                                                                                                                                                                                                                                                                 |
+| enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth`                                                                                                                                                                                                                                                         |
+| desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度                                                                                                                                                                                                                                                                             |
+| landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度                                                                                                                                                                                                                                                                           |
+| appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式                                                                                                                                                                                                                                                    |
+| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto`                                            |
+| necessarySelectorWhenAuto | string | / | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 往内一层的元素选择器，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性，您也可以查看[使用这个属性的示例项目](./example/cases/auto-app-containing-block/postcss.config.js)以了解如何使用这个属性 |
+| border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串                                                                                                                                                                                                                                                        |
+| disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                    |
+| disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                  |
+| disableMobile | boolean | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw                                                                                                                                                                                                                                                              |
+| exclude | RegExp\|RegExp[] | / | 排除文件或文件夹                                                                                                                                                                                                                                                                                    |
+| include | RegExp\|RegExp[] | / | 包括文件或文件夹                                                                                                                                                                                                                                                                                    |
+| unitPrecision | number | 3 | 单位精确到小数点后几位？                                                                                                                                                                                                                                                                                |
+| propList | string[] | ['*'] | 哪些属性要替换，哪些属性忽略？用法参考 [postcss-px-to-viewport 文档](https://github.com/evrone/postcss-px-to-viewport/blob/HEAD/README_CN.md)                                                                                                                                                                    |
+| selectorBlackList | (string\|RegExp)[] | [] | 选择器黑名单，名单上的不转换                                                                                                                                                                                                                                                                              |
+| propertyBlackList | propertyBlackList | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17)                                                                                                                                                                        |
+| valueBlackList | (string\|RegExp)[] | [] | 属性值黑名单，名单上的值不转换                                                                                                                                                                                                                                                                             |
+| rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同                                                                                                                                                                                                                                      |
+| verticalWritingSelectorList | (string\|RegExp)[] | [] | 纵向书写模式的选择器列表，效果和在选择器顶部标注注释 `/* vertical-writing-mode */` 相同                                                                                                                                                                                                                                 |
+| minDesktopDisplayWidth | number | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况                                                                                                                                                                                          |
+| maxLandscapeDisplayHeight | number | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况                                                                                                                                                                                                                                |
+| side | any | / | 侧边配置，在桌面端媒体查询中生效，用于利用宽屏的空间，后文将介绍它的若干子属性                                                                                                                                                                                                                                                     |
+| comment | any | / | 自定义注释，改变注释的名称，后文将介绍它的若干子属性                                                                                                                                                                                                                                                                  |
+| customLengthProperty | any | / | 用于指定需要添加到桌面端或横屏的自定义变量（css 变量，`var(...)`），如果不指定，默认**所有**和长度有关的属性，如果使用了自定义变量，都会被添加入桌面端和横屏，后文将介绍它的若干子属性                                                                                                                                                                                        |
+| experimental.extract | boolean | false | 提取桌面端与横屏样式代码，用于生产环境，用于代码分割优化产包，具体查看“注意事项”一节                                                                                                                                                                                                                                                 |
+| experimental.minDisplayWidth | number | / | 限制最小宽度，和 `maxDisplayWidth` 搭配使用                                                                                                                                                                                                                                                             |
 
 下面是属性 `customLengthProperty` 的子属性，用于自定义变量，并且每一个属性都是可选的。`customLengthProperty` 有两个作用，一个是指定转换方式，例如基于根包含块的 `left` 和 `right`，则需要 `customLengthProperty.rootContainingBlockList_LR` 进行指定，来得到正确的转换结果，另一个作用是，在媒体查询模式下，避免所有和长度有关的使用 CSS 变量的属性，都被添加到媒体查询中，用于指定真正需要添加到桌面端或横屏的自定义变量：
 
