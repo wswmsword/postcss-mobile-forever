@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.head {
+  width: 200px;
+  height: 200px;
+  background-color: salmon;
+  border-radius: 7px;
+  background-image: url(../../assets/img/obito.jpeg);
+  background-size: cover;
+}
