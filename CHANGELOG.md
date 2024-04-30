@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.3] - 2024-04-30
+
+### Fixed
+
+- 打开 border 选项后，使用 `box-shadow` 模拟 `border` 属性，避免在移动设备上左右两侧边框占用 2 像素宽度[#36](https://github.com/wswmsword/postcss-mobile-forever/issues/36)。
+
 ## [4.1.2] - 2024-03-08
 
 ### Fixed

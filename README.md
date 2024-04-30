@@ -8,22 +8,13 @@
 >
 > 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 
-一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图转为可跟随宽度变化而等比例伸缩的视图，这种伸缩视图常见于移动端页面。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
+一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图，转为可跟随宽度变化而等比例伸缩的视图，并提供超出某一宽度后停止放大视图的方法，这种视图常见于移动端页面的适配。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
 - 转换用于伸缩视图的视口单位（*px->vw*）；
 - 提供两种方法限制伸缩视图的最大宽度，
   - 生成适应桌面端和横屏的媒体查询（*@media*），
   - 或是利用 CSS 函数限制视口单位最大值（*min(vw, px)*）；
 - 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
-
-<details>
-<summary>
-查看使用 postcss-mobile-forever 适配移动端视图的流程图，以理解配置的过程和一些关键的配置选项。
-</summary>
-
-<img src="./images/flow-chart.png" alt="一张展示使用 postcss-mobile-forever 适配移动端的流程图" />
-
-</details>
 
 <details>
 <summary>
@@ -102,6 +93,15 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 </details>
 
 ## 配置参数
+
+<details>
+<summary>
+查看使用 postcss-mobile-forever 适配移动端视图的流程图（白色图片），以理解配置的过程和一些关键的配置选项。
+</summary>
+
+<img src="images/flow-chart.png" alt="一张展示使用 postcss-mobile-forever 适配移动端的流程图" />
+
+</details>
 
 一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例伸缩，当宽度大于 `600px`，视图将不改变：
 
@@ -453,7 +453,7 @@ npm run start
 
 插件提供了两个方法限制伸缩视图的最大宽度。使用媒体查询的方法会生成较多代码量，但是可以分别设置桌面端与横屏的不同最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[配置](./example/vanilla/postcss.config.js)）；使用 CSS 函数的方法生成代码量较少，只能设置单个最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[配置](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）。
 
-appSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`box-sizing`、`border-left`、`border-right`、`min-height`、`height`。
+appSelector 所在元素的居中属性会被占用，如果开启了 `border`，边框属性也会被占用，包括 `margin-left`、`margin-right`、`min-height`、`height`。
 
 默认情况，插件会把所有 fixed 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
 

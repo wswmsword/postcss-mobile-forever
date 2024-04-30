@@ -43,18 +43,10 @@ module.exports = {
     value: 'auto',
     important: true,
   },
-  borderL: c => ({
-    prop: 'border-left',
-    value: `1px solid ${c}`,
+  shadowBorder: c => ({
+    prop: "box-shadow",
+    value: `0 0 0 1px ${c}`,
   }),
-  borderR: c => ({
-    prop: 'border-right',
-    value: `1px solid ${c}`,
-  }),
-  contentBox: {
-    prop: 'box-sizing',
-    value: 'content-box',
-  },
   fixedPos: {
     prop: "position",
     value: "fixed",
