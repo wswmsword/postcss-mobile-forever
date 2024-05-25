@@ -47,14 +47,36 @@
 
 > 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
-## 移动端模版
+## 移动端模版和其它范例
 
-下面是一个宽屏展示良好的移动端模版列表，每一条都包含了演示链接，打开演示，查看模版在使用 postcss-mobile-forever 之后在不同宽度屏幕下的展示效果。
+下面是一个宽屏展示良好的移动端模版列表，每一条都包含了演示链接和代码，打开演示，查看模版在使用 postcss-mobile-forever 之后在不同宽度屏幕下的展示效果，打开代码，查看配置方法。
 
 - [vue3-vant-mobile](https://github.com/easy-temps/vue3-vant-mobile)——一个基于 Vue 3 生态系统的移动 web 应用模板，帮助你快速完成业务开发。（[代码](https://github.com/easy-temps/vue3-vant-mobile) & [演示](https://vue3-vant-mobile.netlify.app/)，[自动矫正定位代码](./example/templates/vue3-vant-mobile) & [演示](https://wswmsword.github.io/examples/templates/vue3-vant-mobile/)）
 - [vue3-vant4-mobile](https://github.com/xiangshu233/vue3-vant4-mobile)——👋👋👋 基于Vue3.4、Vite5、Vant4、Pinia、Typescript、UnoCSS等主流技术开发，集成 Dark Mode（暗黑）模式和系统主题色，且持久化保存，集成 Mock 数据，包括登录/注册/找回/keep-alive/Axios/useEcharts/IconSvg 等其他扩展。你可以在此之上直接开发你的业务代码！（[代码](https://github.com/xiangshu233/vue3-vant4-mobile) & [演示](https://vvmobile.xiangshu233.cn/#/)）
 - [v-shop](https://github.com/JoeshuTT/v-shop)——🛒 v-shop 是一个移动端 H5 商城。（[代码](https://github.com/JoeshuTT/v-shop) & [演示](https://v-shop.shuzp.top/#/home)）
 - [vue-h5-template](https://github.com/sunniejs/vue-h5-template)——一个快速开发的 Vue H5 移动端脚手架。（[代码](./example/templates/vue-h5-template) & [演示](https://wswmsword.github.io/examples/templates/vue-h5-template/)）
+
+<details>
+<summary>
+文件夹 “example/” 内提供了在诸如 React、Svelte、Vue、Next.js、Nuxt 和原生 JavaScript 中使用 postcss-mobile-forever 的范例，范例中也包含部分上面的移动端模板，克隆本仓库后，通过命令行进入对应的范例文件夹中，即可运行。
+</summary>
+
+
+```bash
+cd example/react/
+npm install
+npm run start
+```
+
+- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
+- [查看 Next.js 的限制最大宽度的源码](./example/nextjs/)；
+- [查看 Nuxt 的限制最大宽度的源码](./example/nuxtjs/)；
+- [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
+- [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
+- [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
+- [访问 Svelte 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的媒体查询的源码](./example/svelte)；
+- [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
+</details>
 
 ## 安装
 
@@ -112,7 +134,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例伸缩，当宽度大于 `600px`，视图将不改变：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例伸缩，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图是居中于浏览器窗口的：
 
 ```json
 {
@@ -317,30 +339,11 @@ npm install
 npm run test
 ```
 
-修改源码后，编写单元测试，验证是否输出了预期的结果。在文件夹 `example/` 内提供了一些范例，可以用来模拟生产环境使用插件的场景，这些范例项目中依赖的 `postcss-mobile-forever` 来自源码，因此当修改源码后，可以通过在范例里 `npm i` 安装依赖，然后本地运行，通过浏览器验证自己的修改是否符合预期。
+修改源码后，编写单元测试，验证是否输出了预期的结果。另外，在文件夹 `example/` 内提供了一些范例，可以用来模拟生产环境使用插件的场景，这些范例项目中依赖的 `postcss-mobile-forever` 来自源码，因此当修改源码后，可以通过在范例里 `npm i` 安装依赖，然后本地运行，通过浏览器验证自己的修改是否符合预期。
 
-如果您是移动端模版的开发者，您可以按照“移动端模版”一节的格式，提交 PR，将您的模版仓库以及在线演示地址添加到后续的列表中，这样可以为您的模版提供更多的曝光，也能够表示您的移动端模版具有良好的桌面端体验。
+如果您是移动端模版的开发者，成功引入 postcss-mobile-forever 之后，您可以按照“移动端模版和其它范例”一节的格式，提交 PR，将您的模版仓库以及在线演示地址添加到后续的列表中，这样可以为您的模版提供更多的曝光，也能够表示您的移动端模版具有良好的桌面端体验。
 
 一起开发，让程序的变量命名更合适、性能和功能更好。
-
-## 范例
-
-文件夹 `example/` 内提供了分别在 [React](https://reactjs.org/)、[Svelte](https://svelte.dev/)、[Vue](https://cn.vuejs.org/)、[Next.js](https://nextjs.org/)、[Nuxt](https://nuxt.com/) 和原生 JavaScript 中使用 `postcss-mobile-forever` 的范例，通过命令行进入对应的范例文件夹中，即可运行：
-
-```bash
-cd example/react/
-npm install
-npm run start
-```
-
-- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
-- [查看 Next.js 的限制最大宽度的源码](./example/nextjs/)；
-- [查看 Nuxt 的限制最大宽度的源码](./example/nuxtjs/)；
-- [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
-- [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
-- [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
-- [访问 Svelte 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的媒体查询的源码](./example/svelte)；
-- [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 
 ## 输入输出范例和原理
 
