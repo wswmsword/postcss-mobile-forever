@@ -19,11 +19,17 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.4] - 2024-05-26
+
+### Fixed
+
+- 打开 border 选项后，原先添加的 `100vh` 会导致移动端浏览器会出现滚动条问题，[#40](https://github.com/wswmsword/postcss-mobile-forever/issues/40)。
+
 ## [4.1.3] - 2024-04-30
 
 ### Fixed
 
-- 打开 border 选项后，使用 `box-shadow` 模拟 `border` 属性，避免在移动设备上左右两侧边框占用 2 像素宽度[#36](https://github.com/wswmsword/postcss-mobile-forever/issues/36)。
+- 打开 border 选项后，使用 `box-shadow` 模拟 `border` 属性，避免在移动设备上左右两侧边框占用 2 像素宽度，[#36](https://github.com/wswmsword/postcss-mobile-forever/issues/36)。
 
 ## [4.1.2] - 2024-03-08
 
@@ -100,19 +106,19 @@
 
 ### Added
 
-- 添加选项 valueBlackList，指定的值不进行转换，例如可以指定 `["1px solid black"]`，指定之后本地和引入的仓库样式包含 `1px solid black` 的值都将不被转换 [#7](https://github.com/wswmsword/postcss-mobile-forever/issues/7)。
+- 添加选项 valueBlackList，指定的值不进行转换，例如可以指定 `["1px solid black"]`，指定之后本地和引入的仓库样式包含 `1px solid black` 的值都将不被转换，[#7](https://github.com/wswmsword/postcss-mobile-forever/issues/7)。
 
 ## [3.2.3] - 2023-04-18
 
 ### Fixed
 
-- 修复 viewportWidth 选项是函数的配置下，非包含块属性的值在桌面端和横屏会被转换为 `NaN` 的问题 [#6](https://github.com/wswmsword/postcss-mobile-forever/issues/6)。
+- 修复 viewportWidth 选项是函数的配置下，非包含块属性的值在桌面端和横屏会被转换为 `NaN` 的问题，[#6](https://github.com/wswmsword/postcss-mobile-forever/issues/6)。
 
 ## [3.2.2] - 2023-04-10
 
 ### Fixed
 
-- 修复十六进制颜色值的尾部包含数字可能被转换的问题 [#4](https://github.com/wswmsword/postcss-mobile-forever/issues/4)。
+- 修复十六进制颜色值的尾部包含数字可能被转换的问题，[#4](https://github.com/wswmsword/postcss-mobile-forever/issues/4)。
 
 ## [3.2.1] - 2023-03-29
 
