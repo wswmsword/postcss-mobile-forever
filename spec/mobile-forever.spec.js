@@ -169,8 +169,8 @@ describe("logical property", function() {
 
 describe("border", function() {
   it("should add border for maxDisplay option when enable border option", function() {
-    var input = ".rule { left: 75px; }";
-    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; }";
+    var input = ".rule { left: 75px; } .l {}";
+    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; } .l {} @supports (min-height: 100dvh) { .rule { min-height: 100dvh; } }";
     var processed = postcss(mobileToMultiDisplays({
       appSelector: ".rule",
       border: true,
@@ -191,7 +191,7 @@ describe("border", function() {
 
   it("should add border for desktop and landscape", function() {
     var input = ".rule { left: 75px; } .l{}";
-    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; } }";
+    var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; max-width: 600px !important; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; max-width: 425px !important; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { .rule { margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; } } @supports (min-height: 100dvh) { .rule { min-height: 100dvh; } }";
     var processed = postcss(mobileToMultiDisplays({
       appSelector: ".rule",
       border: true,

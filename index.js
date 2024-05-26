@@ -214,6 +214,8 @@ module.exports = (options = {}) => {
       let landScapeViewAtRule = null;
       /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
       let sharedAtRule = null;
+      /** 用于在开启 border 后的 dvh 检测，如果浏览器支持，则应用 dvh，`@supports (min-height: 100dvh)` */
+      let dvhAtRule = null;
 
       /** 当前选择器是否是 fixed 布局 */
       let hadFixed = null;
@@ -280,6 +282,8 @@ module.exports = (options = {}) => {
           landScapeViewAtRule = postcss.atRule({ name: "media", params: `${landscapeMediaStr_1}, ${landscapeMediaStr_2}`, nodes: [] });
           /** 桌面端和移动端横屏公共的媒体查询，用于节省代码体积 */
           sharedAtRule = postcss.atRule({ name: "media", params: `(min-width: ${_minDesktopDisplayWidth}px), (orientation: landscape) and (max-width: ${_minDesktopDisplayWidth}px) and (min-width: ${landscapeWidth}px)`, nodes: [] });
+          /** 检测 dvh 支不支持，支持就应用，不然移动端有的浏览器的 vh 会导致滚动 */
+          dvhAtRule = postcss.atRule({ name: "supports", params: "(min-height: 100dvh)", nodes: [] });
         },
         Rule(rule, postcss) {
           if (rule.processedLimitedCentreWidth || rule.processedAutoAppContainingBlock) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
@@ -311,6 +315,7 @@ module.exports = (options = {}) => {
               desktopViewAtRule,
               landScapeViewAtRule,
               sharedAtRule,
+              dvhAtRule,
               desktopWidth,
               landscapeWidth,
               limitedWidth,
@@ -497,6 +502,7 @@ module.exports = (options = {}) => {
           const appendedDesktop = desktopViewAtRule.nodes.length > 0;
           const appendedLandscape = landScapeViewAtRule.nodes.length > 0;
           const appendedShared = sharedAtRule.nodes.length > 0;
+          const appendedDvh = dvhAtRule.nodes.length > 0;
 
           if (extract) {
             /**
@@ -599,6 +605,7 @@ module.exports = (options = {}) => {
               css.append(sharedAtRule); // 样式中添加公共媒体查询
             }
           }
+          if (appendedDvh) css.append(dvhAtRule);
         },
       };
     },

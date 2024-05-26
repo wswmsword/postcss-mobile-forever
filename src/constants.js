@@ -38,6 +38,10 @@ module.exports = {
     prop: 'min-height',
     value: '100vh',
   },
+  minDFullHeight: {
+    prop: 'min-height',
+    value: '100dvh',
+  },
   autoHeight: {
     prop: 'height',
     value: 'auto',

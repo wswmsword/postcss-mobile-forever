@@ -1,4 +1,4 @@
-const { marginL, marginR, maxWidth, shadowBorder, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth } = require("./constants");
+const { marginL, marginR, maxWidth, shadowBorder, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth, minDFullHeight } = require("./constants");
 const { bookObj: b } = require("./utils");
 const {
   convertPropValue,
@@ -275,10 +275,15 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRule,
+  dvhAtRule,
   desktopWidth,
   landscapeWidth,
   borderColor,
 }) {
+  if (!disableDesktop || !disableLandscape) {
+    if (dvhAtRule.nodes.length === 0)
+      dvhAtRule.append(postcss.rule({ selector }).append(minDFullHeight));
+  }
   if (disableDesktop && !disableLandscape) {
     // 仅移动端横屏
     landScapeViewAtRule.append(postcss.rule({ selector }).append(maxWidth(landscapeWidth), marginL, marginR, shadowBorder(borderColor), minFullHeight, autoHeight));
@@ -298,6 +303,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRule,
+  dvhAtRule,
   desktopWidth,
   landscapeWidth,
   limitedWidth,
@@ -308,7 +314,10 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   const c = typeof border === "string" ? border : "#8888881f";
   const isClamp = minDisplayWidth != null;
   if (limitedWidth) {
-    if (hadBorder) rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(shadowBorder(c)), b(minFullHeight), b(autoHeight));
+    if (hadBorder) {
+      rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(shadowBorder(c)), b(minFullHeight), b(autoHeight));
+      if (dvhAtRule.nodes.length === 0) dvhAtRule.append(postcss.rule({ selector }).append(b(minDFullHeight)));
+    }
     else {
       rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR));
       isClamp && rule.append(b(minWidth(minDisplayWidth)));
@@ -320,6 +329,7 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
       desktopViewAtRule,
       landScapeViewAtRule,
       sharedAtRule,
+      dvhAtRule,
       desktopWidth,
       landscapeWidth,
       borderColor: c,
