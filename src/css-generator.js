@@ -66,6 +66,9 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   isLRVars,
   disableAutoApply,
   isLastProp,
+  isKeyframesAtRule,
+  desktopKeyframesAtRule,
+  landscapeKeyframesAtRule,
 }) {
   const prop = decl.prop;
   const val = decl.value;
@@ -90,6 +93,9 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     expectedLengthVars,
     disableAutoApply,
     isLastProp,
+    isKeyframesAtRule,
+    desktopKeyframesAtRule,
+    landscapeKeyframesAtRule,
     convertMobile: (number, unit, numberStr) => {
       if (isFixed) {
         if (leftOrRight) {
@@ -171,6 +177,9 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   expectedLengthVars = [],
   disableAutoApply = false,
   isLastProp,
+  isKeyframesAtRule,
+  desktopKeyframesAtRule,
+  landscapeKeyframesAtRule,
 }) {
   decl.book = true;
 
@@ -197,14 +206,16 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       else decl.after(decl.clone({ value: mobile, book: true, }));
     }
     if (enabledDesktop && converted) {
-      desktopViewAtRule.append(postcss.rule({ selector }).append({
+      const atRule = isKeyframesAtRule ? desktopKeyframesAtRule : desktopViewAtRule;
+      atRule.append(postcss.rule({ selector }).append({
         prop: prop, // 属性
         value: desktop, // 替换 px 比例计算后的值
         important, // 值的尾部有 important 则添加
       }));
     }
     if (enabledLandscape && converted) {
-      landScapeViewAtRule.append(postcss.rule({ selector }).append({
+      const atRule = isKeyframesAtRule ? landscapeKeyframesAtRule : landScapeViewAtRule;
+      atRule.append(postcss.rule({ selector }).append({
         prop,
         value: landscape,
         important,

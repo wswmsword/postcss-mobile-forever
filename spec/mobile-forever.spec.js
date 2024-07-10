@@ -1421,3 +1421,50 @@ describe("experimental", function() {
     });
   });
 });
+
+describe("keyframes at rule", function() {
+  it("should append keyframes inside landscape and desktop", function() {
+    var input = ".rule { bottom: 75px; } @keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = ".rule { bottom: 10vw; } @keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @media (min-width: 600px) and (min-height: 640px) { .rule { bottom: 60px; } @keyframes identifier { 0% { top: 0; } 50% { left: 16px; top: 8px; } 100% { top: 0; } } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { bottom: 42.5px; } @keyframes identifier { 0% { top: 0; } 50% { left: 11.333px; top: 5.667px; } 100% { top: 0; } } }";
+    var processed = postcss(mobileToMultiDisplays({
+      enableMediaQuery: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert keyframes px to vw that limited width", function() {
+    var input = "@keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = "@keyframes identifier { 0% { top: 0; } 50% { top: min(4vw, 24px); left: min(2.667vw, 16px); } 50% { top: min(1.333vw, 8px); } 100% { top: 0; } }";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert keyframes px to vw", function() {
+    var input = "@keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = "@keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } }";
+    var processed = postcss(mobileToMultiDisplays({})).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should append keyframes inside landscape", function() {
+    var input = ".rule { bottom: 75px; } @keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = ".rule { bottom: 10vw; } @keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { bottom: 42.5px; } @keyframes identifier { 0% { top: 0; } 50% { left: 11.333px; top: 5.667px; } 100% { top: 0; } } }";
+    var processed = postcss(mobileToMultiDisplays({
+      enableMediaQuery: true,
+      disableDesktop: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should append keyframes inside desktop", function() {
+    var input = ".rule { bottom: 75px; } @keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = ".rule { bottom: 10vw; } @keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @media (min-width: 600px) and (min-height: 640px) { .rule { bottom: 60px; } @keyframes identifier { 0% { top: 0; } 50% { left: 16px; top: 8px; } 100% { top: 0; } } }";
+    var processed = postcss(mobileToMultiDisplays({
+      enableMediaQuery: true,
+      disableLandscape: true,
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+})

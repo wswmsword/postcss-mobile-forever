@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.5] - 2024-07-10
+
+### Fixed
+
+- 修复 `@keyframes` 不转换问题，[#44](https://github.com/wswmsword/postcss-mobile-forever/issues/44)。
+
 ## [4.1.4] - 2024-05-26
 
 ### Fixed

@@ -503,7 +503,7 @@ appSelector 所在元素的居中属性会被占用，包括 `margin-left`、`ma
 ```
 </details>
 
-插件转换的是选择器中的属性的值，不转换 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的属性，例如 `@font-face` 中的属性。
+插件转换的是选择器中的属性的值，[At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中，除了用于定义动画的 `@keyframes` 中的属性会转换，其它的 At 规则不转换。
 
 <details>
 <summary>

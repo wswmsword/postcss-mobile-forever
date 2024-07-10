@@ -231,8 +231,6 @@ module.exports = (options = {}) => {
       let landscapeRadio = 1;
       /** 选择器在黑名单吗 */
       let blackListedSelector = null;
-      /** 是否在媒体查询中 */
-      let insideMediaQuery = false;
       /** 是否添加过调试代码了？ */
       let addedDemo = false;
       /** 依赖根包含块宽度的属性 */
@@ -245,6 +243,13 @@ module.exports = (options = {}) => {
       const ignoreToCorrectFixed = ["manual", "auto"].includes(appContainingBlock);
       /** 需要添加到应用根元素的样式，该样式用于指定根元素为包含块 */
       const autoAppContainingBlock = appContainingBlock === "auto";
+
+      /** 忽略转换的 at 规则 */
+      let ignoreAtRule = false;
+      /** 是否是 keyframes 规则 */
+      let isKeyframesAtRule = false;
+      let desktopKeyframesAtRule = null;
+      let landscapeKeyframesAtRule = null;
 
       let siders = [{
         atRule: null,
@@ -285,12 +290,34 @@ module.exports = (options = {}) => {
           /** 检测 dvh 支不支持，支持就应用，不然移动端有的浏览器的 vh 会导致滚动 */
           dvhAtRule = postcss.atRule({ name: "supports", params: "(min-height: 100dvh)", nodes: [] });
         },
+        AtRule(atRule, postcss) {
+          isKeyframesAtRule = atRule.name === "keyframes";
+          ignoreAtRule = !isKeyframesAtRule;
+          if (isKeyframesAtRule) {
+            const params = atRule.params;
+            desktopKeyframesAtRule = postcss.atRule({ name: "keyframes", params, nodes: [] });
+            landscapeKeyframesAtRule = postcss.atRule({ name: "keyframes", params, nodes: [] });
+          }
+        },
+        AtRuleExit() {
+          ignoreAtRule = false;
+          isKeyframesAtRule = false;
+          const appendedDesktopKeyframes = desktopKeyframesAtRule != null && desktopKeyframesAtRule.nodes.length > 0;
+          const appendedLandcapeKeyframes = landscapeKeyframesAtRule != null && landscapeKeyframesAtRule.nodes.length > 0;
+          if (appendedDesktopKeyframes) {
+            desktopViewAtRule.append(desktopKeyframesAtRule);
+            desktopKeyframesAtRule = null;
+          }
+          if (appendedLandcapeKeyframes) {
+            landScapeViewAtRule.append(landscapeKeyframesAtRule);
+            landscapeKeyframesAtRule = null;
+          }
+        },
         Rule(rule, postcss) {
           if (rule.processedLimitedCentreWidth || rule.processedAutoAppContainingBlock) return; // 对于用 maxDisplayWidth 来限制宽度的根元素，会在原来的选择器内添加属性，这会导致重新执行这个选择器，这里对已经处理过的做标记判断，防止死循环
           walkedRule = true;
           hadFixed = false;
           isVerticalWritingMode = false;
-          insideMediaQuery = false;
           blackListedSelector = false;
           selector = rule.selector;
           widthValForSiders = null;
@@ -298,7 +325,7 @@ module.exports = (options = {}) => {
           if (isMatchedStr(selectorBlackList, selector))
             return blackListedSelector = true;
           // 验证当前选择器在媒体查询中吗，不对选择器中的内容转换
-          if (rule.parent.params) return insideMediaQuery = true;
+          if (ignoreAtRule) return ;
 
           // 是否动态视图宽度？
           const isDynamicViewportWidth = typeof viewportWidth === "function";
@@ -364,7 +391,7 @@ module.exports = (options = {}) => {
           const val = decl.value;
           if (prop === "width") widthValForSiders = val;
           if (!walkedRule) return; // 不是 Rule 的属性则不转换
-          if (insideMediaQuery) return; // 不转换媒体查询中的属性
+          if (ignoreAtRule) return; // 不转换媒体查询中的属性
           if (decl.book) return; // 被标记过不转换
           if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
 
@@ -420,6 +447,9 @@ module.exports = (options = {}) => {
               expectedLengthVars,
               disableAutoApply,
               isLastProp: priorityProps.get(prop) === decl,
+              isKeyframesAtRule,
+              desktopKeyframesAtRule,
+              landscapeKeyframesAtRule,
               convertMobile(number, unit, numberStr) {
                 if (limitedWidth)
                   return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
@@ -446,7 +476,7 @@ module.exports = (options = {}) => {
         },
         RuleExit(rule, postcss) {
           if (!walkedRule) return;
-          if (insideMediaQuery) return;
+          if (ignoreAtRule) return;
           if (blackListedSelector) return;
           containingBlockWidthDeclsMap.forEach((decl, prop) => {
             if (decl == null) return;
@@ -469,6 +499,9 @@ module.exports = (options = {}) => {
               minDisplayWidth,
               expectedLengthVars,
               disableAutoApply,
+              isKeyframesAtRule,
+              desktopKeyframesAtRule,
+              landscapeKeyframesAtRule,
               isLRVars: rootContainingBlockList_LR.includes(prop),
               isLastProp: priorityProps.get(prop) === decl,
             });
