@@ -1,14 +1,14 @@
 # postcss-mobile-forever
 
-中文 | [English](README_EN.md)
-
 <img src="https://postcss.github.io/postcss/logo.svg" alt="PostCSS" width="90" height="90" align="right">
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" align="right"></a>
 
 > **⚠️ Warning**
 >
-> 使用本插件转换视口单位（如 vw），或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>CMD/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+> 使用本插件转换的 vw，或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>Cmd/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+>
+> 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）是一种粗暴的、针对设备的移动端适配方法，应该站在用户的角度，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，让内容在大尺寸的设备上展示地更丰富，在小尺寸设备上更简洁。
 
 一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图，转为可跟随宽度变化而等比例伸缩的视图，并提供超出某一宽度后停止放大视图的方法，这种视图常见于移动端页面的适配。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
@@ -47,7 +47,7 @@
 > 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第二种方法，生成媒体查询的方法。
 </details>
 
-> 如果您在使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
+> 使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，如果不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
 
 ## 移动端模版和范例
 
@@ -80,7 +80,7 @@ npm run start
 - [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 </details>
 
-## 安装
+## 安装和迁移
 
 npm 安装最新版本（基于 postcss@^8.0.0）（yarn 则是 `yarn add -D postcss postcss-mobile-forever`）：
 ```bash
@@ -124,6 +124,8 @@ import autoprefixer from 'autoprefixer'
 https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
+
+如果你的项目是基于 rem 做的移动端适配，可以参考文档“[迁移](./migration.md)”，迁移到 vw 移动端适配。
 
 ## 配置参数
 
