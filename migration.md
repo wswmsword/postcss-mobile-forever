@@ -45,4 +45,4 @@ module.exports = {
 };
 ```
 
-最后使用 npm 安装 postcss-mobile-forever，并按照文档添加配置。
+最后使用 npm 安装 postcss-mobile-forever，并按照文档添加配置，项目中具体样式的尺寸大小无需改变。
