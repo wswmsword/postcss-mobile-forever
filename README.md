@@ -8,7 +8,7 @@
 >
 > 使用本插件转换的 vw，或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>Cmd/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 >
-> 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）做移动端适配，是一种粗暴的、技术先于设计的适配方法，是一种技术粉饰，请考虑站在用户的角度，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，使得用户在大尺寸设备上看到更丰富的内容，在小尺寸设备上看到更简洁的内容。
+> 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）做移动端适配，是一种粗暴的、技术先于设计的适配方法，是一条技术捷径，请考虑站在用户的角度、利用专业知识，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，使得用户在大尺寸设备上看到更丰富的内容，在小尺寸设备上看到更简洁的内容。
 
 一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图，转为可跟随宽度变化而等比例伸缩的视图，并提供超出某一宽度后停止放大视图的方法，这种视图常见于移动端页面的适配。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
 
