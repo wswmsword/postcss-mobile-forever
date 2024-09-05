@@ -1424,8 +1424,8 @@ describe("experimental", function() {
 
 describe("keyframes at rule", function() {
   it("should append keyframes inside landscape and desktop", function() {
-    var input = ".rule { bottom: 75px; } @keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
-    var output = ".rule { bottom: 10vw; } @keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @media (min-width: 600px) and (min-height: 640px) { .rule { bottom: 60px; } @keyframes identifier { 0% { top: 0; } 50% { left: 16px; top: 8px; } 100% { top: 0; } } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { bottom: 42.5px; } @keyframes identifier { 0% { top: 0; } 50% { left: 11.333px; top: 5.667px; } 100% { top: 0; } } }";
+    var input = ".rule { bottom: 75px; } @keyframes identifier { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } } @keyframes identifier2 { 0% { top: 0; } 50% { top: 30px; left: 20px; } 50% { top: 10px; } 100% { top: 0; } }";
+    var output = ".rule { bottom: 10vw; } @keyframes identifier { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @keyframes identifier2 { 0% { top: 0; } 50% { top: 4vw; left: 2.667vw; } 50% { top: 1.333vw; } 100% { top: 0; } } @media (min-width: 600px) and (min-height: 640px) { .rule { bottom: 60px; } @keyframes identifier { 0% { top: 0; } 50% { left: 16px; top: 8px; } 100% { top: 0; } } @keyframes identifier2 { 0% { top: 0; } 50% { left: 16px; top: 8px; } 100% { top: 0; } } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { bottom: 42.5px; } @keyframes identifier { 0% { top: 0; } 50% { left: 11.333px; top: 5.667px; } 100% { top: 0; } } @keyframes identifier2 { 0% { top: 0; } 50% { left: 11.333px; top: 5.667px; } 100% { top: 0; } } }";
     var processed = postcss(mobileToMultiDisplays({
       enableMediaQuery: true,
     })).process(input).css;

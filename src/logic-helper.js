@@ -40,14 +40,15 @@ const removeDuplicateDecls = (node) => {
 const mergeRules = (node) => {
 	const walked = { rules: [], selectors: [] };
 	node.walkRules(rule => {
-		const i = walked.selectors.indexOf(rule.selector);
-		if (i > -1) {
-			walked.rules[i].append(rule.nodes);
-			rule.remove();
-		} else {
-			walked.rules.push(rule);
-			walked.selectors.push(rule.selector);
-		}
+    const compositeSelector = rule.selector.concat(rule.parent.name).concat(rule.parent.params); // 将区别类似 @k a { %0 { top: 0 } } 和 @k b { %0 { top: 0 } }
+    const i = walked.selectors.indexOf(compositeSelector);
+    if (i > -1) {
+      walked.rules[i].append(rule.nodes);
+      rule.remove();
+    } else {
+      walked.rules.push(rule);
+      walked.selectors.push(compositeSelector);
+    }
 	});
 };
 

@@ -19,6 +19,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.1.6] - 2024-09-05
+
+### Fixed
+
+- 修复存在多个 `@keyframes` 时只转换第一个 `@keyframes` 的问题。
+
 ## [4.1.5] - 2024-07-10
 
 ### Fixed
