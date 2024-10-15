@@ -186,7 +186,6 @@ module.exports = (options = {}) => {
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT, verticalWritingMode: VWM_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
   const fontViewportUnit = "vw";
-  const replace = true;
 
   const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
 
@@ -439,7 +438,6 @@ module.exports = (options = {}) => {
               decl,
               unitPrecision,
               fontViewportUnit,
-              replace,
               viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,
@@ -490,7 +488,6 @@ module.exports = (options = {}) => {
               sharedAtRule,
               unitPrecision,
               fontViewportUnit,
-              replace,
               viewportUnit: mobileUnit,
               desktopWidth,
               landscapeWidth,

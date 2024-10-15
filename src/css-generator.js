@@ -55,7 +55,6 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   sharedAtRule,
   unitPrecision,
   fontViewportUnit,
-  replace,
   viewportUnit,
   desktopWidth,
   landscapeWidth,
@@ -85,7 +84,6 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
     decl,
     unitPrecision,
     fontViewportUnit,
-    replace,
     viewportUnit,
     desktopWidth,
     landscapeWidth,
@@ -166,7 +164,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   sharedAtRule,
   important,
   decl,
-  replace,
   convertLandscape,
   convertDesktop,
   convertMobile,
@@ -202,8 +199,7 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
     });
 
     if (enabledMobile) {
-      if (replace) decl.value = mobile;
-      else decl.after(decl.clone({ value: mobile, book: true, }));
+      decl.value = mobile;
     }
     if (enabledDesktop && converted) {
       const atRule = isKeyframesAtRule ? desktopKeyframesAtRule : desktopViewAtRule;
