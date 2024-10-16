@@ -436,11 +436,6 @@ module.exports = (options = {}) => {
               sharedAtRule,
               important,
               decl,
-              unitPrecision,
-              fontViewportUnit,
-              viewportUnit: mobileUnit,
-              desktopWidth,
-              landscapeWidth,
               matchPercentage: false,
               expectedLengthVars,
               disableAutoApply,
@@ -481,8 +476,6 @@ module.exports = (options = {}) => {
 
             appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, hadFixed, {
               viewportWidth: _viewportWidth,
-              desktopRadio,
-              landscapeRadio,
               desktopViewAtRule,
               landScapeViewAtRule,
               sharedAtRule,

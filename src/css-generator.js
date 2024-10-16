@@ -48,8 +48,6 @@ function extractFile(cssContent, newFile, targetFileDir) {
 /** 转换受 fixed 影响的属性的媒体查询值 */
 function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
   viewportWidth,
-  desktopRadio,
-  landscapeRadio,
   desktopViewAtRule,
   landScapeViewAtRule,
   sharedAtRule,
@@ -74,19 +72,11 @@ function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disab
   const important = decl.important;
   const leftOrRight = prop === "left" || prop === "right" || isLRVars;
   appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
-    viewportWidth,
-    desktopRadio,
-    landscapeRadio,
     desktopViewAtRule,
     landScapeViewAtRule,
     sharedAtRule,
     important,
     decl,
-    unitPrecision,
-    fontViewportUnit,
-    viewportUnit,
-    desktopWidth,
-    landscapeWidth,
     matchPercentage: isFixed,
     expectedLengthVars,
     disableAutoApply,
@@ -167,9 +157,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
   convertLandscape,
   convertDesktop,
   convertMobile,
-  desktopWidth,
-  landscapeWidth,
-  unitPrecision,
   matchPercentage,
   expectedLengthVars = [],
   disableAutoApply = false,
@@ -192,9 +179,6 @@ function appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val,
       convertMobile,
       convertDesktop,
       convertLandscape,
-      desktopWidth,
-      landscapeWidth,
-      unitPrecision,
       matchPercentage,
     });
 
