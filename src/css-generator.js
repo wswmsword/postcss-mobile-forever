@@ -1,13 +1,6 @@
 const { marginL, marginR, maxWidth, shadowBorder, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth, minDFullHeight } = require("./constants");
 const { bookObj: b } = require("./utils");
-const {
-  convertPropValue,
-  convertFixedMediaQuery,
-  convertMobile,
-  convertMaxMobile,
-  convertMaxMobile_FIXED,
-  convertMaxMobile_FIXED_LR,
-} = require("./logic-helper");
+const { convertPropValue, } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
 const fs = require("fs");
 const path = require("path");
@@ -42,77 +35,6 @@ function extractFile(cssContent, newFile, targetFileDir) {
     fs.writeFileSync(newFilePath, cssContent);
 
     resolve();
-  });
-}
-
-/** 转换受 fixed 影响的属性的媒体查询值 */
-function appendConvertedFixedContainingBlockDecls(postcss, selector, decl, disableDesktop, disableLandscape, disableMobile, isFixed, {
-  viewportWidth,
-  desktopViewAtRule,
-  landScapeViewAtRule,
-  sharedAtRule,
-  unitPrecision,
-  fontViewportUnit,
-  viewportUnit,
-  desktopWidth,
-  landscapeWidth,
-  limitedWidth,
-  maxDisplayWidth,
-  minDisplayWidth,
-  expectedLengthVars = [],
-  isLRVars,
-  disableAutoApply,
-  isLastProp,
-  isKeyframesAtRule,
-  desktopKeyframesAtRule,
-  landscapeKeyframesAtRule,
-}) {
-  const prop = decl.prop;
-  const val = decl.value;
-  const important = decl.important;
-  const leftOrRight = prop === "left" || prop === "right" || isLRVars;
-  appendMediaRadioPxOrReplaceMobileVwFromPx(postcss, selector, prop, val, disableDesktop, disableLandscape, disableMobile, {
-    desktopViewAtRule,
-    landScapeViewAtRule,
-    sharedAtRule,
-    important,
-    decl,
-    matchPercentage: isFixed,
-    expectedLengthVars,
-    disableAutoApply,
-    isLastProp,
-    isKeyframesAtRule,
-    desktopKeyframesAtRule,
-    landscapeKeyframesAtRule,
-    convertMobile: (number, unit, numberStr) => {
-      if (isFixed) {
-        if (leftOrRight) {
-          if (limitedWidth) {
-            return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, numberStr);
-          } else {
-            return mobileConverter();
-          }
-        } else {
-          if (limitedWidth) {
-            return convertMaxMobile_FIXED(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
-          } else {
-            return mobileConverter();
-          }
-        }
-      } else {
-        if (limitedWidth) {
-          return convertMaxMobile(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
-        } else {
-          return mobileConverter();
-        }
-      }
-
-      function mobileConverter() {
-        return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, viewportUnit);
-      }
-    },
-    convertDesktop: (number, unit, numberStr) => convertFixedMediaQuery(number, desktopWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
-    convertLandscape: (number, unit, numberStr) => convertFixedMediaQuery(number, landscapeWidth, viewportWidth, unitPrecision, unit, numberStr, isFixed, leftOrRight),
   });
 }
 
@@ -297,14 +219,14 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   dvhAtRule,
   desktopWidth,
   landscapeWidth,
-  limitedWidth,
+  maxVwMode,
   maxDisplayWidth,
   minDisplayWidth,
 }) {
   const hadBorder = !!border;
   const c = typeof border === "string" ? border : "#8888881f";
   const isClamp = minDisplayWidth != null;
-  if (limitedWidth) {
+  if (maxVwMode) {
     if (hadBorder) {
       rule.append(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(shadowBorder(c)), b(minFullHeight), b(autoHeight));
       if (dvhAtRule.nodes.length === 0) dvhAtRule.append(postcss.rule({ selector }).append(b(minDFullHeight)));
@@ -360,7 +282,6 @@ function appendSiders(postcss, siders, desktopWidth, maxLandscapeDisplayHeight) 
 module.exports = {
   appendMediaRadioPxOrReplaceMobileVwFromPx,
   appendDemoContent,
-  appendConvertedFixedContainingBlockDecls,
   appendCentreRoot,
   appendCSSVar,
   appendSiders,

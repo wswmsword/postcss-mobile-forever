@@ -52,9 +52,13 @@ describe('px-to-viewport', function() {
   //   expect(processed).toBe(expected);
   // });
 
-  it('should not replace units inside mediaQueries by default', function() {
+  it('should not replace units inside mediaQueries in mq-mode', function() {
     var expected = '@media (min-width: 500px) { .rule { font-size: 16px } }';
-    var processed = postcss(mobileToMultiDisplays(basicOptions)).process('@media (min-width: 500px) { .rule { font-size: 16px } }').css;
+    var processed = postcss(mobileToMultiDisplays({
+      viewportWidth: 320,
+      enableMediaQuery: true,
+      unitPrecision: 5,
+    })).process('@media (min-width: 500px) { .rule { font-size: 16px } }').css;
 
     expect(processed).toBe(expected);
   })
