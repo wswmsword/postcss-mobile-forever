@@ -11,7 +11,7 @@
 > 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）做移动端适配，是一种粗暴的、技术先于设计的适配方法，是一条技术捷径，请考虑站在用户的角度、利用专业知识，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，使得用户在大尺寸设备上看到更丰富的内容，在小尺寸设备上看到更简洁的内容。
 
 postcss-mobile-forever 是一款 PostCSS 插件，用于将固定尺寸转为伸缩尺寸，得到一个能够等比例缩放的视图。mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行时。mobile-forever 有 3 种转换伸缩视图的模式，适用不同的场景：
-- **vw-mode**，不限制最大宽度，*px->vw*
+- **vw-mode**，不限制最大宽度，跟随屏幕的宽窄变化，视图将等比放大或缩小，*px->vw*
 - **mq-mode**，媒体查询 media-query 模式，**限制最大宽度**，区分桌面端与横屏两种宽度，产包较大，可访问性较优，不支持 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的样式转换，*@media*
 - **max-vw-mode**，**限制最大宽度**，不区分桌面端、横屏，达到预设宽度后即停止伸缩，产包较小，可访问性较差，*min(vw, px)*
 
@@ -106,7 +106,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例缩放，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图始终处于浏览器窗口的中央区域：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，深入之前可以先尝试最基础的配置参数。下方是一个基础配置（max-vw-mode），表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例缩放，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图始终处于浏览器窗口的中央区域：
 
 ```json
 {
