@@ -10,14 +10,20 @@
 
 - 添加全宽注释用于在桌面端全宽展示部分元素。
 
-### Changed
-
-- 插件拆分，例如拆分成三个插件，基于包含块的属性计算、`px` 转 `max(px, vw)`、`px` 转 `@media`。
-
 ### Fixed
 
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
+
+## [4.2.0] - 2024-10-17
+
+### Added
+
+- 支持 vw-mode 和 max-vw-mode 时 At 规则中的样式转换，[#51](https://github.com/wswmsword/postcss-mobile-forever/issues/51)。
+
+### Changed
+
+- 分割 mq-mode 媒体查询模式的实现，引入 3 个模式，vw-mode、mq-mode、max-vw-mode。
 
 ## [4.1.6] - 2024-09-05
 

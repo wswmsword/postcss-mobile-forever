@@ -6,61 +6,29 @@
 
 > **⚠️ Warning**
 >
-> 使用本插件转换的 vw，或是其它使用动态根元素 `font-size` 结合 rem，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>Cmd/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
+> 使用本插件转换的 vw 单位，或是其它使用动态根元素 `font-size` 结合 rem 单位，这两种方法生成的伸缩视图，不能触发浏览器的缩放功能（可以通过快捷键同时按下 <kbd>Cmd/Ctrl</kbd> 和 <kbd>+/-</kbd> 触发），不能满足[针对缩放的可访问性标准](https://www.w3.org/Translations/WCAG21-zh/#resize-text)，因此存在可访问性问题。查看一个[关于 vw 伸缩视图的可访问性实验](https://github.com/wswmsword/web-experiences/tree/main/a11y/mobile-vw-viewport)。
 >
 > 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）做移动端适配，是一种粗暴的、技术先于设计的适配方法，是一条技术捷径，请考虑站在用户的角度、利用专业知识，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，使得用户在大尺寸设备上看到更丰富的内容，在小尺寸设备上看到更简洁的内容。
 
-一款 PostCSS 插件，用于将基于特定宽度的固定尺寸的视图，转为可跟随宽度变化而等比例伸缩的视图，并提供超出某一宽度后停止放大视图的方法，这种视图常见于移动端页面的适配。postcss-mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行阶段。postcss-mobile-forever 具备以下特性：
+postcss-mobile-forever 是一款 PostCSS 插件，用于将固定尺寸转为伸缩尺寸，得到一个能够等比例缩放的视图。mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行时。mobile-forever 有 3 种转换伸缩视图的模式，适用不同的场景：
+- **vw-mode**，不限制最大宽度，*px->vw*
+- **mq-mode**，媒体查询 media-query 模式，**限制最大宽度**，区分桌面端与横屏两种宽度，产包较大，可访问性较优，不支持 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的样式转换，*@media*
+- **max-vw-mode**，**限制最大宽度**，不区分桌面端、横屏，达到预设宽度后即停止伸缩，产包较小，可访问性较差，*min(vw, px)*
 
-- 转换用于伸缩视图的视口单位（*px->vw*）；
-- 提供两种方法限制伸缩视图的最大宽度，
-  - 生成适应桌面端和横屏的媒体查询（*@media*），
-  - 或是利用 CSS 函数限制视口单位最大值（*min(vw, px)*）；
-- 矫正 `fixed` 定位的元素，支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
-
-<details>
-<summary>
-使用媒体查询限制最大宽度的方法，能够为桌面端与横屏各自设置最大宽度。
-</summary>
-
-您可以查看一个[在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，通过旋转屏幕、改变窗口大小、在不同屏幕查看展示效果。范例顶部的文字会提示您，当前的视图是移动端竖屏（Portrait）、移动端横屏（Landscape）还是桌面端（Desktop）。
-
-- 移动端竖屏，正常使用可伸缩（vw）的移动端竖屏视图；
-- 移动端横屏，使用*居中的较小固定宽度*的移动端竖屏视图；
-- 平板、笔记本、桌面端，使用*居中的较大固定宽度*的移动端竖屏视图；
-- 穿戴设备，使用*可伸缩*（vw）的移动端竖屏视图。
-
-下面的三张图是使用本插件生成媒体查询，移动端、移动端横屏和桌面端的展示效果：
-
-<table>
-	<tr>
-		<td><img src="./images/portrait.png" alt="移动端的展示效果" /></td>
-		<td><img src="./images/landscape.png" alt="移动端横屏的展示效果" /></td>
-	</tr>
-	<tr>
-		<td colspan="2"><img src="./images/desktop.png" alt="桌面端的展示效果" /></td>
-	</tr>
-</table>
-
-在“范例”一节查看，源码中提供了范例，用于在本地运行后验证演示效果，或者您也可以查看文档开头的在线范例。
-
-> 您也可以通过配合 *px2vw*，把转换视口单位（适配移动端竖屏）的任务交给 *px2vw* 完成，然后打开本插件的 `disableMobile`，关闭本插件的视口单位转换功能。这样做只适用于上面的第二种方法，生成媒体查询的方法。
-</details>
-
-> 使用 [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport/) 实现伸缩界面的时候，如果不希望界面在大屏设备上撑满整个屏幕而难以浏览，希望界面在达到某一个合适的宽度后停止伸缩（限制最大宽度），您可以使用本插件。
+mobile-forever 默认会矫正 `fixed` 定位的元素（例如将宽屏右下角的“Top”按钮矫正回中央视图区域），并支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
 ## 移动端模版和范例
 
-下面是一个宽屏展示良好的移动端模版列表，每一条都包含了演示链接和代码，打开演示，查看模版在使用 postcss-mobile-forever 之后在不同宽度屏幕下的展示效果，打开代码，查看配置方法。
+下面是一个移动端模版列表，这些模版使用了 mobile-forever 进行配置，在宽屏上展示良好，下面的每一项都包含了在线演示链接和模版源码，通过源码可以参考 mobile-forever 的配置方法：
 
-- [vue3-vant-mobile](https://github.com/easy-temps/vue3-vant-mobile)——一个基于 Vue 3 生态系统的移动 web 应用模板，帮助你快速完成业务开发。（[代码](https://github.com/easy-temps/vue3-vant-mobile) & [演示](https://vue3-vant-mobile.netlify.app/)，[自动矫正定位代码](./example/templates/vue3-vant-mobile) & [演示](https://wswmsword.github.io/examples/templates/vue3-vant-mobile/)）
-- [vue3-vant4-mobile](https://github.com/xiangshu233/vue3-vant4-mobile)——👋👋👋 基于Vue3.4、Vite5、Vant4、Pinia、Typescript、UnoCSS等主流技术开发，集成 Dark Mode（暗黑）模式和系统主题色，且持久化保存，集成 Mock 数据，包括登录/注册/找回/keep-alive/Axios/useEcharts/IconSvg 等其他扩展。你可以在此之上直接开发你的业务代码！（[代码](https://github.com/xiangshu233/vue3-vant4-mobile) & [演示](https://vvmobile.xiangshu233.cn/#/)）
-- [v-shop](https://github.com/JoeshuTT/v-shop)——🛒 v-shop 是一个移动端 H5 商城。（[代码](https://github.com/JoeshuTT/v-shop) & [演示](https://v-shop.shuzp.top/#/home)）
-- [vue-h5-template](https://github.com/sunniejs/vue-h5-template)——一个快速开发的 Vue H5 移动端脚手架。（[代码](./example/templates/vue-h5-template) & [演示](https://wswmsword.github.io/examples/templates/vue-h5-template/)）
+- [vue3-vant-mobile](https://github.com/easy-temps/vue3-vant-mobile)，一个基于 Vue 3 生态系统的移动 web 应用模板，帮助你快速完成业务开发。（[代码](https://github.com/easy-temps/vue3-vant-mobile)/[演示](https://vue3-vant-mobile.netlify.app/)，[自动矫正定位代码](./example/templates/vue3-vant-mobile)/[演示](https://wswmsword.github.io/examples/templates/vue3-vant-mobile/)）
+- [vue3-vant4-mobile](https://github.com/xiangshu233/vue3-vant4-mobile)，👋👋👋 基于Vue3.4、Vite5、Vant4、Pinia、Typescript、UnoCSS等主流技术开发，集成 Dark Mode（暗黑）模式和系统主题色，且持久化保存，集成 Mock 数据，包括登录/注册/找回/keep-alive/Axios/useEcharts/IconSvg 等其他扩展。你可以在此之上直接开发你的业务代码！（[代码](https://github.com/xiangshu233/vue3-vant4-mobile)/[演示](https://vvmobile.xiangshu233.cn/#/)）
+- [v-shop](https://github.com/JoeshuTT/v-shop)，🛒 v-shop 是一个移动端 H5 商城。（[代码](https://github.com/JoeshuTT/v-shop)/[演示](https://v-shop.shuzp.top/#/home)）
+- [vue-h5-template](https://github.com/sunniejs/vue-h5-template)，一个快速开发的 Vue H5 移动端脚手架。（[代码](./example/templates/vue-h5-template)/[演示](https://wswmsword.github.io/examples/templates/vue-h5-template/)）
 
 <details>
 <summary>
-文件夹 “example/” 内提供了在诸如 React、Svelte、Vue、Next.js、Nuxt 和原生 JavaScript 中使用 postcss-mobile-forever 的范例，范例中也包含部分上面的移动端模板，克隆本仓库后，通过命令行进入对应的范例文件夹中，即可运行。
+文件夹 “example/” 内提供了在诸如 React、Svelte、Vue、Next.js、Nuxt 和原生 JavaScript 中使用 mobile-forever 的范例，范例中也包含部分上面的移动端模板，克隆本仓库后，通过命令行进入对应的范例文件夹中，即可运行。
 </summary>
 
 
@@ -70,13 +38,13 @@ npm install
 npm run start
 ```
 
-- [访问原生 JS 的限制最大宽度的在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的限制最大宽度的源码](./example/others/maxDisplayWidth-vanilla/)；
-- [查看 Next.js 的限制最大宽度的源码](./example/nextjs/)；
-- [查看 Nuxt 的限制最大宽度的源码](./example/nuxtjs/)；
-- [访问原生 JS 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的媒体查询的源码](./example/vanilla/)；
-- [访问 React 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的媒体查询的源码](./example/react/)；
-- [访问 Vue 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的媒体查询的源码](./example/vue/)；
-- [访问 Svelte 的媒体查询在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的媒体查询的源码](./example/svelte)；
+- [访问原生 JS 的 max-vw-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的 max-vw-mode 源码](./example/others/maxDisplayWidth-vanilla/)；
+- [查看 Next.js 的 max-vw-mode 源码](./example/nextjs/)；
+- [查看 Nuxt 的 max-vw-mode 源码](./example/nuxtjs/)；
+- [访问原生 JS 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的 mq-mode 源码](./example/vanilla/)；
+- [访问 React 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的 mq-mode 源码](./example/react/)；
+- [访问 Vue 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的 mq-mode 源码](./example/vue/)；
+- [访问 Svelte 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的 mq-mode 源码](./example/svelte)；
 - [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
 </details>
 
@@ -125,7 +93,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
-如果你的项目是基于 rem 做的移动端适配，可以参考文档“[迁移](./migration.md)”，迁移到 vw 移动端适配。
+如果项目原本是基于 rem 做的移动端适配，可以参考文档“[迁移](./migration.md)”，迁移到 vw 移动端适配。
 
 ## 配置参数
 
@@ -138,7 +106,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 </details>
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例伸缩，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图是居中于浏览器窗口的：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，在这之前可以先尝试最基础的配置参数。下方是一个基础配置，表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例缩放，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图始终处于浏览器窗口的中央区域：
 
 ```json
 {
@@ -148,18 +116,18 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 }
 ```
 
-下面的每一项都是可选的。
+下面的每一项都是可选的，设定 `viewportWidth` 后激活 **vw-mode**，设定 `maxDisplayWidth` 后激活 **max-vw-mode**，设定 `enableMediaQuery` 后激活 **mq-mode**。
 
 | Name | Type | Default | Desc                                                                                                                                                                                                                                                                                        |
 |:--|:--|:--|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | viewportWidth | number\|(file: string, selector: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度                                                                                                                                         |
 | mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？                                                                                                                                                                                                                                                                        |
-| maxDisplayWidth | number | / | 限制视口单位的最大宽度                                                                                                                                                                                                                                                                                 |
-| enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth`                                                                                                                                                                                                                                                         |
-| desktopWidth | number | 600 | 适配到桌面端时，展示的视图宽度                                                                                                                                                                                                                                                                             |
-| landscapeWidth | number | 425 | 适配到移动端横屏时，展示的视图宽度                                                                                                                                                                                                                                                                           |
+| maxDisplayWidth | number | / | 限制视口单位的最大宽度，设定后将激活 **max-vw-mode**                                                                                                                                                                                                                                                                                 |
+| enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth`，激活 **mq-mode**                                                                                                                                                                                                                                                         |
+| desktopWidth | number | 600 | 适配到桌面端宽度时，展示的视图宽度                                                                                                                                                                                                                                                                             |
+| landscapeWidth | number | 425 | 适配到移动端横屏宽度时，展示的视图宽度                                                                                                                                                                                                                                                                           |
 | appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式                                                                                                                                                                                                                                                    |
-| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto`                                            |
+| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸，是默认行为；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto`                                            |
 | necessarySelectorWhenAuto | string | / | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 往内一层的元素选择器，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性，您也可以查看[使用这个属性的示例项目](./example/cases/auto-app-containing-block/postcss.config.js)以了解如何使用这个属性 |
 | border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串                                                                                                                                                                                                                                                        |
 | disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                    |
@@ -241,7 +209,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 虽然配置选项的数量看起来很多，但是只需要指定选项 viewportWidth 后，就可以输出伸缩视图的结果，通常我们还需要让伸缩视图具有最大宽度，只要再添加 appSelector 和 maxDisplayWidth，即可完成。开发中，如果在浏览器看到了宽屏的视图有和在移动端视图不一样的地方，再考虑配置其它选项也不迟。
 </summary>
 
-下面的配置会激活第一种方法，使用 CSS 函数限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
+下面的配置会激活 max-vw-mode，使用 CSS 函数限制视口单位的最大值，当屏幕宽度超过 600px 后，视图不会再变化：
 
 ```json
 {
@@ -251,7 +219,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 }
 ```
 
-下面的配置会激活第二种方法，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
+下面的配置会激活 mq-mode，生成媒体查询，适配桌面端和横屏，桌面端视图的宽度是 600px，横屏的宽度是 425px：
 
 ```json
 {
@@ -261,7 +229,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 }
 ```
 
-如果暂时不希望优化视图在大屏的可访问性，不做最大宽度的限制，可以像下面这样配置：
+如果暂时不希望优化视图在大屏的可访问性，不做最大宽度的限制，可以像下面这样配置激活 vw-mode：
 
 ```json
 {
@@ -469,11 +437,9 @@ npm run test
 
 ## 注意事项
 
-插件提供了两个方法限制伸缩视图的最大宽度。使用媒体查询的方法会生成较多代码量，但是可以分别设置桌面端与横屏的不同最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[配置](./example/vanilla/postcss.config.js)）；使用 CSS 函数的方法生成代码量较少，只能设置单个最大宽度（[在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[配置](./example/others/maxDisplayWidth-vanilla/postcss.config.js)）。
-
 appSelector 所在元素的居中属性会被占用，包括 `margin-left`、`margin-right`、`max-width`，如果开启了 border，`box-shadow` 会被占用。
 
-默认情况，插件会把所有 fixed 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
+默认情况，插件会把所有 `fixed` 定位的元素的包含块当成根元素，如果希望跳过处理非根元素的包含块，请在选择器上方添加注释，`/* not-root-containing-block */`，这样设置后，插件会知道这个选择器内的计算方式统一使用非根包含块的计算方式：
 
 ```css
 /* not-root-containing-block */
@@ -483,7 +449,12 @@ appSelector 所在元素的居中属性会被占用，包括 `margin-left`、`ma
 }
 ```
 
-> 对于 fixed 定位元素的包含块是祖先元素，而不是根元素（浏览器窗口，visual viewport）的条件，请查看“其它”一节。
+对于包含块，插件默认的处理方式不能处理下面列表中的情况，如果下面某个情况设置在某个祖先元素上，那么当前定位为 `fixed` 元素的包含块就是那个祖先元素，而插件默认所有的 `fixed` 元素的包含块是浏览器窗口（visual viewport）：
+- transform 或 perspective 的值不是 none；
+- will-change 的值是 transform 或 perspective；
+- filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
+- contain 的值是 paint（例如：`contain: paint;`）；
+- backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
 
 <details>
 <summary>
@@ -504,8 +475,6 @@ appSelector 所在元素的居中属性会被占用，包括 `margin-left`、`ma
 }
 ```
 </details>
-
-插件转换的是选择器中的属性的值，[At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中，除了用于定义动画的 `@keyframes` 中的属性会转换，其它的 At 规则不转换。
 
 <details>
 <summary>
@@ -606,7 +575,7 @@ module.exports = {
 关于 CSS 自定义属性，默认情况下，所有和长度相关的属性，如果使用了自定义属性，都会被添加入桌面端和横屏，这可能会带来一些冗余的添加，也可能会有一些转换的错误，转换的错误和包含块相关。
 </summary>
 
-下面的例子，默认的情况，`--len-a` 的值在桌面端会被转为 `60px`，横屏会被转为 `42.5px`，但是可以看到实际的应用场景中，定位是 fixed，因此包含块是根包含块，所以默认的转换是错误的，正确的转换应该是，桌面端会被转为 `calc(50% - 240px)`，横屏会被转为 `calc(50% - 170px)`。
+下面的例子，默认的情况，`--len-a` 的值在桌面端会被转为 `60px`，横屏会被转为 `42.5px`，但是可以看到实际的应用场景中，定位是 `fixed`，因此包含块是根包含块，所以默认的转换是错误的，正确的转换应该是，桌面端会被转为 `calc(50% - 240px)`，横屏会被转为 `calc(50% - 170px)`。
 ```css
 :root {
   --len-a: 75px;
@@ -715,18 +684,11 @@ module.exports = {
 </details>
 
 与本项目有关或者可以配合使用的项目：
-- postcss-px-to-viewport，[*‌https://github.com/evrone/postcss-px-to-viewport*](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
-- postcss-px-to-clamp，[*https://github.com/wangguangyou/postcss-px-to-clamp*](https://github.com/wangguangyou/postcss-px-to-clamp)，postcss 插件，用于转换 px，并且限制最大和最小值。
-- postcss-extract-media-query，[*https://github.com/SassNinja/postcss-extract-media-query*](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
-- media-query-plugin，[*https://github.com/SassNinja/media-query-plugin*](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
-- scale-view，[*https://github.com/wswmsword/scale-view*](https://github.com/wswmsword/scale-view)，运行时转换伸缩尺寸，可用于框架中的行内样式，查看 [#17](https://github.com/wswmsword/postcss-mobile-forever/issues/17)。
-
-对于包含块，插件默认的处理方式不能处理下面的情况，如果某个情况设置在祖先元素上，那么当前定位为 fixed 元素的包含块就是那个祖先元素，而插件默认所有的 fixed 元素的包含块是浏览器窗口（visual viewport）：
-- transform 或 perspective 的值不是 none；
-- will-change 的值是 transform 或 perspective；
-- filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
-- contain 的值是 paint（例如：`contain: paint;`）；
-- backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
+- [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport)，postcss 插件，用于将指定单位转为视口单位。
+- [postcss-px-to-clamp](https://github.com/wangguangyou/postcss-px-to-clamp)，postcss 插件，用于转换 px，并且限制最大和最小值。
+- [postcss-extract-media-query](https://github.com/SassNinja/postcss-extract-media-query)，postcss 插件，用于分离媒体查询。
+- [media-query-plugin](https://github.com/SassNinja/media-query-plugin)，webpack 插件，用于分离媒体查询，可以配合其它 webpack 插件使用，例如 [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)、[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)。
+- [scale-view](https://github.com/wswmsword/scale-view)，运行时转换伸缩尺寸，可用于框架中的行内样式，查看 [#17](https://github.com/wswmsword/postcss-mobile-forever/issues/17)。
 
 相关链接：
 - [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/#syntax)，W3C Recommendation，05 April 2022；
