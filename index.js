@@ -352,12 +352,12 @@ module.exports = (options = {}) => {
                   if (maxVwMode) {
                     if (hadFixed) {
                       if (leftOrRight)
-                        return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, numberStr);
-                      return convertMaxMobile_FIXED(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
+                        return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, numberStr);
+                      return convertMaxMobile_FIXED(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
                     }
-                    return convertMaxMobile(number, unit, maxDisplayWidth, viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
+                    return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
                   }
-                  return convertMobile(prop, number, unit, viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
+                  return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
                 },
               });
 

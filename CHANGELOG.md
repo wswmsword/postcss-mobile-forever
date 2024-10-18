@@ -15,6 +15,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.2.1] - 2024-10-18
+
+### Fixed
+
+- 修复 vw-mode、max-vw-mode 中依赖根包含块宽度的属性转换成 NaN 的问题。
+
 ## [4.2.0] - 2024-10-17
 
 ### Added

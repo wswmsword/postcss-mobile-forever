@@ -21,6 +21,12 @@ describe("mobile-forever", function() {
     })).process(input).css;
     var output2 = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; } @media (min-width: 600px) and (min-height: 640px) { #app { max-width: 600px !important; } .nav { height: 57.6px; top: 0; left: calc(50% - 300px); width: 600px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { #app { max-width: 425px !important; } .nav { height: 40.8px; top: 0; left: calc(50% - 212.5px); width: 425px; } } @media (min-width: 600px), (orientation: landscape) and (max-width: 600px) and (min-width: 425px) { #app { margin-left: auto !important; margin-right: auto !important; } }";
     expect(processed).toBe(output2);
+
+    var processed = postcss(mobileToMultiDisplays({
+      appSelector: "#app",
+    })).process(input).css;
+    var output3 = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; }";
+    expect(processed).toBe(output3);
   });
 
   it("should convert px to desktop and landscape radio px", function() {
@@ -1021,13 +1027,12 @@ describe("fixed position in media queries", function() {
 
 describe("dynamic viewportWidth", function() {
   var options = {
-    viewportWidth: file => file.includes("vant") ? 375 : 750,
-    enableMediaQuery: true
+    viewportWidth: file => file?.includes("vant") ? 375 : 750,
   };
   it("should use truthy viewportWidth by dynamic viewportWidth", function() {
     var input = ".rule { left: 75px; font-size: 75px; } .l{}";
     var output = ".rule { left: 20vw; font-size: 20vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { font-size: 120px; left: 120px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { font-size: 85px; left: 85px; } }"
-    var processed = postcss(mobileToMultiDisplays(options)).process(input, {
+    var processed = postcss(mobileToMultiDisplays({ ...options, enableMediaQuery: true })).process(input, {
       from: "/vant/main.css",
     }).css;
     expect(processed).toBe(output);
@@ -1036,9 +1041,23 @@ describe("dynamic viewportWidth", function() {
   it("should use falthy viewportWidth by dynamic viewportWidth", function() {
     var input = ".rule { left: 75px; } .l{}";
     var output = ".rule { left: 10vw; } .l{} @media (min-width: 600px) and (min-height: 640px) { .rule { left: 60px; } } @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape) { .rule { left: 42.5px; } }"
-    var processed = postcss(mobileToMultiDisplays(options)).process(input, {
+    var processed = postcss(mobileToMultiDisplays({ ...options, enableMediaQuery: true })).process(input, {
       from: "/node_modules/main.css",
     }).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should work in vw-mode", function() {
+    var input = ".rule { left: 75px; font-size: 75px; } .l{}";
+    var output = ".rule { left: 10vw; font-size: 10vw; } .l{}"
+    var processed = postcss(mobileToMultiDisplays(options)).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should work in max-vw-mode", function() {
+    var input = ".rule { left: 75px; font-size: 75px; } .l{}";
+    var output = ".rule { left: min(10vw, 60px); font-size: min(10vw, 60px); } .l{}"
+    var processed = postcss(mobileToMultiDisplays({ ...options, maxDisplayWidth: 600 })).process(input).css;
     expect(processed).toBe(output);
   });
 
