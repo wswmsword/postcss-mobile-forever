@@ -11,7 +11,7 @@ describe("mobile-forever", function() {
 
   it("should work on the readme example", function() {
     var input = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
-    var output = "#app { width: 100%; max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; } .nav { position: fixed; width: min(100%, 560px); height: min(9.6vw, 53.76px); left: calc(50% - min(50%, 280px)); top: 0; }";
+    var output = "#app { max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; width: 100%; } .nav { position: fixed; width: min(100%, 560px); height: min(9.6vw, 53.76px); left: calc(50% - min(50%, 280px)); top: 0; }";
     var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 560 })).process(input).css;
     expect(processed).toBe(output);
 
@@ -176,7 +176,7 @@ describe("logical property", function() {
 describe("border", function() {
   it("should add border for maxDisplay option when enable border option", function() {
     var input = ".rule { left: 75px; } .l {}";
-    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; } .l {} @supports (min-height: 100dvh) { .rule { min-height: 100dvh; } }";
+    var output = ".rule { max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 0 1px #8888881f; min-height: 100vh; height: auto !important; left: min(10vw, 62px); } .l {} @supports (min-height: 100dvh) { .rule { min-height: 100dvh; } }";
     var processed = postcss(mobileToMultiDisplays({
       appSelector: ".rule",
       border: true,
@@ -187,7 +187,7 @@ describe("border", function() {
 
   it("should not add border for maxDisplay option by default", function() {
     var input = ".rule { left: 75px; }";
-    var output = ".rule { left: min(10vw, 62px); max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; }";
+    var output = ".rule { max-width: 620px !important; margin-left: auto !important; margin-right: auto !important; left: min(10vw, 62px); }";
     var processed = postcss(mobileToMultiDisplays({
       appSelector: ".rule",
       maxDisplayWidth: 620,
@@ -440,7 +440,7 @@ describe("sider", function() {
 describe("appContainingBlock", function() {
   it("manual", function() {
     var input = ".abc { left: 75px; } .def { left: 75px; position: fixed; width: 100%; }";
-    var output = ".abc { left: min(10vw, 60px); max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; } .def { left: min(10vw, 60px); position: fixed; width: 100%; }";
+    var output = ".abc { max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; left: min(10vw, 60px); } .def { left: min(10vw, 60px); position: fixed; width: 100%; }";
     var processed = postcss(mobileToMultiDisplays({
       maxDisplayWidth: 600,
       appContainingBlock: "manual",
@@ -451,7 +451,7 @@ describe("appContainingBlock", function() {
 
   it("auto", function() {
     var input = ".abc { left: 75px; } .necessary {} .def { left: 75px; position: fixed; width: 100%; }";
-    var output = ".abc { left: min(10vw, 60px); max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; transform: translateZ(0); height: 100vh !important; } .necessary { width: 100% !important; height: 100% !important; overflow: auto !important;} .def { left: min(10vw, 60px); position: fixed; width: 100%; }";
+    var output = ".abc { transform: translateZ(0); height: 100vh !important; max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; left: min(10vw, 60px); } .necessary { width: 100% !important; height: 100% !important; overflow: auto !important;} .def { left: min(10vw, 60px); position: fixed; width: 100%; }";
     var processed = postcss(mobileToMultiDisplays({
       maxDisplayWidth: 600,
       appContainingBlock: "auto",
@@ -463,7 +463,7 @@ describe("appContainingBlock", function() {
 
   it("default calc", function() {
     var input = ".abc { left: 75px; } .def { left: 75px; position: fixed; width: 100%; }";
-    var output = ".abc { left: min(10vw, 60px); max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; } .def { left: calc(50% - min(240px, 40%)); position: fixed; width: min(100%, 600px); }";
+    var output = ".abc { max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; left: min(10vw, 60px); } .def { left: calc(50% - min(240px, 40%)); position: fixed; width: min(100%, 600px); }";
     var processed = postcss(mobileToMultiDisplays({
       maxDisplayWidth: 600,
       appContainingBlock: "calc",
@@ -1413,7 +1413,7 @@ describe("experimental", function() {
 
     it("should clamp root element width", function() {
       var input = "#app { min-height: 100vh; }";
-      var output = "#app { min-height: 100vh; max-width: 1000px !important; margin-left: auto !important; margin-right: auto !important; min-width: 700px !important; }";
+      var output = "#app { min-width: 700px !important; max-width: 1000px !important; margin-left: auto !important; margin-right: auto !important; min-height: 100vh; }";
       var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
       expect(processed).toBe(output);
     });

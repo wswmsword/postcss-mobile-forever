@@ -15,6 +15,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.2.2] - 2024-10-22
+
+### Changed
+
+- 在添加居中样式时，将生成的代码添加到原始代码之前（append -> prepend），便于使用者覆盖插件生成的代码。
+
 ## [4.2.1] - 2024-10-18
 
 ### Fixed

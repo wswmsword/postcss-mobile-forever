@@ -698,12 +698,12 @@ module.exports = (options = {}) => {
           });
 
           if (autoAppContainingBlock) {
-            rule.append(bookObj(gpuLayer), bookObj(fullHVh))
+            rule.prepend(bookObj(gpuLayer), bookObj(fullHVh))
           }
         }
 
         if (selector === necessarySelectorWhenAuto && autoAppContainingBlock) {
-          rule.append(bookObj(fullW), bookObj(fullH), bookObj(autoOverflow));
+          rule.prepend(bookObj(fullW), bookObj(fullH), bookObj(autoOverflow));
           rule.processedAutoAppContainingBlock = true;
         }
 

@@ -11,11 +11,11 @@
 > 不同设备上的界面一致，不等于用户体验一致，使用 vw（或 rem）做移动端适配，是一种粗暴的、技术先于设计的适配方法，是一条技术捷径，请考虑站在用户的角度、利用专业知识，使用[响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)开发页面，使得用户在大尺寸设备上看到更丰富的内容，在小尺寸设备上看到更简洁的内容。
 
 postcss-mobile-forever 是一款 PostCSS 插件，用于将固定尺寸转为伸缩尺寸，得到一个能够等比例缩放的视图。mobile-forever 可以配合 [scale-view](https://github.com/wswmsword/scale-view) 使用，前者用于编译阶段，后者用于运行时。mobile-forever 有 3 种转换伸缩视图的模式，适用不同的场景：
-- **vw-mode**，不限制最大宽度，跟随屏幕的宽窄变化，视图将等比放大或缩小，通过 *px->vw* 实现
-- **mq-mode**，媒体查询 media-query 模式，**限制最大宽度**，区分桌面端与横屏两种宽度，产包较大，可访问性较优，不支持 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的样式转换，通过 *@media* 实现
-- **max-vw-mode**，**限制最大宽度**，不区分桌面端、横屏，达到预设宽度后即停止伸缩，产包较小，可访问性较差，通过 *min(vw, px)* 实现
+- ***vw-mode***，不限制最大宽度，跟随屏幕的宽窄变化，视图将等比放大或缩小，通过 *px->vw* 实现
+- ***mq-mode***，媒体查询 media-query 模式，**限制最大宽度**，区分桌面端与横屏两种宽度，产包较大，可访问性较优，不支持 [At 规则](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)中的样式转换，通过 *@media* 实现
+- ***max-vw-mode***，**限制最大宽度**，不区分桌面端、横屏，达到预设宽度后即停止伸缩，产包较小，可访问性较差，通过 *min(vw, px)* 实现
 
-mobile-forever 默认会矫正 `fixed` 定位的元素（例如将宽屏右下角的“Top”按钮矫正回中央视图区域），并支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
+后面的“[配置参数](#配置参数)”一节将介绍如何激活这些模式。mobile-forever 默认会矫正 `fixed` 定位的元素（例如将宽屏右下角的“Top”按钮矫正回中央视图区域），并支持[逻辑属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_logical_properties_and_values/Basic_concepts_of_logical_properties_and_values)的转换。
 
 ## 移动端模版和范例
 
