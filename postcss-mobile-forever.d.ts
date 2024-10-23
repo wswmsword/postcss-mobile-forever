@@ -1,7 +1,7 @@
 import { Plugin } from "postcss"
 
 declare namespace mobileForever {
-  type viewportWidthFunc = (file: string, selector: string) => number
+  type viewportWidthFunc = (file: string) => number
   type strOrReg = string | RegExp
   type propertyBlackList = strOrReg | (strOrReg | { [s: string]: strOrReg | strOrReg[] })[]
 

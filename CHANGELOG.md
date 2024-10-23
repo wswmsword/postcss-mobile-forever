@@ -15,6 +15,16 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.2.3] - 2024-10-23
+
+### Fixed
+
+- 修复 At 规则下的属性不转换、导致报错问题，[#59](https://github.com/wswmsword/postcss-mobile-forever/issues/59)。
+
+### Changed
+
+- 移除 `viewportWidth` 函数入参的第二个 `selector` 参数。
+
 ## [4.2.2] - 2024-10-22
 
 ### Changed

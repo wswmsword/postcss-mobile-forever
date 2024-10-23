@@ -1488,31 +1488,48 @@ describe("keyframes at rule", function() {
   });
 });
 
-describe("layer at rule", function() {
-  var input = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 12px solid green; font-size: 30px; padding: 75px; }} .abc { width: 75px }";
-  it("should transform @layer in max-vw-mode", function() {
-    var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: min(1.6vw, 9.6px) solid green; font-size: min(4vw, 24px); padding: min(10vw, 60px); }} .abc { width: min(10vw, 60px) }";
-    var processed = postcss(mobileToMultiDisplays({
-      "viewportWidth": 750,
-      "maxDisplayWidth": 600,
-    })).process(input).css;
-    expect(processed).toBe(output);
-  });
+describe("at rule", function() {
 
-  it("should transform @layer in vw-mode", function() {
-    var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 1.6vw solid green; font-size: 4vw; padding: 10vw; }} .abc { width: 10vw }";
-    var processed = postcss(mobileToMultiDisplays({
-      "viewportWidth": 750,
-    })).process(input).css;
-    expect(processed).toBe(output);
-  });
+  describe("layer", function() {
+    var input = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 12px solid green; font-size: 30px; padding: 75px; }} .abc { width: 75px }";
+    it("should transform @layer in max-vw-mode", function() {
+      var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: min(1.6vw, 9.6px) solid green; font-size: min(4vw, 24px); padding: min(10vw, 60px); }} .abc { width: min(10vw, 60px) }";
+      var processed = postcss(mobileToMultiDisplays({
+        "viewportWidth": 750,
+        "maxDisplayWidth": 600,
+      })).process(input).css;
+      expect(processed).toBe(output);
+    });
 
-  it("should not transform @layer in mq-mode", function() {
-    var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 12px solid green; font-size: 30px; padding: 75px; }} .abc { width: 10vw } @media (min-width: 600px) and (min-height: 640px){ .abc{ width: 60px;}} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape){ .abc{ width: 42.5px;}}";
-    var processed = postcss(mobileToMultiDisplays({
-      "viewportWidth": 750,
-      "enableMediaQuery": true,
-    })).process(input).css;
+    it("should transform @layer in vw-mode", function() {
+      var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 1.6vw solid green; font-size: 4vw; padding: 10vw; }} .abc { width: 10vw }";
+      var processed = postcss(mobileToMultiDisplays({
+        "viewportWidth": 750,
+      })).process(input).css;
+      expect(processed).toBe(output);
+    });
+
+    it("should not transform @layer in mq-mode", function() {
+      var output = "@layer base, special; @layer special { .item { color: rebeccapurple; }} @layer base { .item { color: green; border: 12px solid green; font-size: 30px; padding: 75px; }} .abc { width: 10vw } @media (min-width: 600px) and (min-height: 640px){ .abc{ width: 60px;}} @media (min-width: 600px) and (max-height: 640px), (max-width: 600px) and (min-width: 425px) and (orientation: landscape){ .abc{ width: 42.5px;}}";
+      var processed = postcss(mobileToMultiDisplays({
+        "viewportWidth": 750,
+        "enableMediaQuery": true,
+      })).process(input).css;
+      expect(processed).toBe(output);
+    });
+  })
+
+  it("font-face", function() {
+    var input = "@font-face { font-weight: 400; font-style: normal; }";
+    var output = "@font-face { font-weight: 400; font-style: normal; }";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 560 })).process(input).css;
     expect(processed).toBe(output);
-  });
-});
+  })
+
+  it("position-try", function() {
+    var input = "@position-try --custom-left { position-area: left; width: 100px; margin: 0 10px 0 0; }";
+    var output = "@position-try --custom-left { position-area: left; width: min(13.333vw, 74.667px); margin: 0 min(1.333vw, 7.467px) 0 0; }";
+    var processed = postcss(mobileToMultiDisplays({ maxDisplayWidth: 560 })).process(input).css;
+    expect(processed).toBe(output);
+  })
+})

@@ -120,7 +120,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 | Name | Type | Default | Desc                                                                                                                                                                                                                                                                                        |
 |:--|:--|:--|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| viewportWidth | number\|(file: string, selector: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度                                                                                                                                         |
+| viewportWidth | number\|(file: string) => number | 750 | 应用基于该宽度进行开发，转换后的伸缩视图将会以该宽度的视图作为标准进行比例伸缩；可以传递函数动态生成宽度，例如 `file => file.includes("vant") ? 375 : 750` 表示在名称包含“vant”的文件内使用 375px 的宽度，而其他文件使用 750px 的宽度                                                                                                                                         |
 | mobileUnit | string | "vw" | 移动端竖屏视口视图，转换成什么视口单位？                                                                                                                                                                                                                                                                        |
 | maxDisplayWidth | number | / | 限制视口单位的最大宽度，设定后将激活 **max-vw-mode**                                                                                                                                                                                                                                                                                 |
 | enableMediaQuery | boolean | false | 打开媒体查询模式，打开后将自动关闭 `maxDisplayWidth`，激活 **mq-mode**                                                                                                                                                                                                                                                         |
@@ -600,7 +600,7 @@ module.exports = {
 
 本插件媒体查询模式的目标是在不同尺寸的屏幕上展示**合适**的视图，在宽一点的屏幕上展示大一点的视图，在扁一点的屏幕上展示小一点的视图，在窄一些的屏幕展示移动端竖屏视图，而**非准确**地识别具体的设备或平台来应用对应视图。
 
-使用插件转换后的浏览器兼容性情况：媒体查询模式下会利用 CSS 函数 `calc()`，因此兼容性略有降低，Opera Mini 完全不可用，max-display-width 模式利用了 CSS 函数 `max()`、`min()` 以及 `calc()`，会有兼容性问题，IE、Opera Mini、QQ 浏览器 13.1 完全不可用，具体可以查看 [caniuse min(), max()](https://caniuse.com/css-math-functions)、[caniuse calc()](https://caniuse.com/calc)。
+使用插件转换后的浏览器兼容性情况：媒体查询模式下会利用 CSS 函数 `calc()`，因此兼容性略有降低，Opera Mini 完全不可用，max-vw-mode 利用了 CSS 函数 `max()`、`min()` 以及 `calc()`，会有兼容性问题，IE、Opera Mini、QQ 浏览器 13.1 完全不可用，具体可以查看 [caniuse min(), max()](https://caniuse.com/css-math-functions)、[caniuse calc()](https://caniuse.com/calc)。
 
 ## 期望效果
 
