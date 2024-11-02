@@ -68,7 +68,7 @@ function pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontView
 /** 以根元素为包含块的 left、right 属性的 px 值转换 */
 function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision) {
   const maxNRadio = maxDisplayWidth / viewportWidth;
-  const calc = 50 - round(number * 100 / viewportWidth, unitPrecision);
+  const calc = round(50 - number * 100 / viewportWidth, unitPrecision);
   const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
   if (number > maxDisplayWidth / 2)
     return `calc(50% - max(${calc2}px, ${calc}%))`;
@@ -78,7 +78,7 @@ function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPr
 /** 以根元素为包含块的 left、right 属性的 vw 值转换 */
 function vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
   const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
-  const calc2 = 50 - number;
+  const calc2 = round(50 - number, unitPrecision);
   if (number < 50) return `calc(50vw - min(${calc2}vw, ${calc}px))`;
   else return `calc(50vw - max(${calc2}vw, ${calc}px))`;
 }
@@ -86,7 +86,7 @@ function vwToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
 /** 以根元素为包含块的 left、right 属性的百分比 % 值转换 */
 function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
   const calc = round(maxDisplayWidth * (50 - number) / 100, unitPrecision);
-  const calc2 = 50 - number;
+  const calc2 = round(50 - number, unitPrecision);
   if (number < 50) return `calc(50% - min(${calc2}%, ${calc}px))`;
   else return `calc(50% - max(${calc2}%, ${calc}px))`;
 }

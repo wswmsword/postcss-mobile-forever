@@ -1533,3 +1533,15 @@ describe("at rule", function() {
     expect(processed).toBe(output);
   })
 })
+
+describe("others", function() {
+  it("unitPrecision", function() {
+    var input = ".rule { position: fixed; right: 187px; } .l{}";
+    var output = ".rule { position: fixed; right: calc(50% - min(0.64px, 0.133%)); } .l{}";
+    var processed = postcss(mobileToMultiDisplays({
+      viewportWidth: 375,
+      maxDisplayWidth: 480
+    })).process(input).css;
+    expect(processed).toBe(output);
+  });
+});
