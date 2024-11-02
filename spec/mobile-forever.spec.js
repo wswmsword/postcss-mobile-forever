@@ -777,10 +777,23 @@ describe("maxDisplayWidth", function() {
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
     expect(processed).toBe(output);
   });
-  it("shoud convert fixed left px greater than half maxDisplayWidth to calc(50% - max(px, vw))", function() {
+  it("shoud convert fixed left px greater than half viewportWidth to calc(50% - max(px, vw))", function() {
+    var input = ".rule { position: fixed; left: 376px; }";
+    var output = ".rule { position: fixed; left: calc(50% - max(-0.8px, -0.133%)); }";
+    var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+
     var input = ".rule { position: fixed; left: 750px; }";
     var output = ".rule { position: fixed; left: calc(50% - max(-300px, -50%)); }";
     var processed = postcss(mobileToMultiDisplays(baseOpts)).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { position: fixed; left: 188px; }";
+    var output = ".rule { position: fixed; left: calc(50% - max(-0.64px, -0.133%)); }";
+    var processed = postcss(mobileToMultiDisplays({
+      viewportWidth: 375,
+      maxDisplayWidth: 480
+    })).process(input).css;
     expect(processed).toBe(output);
   });
 

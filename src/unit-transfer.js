@@ -70,7 +70,7 @@ function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPr
   const maxNRadio = maxDisplayWidth / viewportWidth;
   const calc = round(50 - number * 100 / viewportWidth, unitPrecision);
   const calc2 = round(maxDisplayWidth / 2 - number * maxNRadio, unitPrecision)
-  if (number > maxDisplayWidth / 2)
+  if (number > viewportWidth / 2)
     return `calc(50% - max(${calc2}px, ${calc}%))`;
   else return `calc(50% - min(${calc2}px, ${calc}%))`;
 }
