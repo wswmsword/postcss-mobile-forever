@@ -23,12 +23,12 @@ postcss-mobile-forever 是一款 PostCSS 插件，用于将固定尺寸转为伸
 
 - [vue3-vant-mobile](https://github.com/easy-temps/vue3-vant-mobile)，一个基于 Vue 3 生态系统的移动 web 应用模板，帮助你快速完成业务开发。（[代码](https://github.com/easy-temps/vue3-vant-mobile)/[演示](https://vue3-vant-mobile.netlify.app/)，[自动矫正定位代码](./example/templates/vue3-vant-mobile)/[演示](https://wswmsword.github.io/examples/templates/vue3-vant-mobile/)）
 - [vue3-vant4-mobile](https://github.com/xiangshu233/vue3-vant4-mobile)，👋👋👋 基于Vue3.4、Vite5、Vant4、Pinia、Typescript、UnoCSS等主流技术开发，集成 Dark Mode（暗黑）模式和系统主题色，且持久化保存，集成 Mock 数据，包括登录/注册/找回/keep-alive/Axios/useEcharts/IconSvg 等其他扩展。你可以在此之上直接开发你的业务代码！（[代码](https://github.com/xiangshu233/vue3-vant4-mobile)/[演示](https://vvmobile.xiangshu233.cn/#/)）
-- [v-shop](https://github.com/JoeshuTT/v-shop)，🛒 v-shop 是一个移动端 H5 商城。（[代码](https://github.com/JoeshuTT/v-shop)/[演示](https://v-shop.shuzp.top/#/home)）
-- [vue-h5-template](https://github.com/sunniejs/vue-h5-template)，一个快速开发的 Vue H5 移动端脚手架。（[代码](./example/templates/vue-h5-template)/[演示](https://wswmsword.github.io/examples/templates/vue-h5-template/)）
+- [fantastic-mobile](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Ffantastic-mobile%2Fbasic)，一款自成一派的移动端 H5 框架，支持多款 UI 组件库，基于 Vue3。（[代码](https://github.com/fantastic-mobile/basic)/[演示](https://fantastic-mobile.hurui.me/basic-example/)）
+
 
 <details>
 <summary>
-文件夹 “example/” 内提供了在诸如 React、Svelte、Vue、Next.js、Nuxt 和原生 JavaScript 中使用 mobile-forever 的范例，范例中也包含部分上面的移动端模板，克隆本仓库后，通过命令行进入对应的范例文件夹中，即可运行。
+文件夹 “example/” 内提供了在框架中（如 React、Svelte、Next.js 等）和其它开源模版中使用 mobile-forever 的范例，范例中也包含部分上面的移动端模板，克隆本仓库后，通过命令行进入对应的范例文件夹中，即可运行。
 </summary>
 
 
@@ -38,14 +38,22 @@ npm install
 npm run start
 ```
 
-- [访问原生 JS 的 max-vw-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)，[查看原生 JS 的 max-vw-mode 源码](./example/others/maxDisplayWidth-vanilla/)；
-- [查看 Next.js 的 max-vw-mode 源码](./example/nextjs/)；
-- [查看 Nuxt 的 max-vw-mode 源码](./example/nuxtjs/)；
-- [访问原生 JS 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/vanilla/)，[查看原生 JS 的 mq-mode 源码](./example/vanilla/)；
-- [访问 React 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/react/)，[查看 React 的 mq-mode 源码](./example/react/)；
-- [访问 Vue 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/vue/)，[查看 Vue 的 mq-mode 源码](./example/vue/)；
-- [访问 Svelte 的 mq-mode 在线范例](https://wswmsword.github.io/examples/mobile-forever/svelte/)，[查看 Svelte 的 mq-mode 源码](./example/svelte)；
-- [访问在 Vue 中使用 Vant TabBar 的在线范例](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)，[查看在 Vue 中使用 Vant TabBar 的源码](./example/others/vant-vue/)。
+- 原生 JS 的 max-vw-mode。（[代码](./example/others/maxDisplayWidth-vanilla/)/[演示](https://wswmsword.github.io/examples/mobile-forever/maxDisplayWidth/)）
+- Next.js 的 max-vw-mode。（[代码](./example/nextjs/)）
+- Nuxt 的 max-vw-mode。（[代码](./example/nuxtjs/)）
+- 原生 JS 的 mq-mode。（[代码](./example/vanilla/)/[演示](https://wswmsword.github.io/examples/mobile-forever/vanilla/)）
+- React 的 mq-mode。（[代码](./example/react/)/[演示](https://wswmsword.github.io/examples/mobile-forever/react/)）
+- Vue 的 mq-mode。（[代码](./example/vue/)/[演示](https://wswmsword.github.io/examples/mobile-forever/vue/)）
+- Svelte 的 mq-mode。（[代码](./example/svelte)/[演示](https://wswmsword.github.io/examples/mobile-forever/svelte/)）
+- Vue 使用 Vant TabBar 的 mq-mode。（[代码](./example/others/vant-vue/)/[演示](https://wswmsword.github.io/examples/mobile-forever/vant-vue/)）
+
+---
+
+- [v-shop](https://github.com/JoeshuTT/v-shop)，🛒 v-shop 是一个移动端 H5 商城。（[代码](./example/templates/v-shop)/[演示](https://wswmsword.github.io/examples/templates/v-shop/)）
+- [vue-h5-template](https://github.com/sunniejs/vue-h5-template)，一个快速开发的 Vue H5 移动端脚手架。（[代码](./example/templates/vue-h5-template)/[演示](https://wswmsword.github.io/examples/templates/vue-h5-template/)）
+- [KITE-TRIP](https://github.com/sakurafall/KITE-TRIP)，一个简单的旅游应用模版。（[代码](./example/templates/kite-trip/)/[演示](https://wswmsword.github.io/examples/templates/kite-trip/)）
+- [vue3-calendar](https://github.com/qddidi/vue3-calendar)，基于 Vue3 实现的万年历、老黄历、日历。（[代码](./example/templates/vue3-calendar/)/[演示](https://wswmsword.github.io/examples/templates/vue3-calendar/)）
+
 </details>
 
 ## 安装和迁移
@@ -700,4 +708,5 @@ module.exports = {
 - [CSS3 Media Queries overview](http://cssmediaqueries.com/overview.html)，一个网站，展示本机当前应用的媒体查询；
 - “[Don't target specific devices or sizes!](https://stackoverflow.com/a/20350990)”，一条答案，解释为什么不应该通过设备类型适配界面；
 - [Media Queries for Standard Devices](https://css-tricks.com/snippets/css/media-queries-for-standard-devices/)，罗列了各种屏幕的媒体查询；
+- [增强 vw/rem 移动端适配](https://juejin.cn/post/7431558902171484211)，一篇介绍增强 vw 的科普博文。
 - [响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)，MDN 的响应式设计教程。

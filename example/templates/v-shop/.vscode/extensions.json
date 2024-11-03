@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "mikestead.dotenv",
+    "dbaeumer.vscode-eslint",
+    "mhutchie.git-graph",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "Vue.volar"
+  ]
+}

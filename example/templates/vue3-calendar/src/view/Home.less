@@ -1,0 +1,343 @@
+.calendar_wrapper {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding-top: 40px;
+  .calendar_nav {
+    font-weight: bolder;
+    padding: 8px 10px;
+    color: #000;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 100;
+    left: 0;
+    font-size: 16px;
+    .calendar_nav_back {
+      span {
+        font-size: 14px;
+      }
+      flex: 1;
+    }
+    .calendar_nav_date {
+      flex: 1;
+      text-align: center;
+    }
+    .calendar_nav_jin {
+      flex: 1;
+      display: flex;
+      flex-direction: row-reverse;
+      .cnj {
+        border: 1px solid #4e6ef2;
+        padding: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        .cnj_inner {
+          width: 100%;
+          height: 100%;
+          background: #fff;
+          color: #4e6ef2;
+          font-size: 14px;
+          text-align: center;
+          border-radius: 50%;
+        }
+      }
+    }
+  }
+  .calendar {
+    padding: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+    .calendar_body {
+      .calendar_body_week {
+        display: flex;
+        .cbw_item {
+          flex: 1;
+          text-align: center;
+          font-size: 16px;
+        }
+      }
+      .calendar_body_date {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        .cbd_item {
+          width: calc(100% / 7 - 1px);
+          text-align: center;
+          padding: 10px 0;
+
+          margin-top: 4px;
+          .cbd_item_yangli {
+            font-weight: bolder;
+            font-size: 20px;
+          }
+          .cbd_item_yinli {
+            font-size: 12px;
+          }
+          .cbd_item_fest {
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 12px;
+            text-overflow: ellipsis;
+            -o-text-overflow: ellipsis;
+            color: #e54041;
+          }
+          .cbd_item_jq {
+            font-size: 12px;
+            color: #4e6ef2;
+          }
+        }
+        .notnowmonth {
+          opacity: 0.3;
+        }
+        .nowork,
+        .ban {
+          position: relative;
+          ::after {
+            background: #e54041;
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            line-height: 20px;
+            transform: scale(0.7);
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            content: "休";
+          }
+        }
+        .ban {
+          ::after {
+            content: "班";
+            background: #4e5877;
+          }
+        }
+        .nowdate {
+          background: #4e6ef2;
+          color: #fff;
+          border-radius: 10px;
+
+          .cbd_item_fest {
+            color: #fff !important;
+            padding: 0 4px;
+          }
+        }
+        .selectday {
+          border: 1px solid #4e6ef2;
+          border-radius: 10px;
+          box-sizing: border-box;
+          padding: 9px 0;
+        }
+      }
+    }
+    .wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .block {
+      width: 80%;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+  }
+  .showinfo {
+    background-color: #fff;
+    margin-top: 10px;
+    padding: 10px;
+    .showinfo_yili {
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      .showinfo_yili_icon {
+        font-size: 30px;
+        font-weight: bolder;
+        color: #000;
+        width: 50px;
+      }
+      .showinfo_yili_mid {
+        flex: 1;
+      }
+      .showinfo_yili_til {
+        font-size: 22px;
+        font-weight: bolder;
+      }
+      .showinfo_yili_info {
+        display: flex;
+        justify-content: space-around;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+    }
+    .showinfo_yiji {
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      .showinfo_yiji_cont {
+        flex: 1;
+      }
+      .showinfo_yiji_wrapper {
+        background: #c69c70;
+        padding: 3px;
+        width: 30px;
+        border-radius: 5px;
+
+        .syw_inner {
+          border: 1px solid #fff;
+          color: #fff;
+          border-radius: 5px;
+          text-align: center;
+          padding: 10px 0;
+        }
+      }
+      .syc_yi {
+        display: flex;
+
+        margin-bottom: 10px;
+        .syc_icon {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 1px solid #1fb68b;
+          padding: 2px;
+          box-sizing: border-box;
+
+          .syc_icon_inner {
+            background: #1fb68b;
+            color: #fff;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+        .syc_ji {
+          border: 1px solid gray;
+          .j_inner {
+            background: gray;
+          }
+        }
+        .syc_icon_item {
+          flex: 1;
+          font-size: 15px;
+          display: flex;
+          flex-wrap: wrap;
+          span {
+            margin-left: 10px;
+            margin-top: 5px;
+          }
+        }
+      }
+    }
+    .showinfo_getmore {
+      border-radius: 10px;
+      margin-top: 10px;
+      background: #ffefef;
+      margin-top: 10px;
+      border: 1px solid #c69c70;
+      text-align: center;
+      padding: 10px;
+    }
+    .showinfo_wxcs {
+      border-radius: 6px;
+      margin-top: 10px;
+      background: #fff;
+      margin-top: 10px;
+      border: 1px solid #c69c70;
+      .showinfo_wxcs_wcz {
+        display: flex;
+        justify-content: space-between;
+
+        border-bottom: 1px solid #c69c70;
+        .sww_item {
+          flex: 1;
+          padding: 10px 0;
+          justify-content: center;
+          display: flex;
+          border-right: 1px solid #c69c70;
+          .sww_item_til {
+            color: #c69c70;
+            font-size: 16px;
+            margin-bottom: 5px;
+            margin-right: 5px;
+          }
+          .sww_item_value {
+            color: #000;
+            font-size: 16px;
+          }
+        }
+        .noboder {
+          border: none;
+        }
+      }
+      .showinfo_wxcs_cf {
+        display: flex;
+        font-size: 16px;
+        border-top: 1px solid #c69c70;
+        .swc_shen {
+          display: flex;
+          padding: 10px 0;
+          flex: 1;
+          &:nth-of-type(1) {
+            border-right: 1px solid #c69c70;
+          }
+          .swc_shen_label {
+            color: #c69c70;
+            flex: 1;
+            text-align: center;
+          }
+          .swc_shen_value {
+            color: #000;
+            flex: 1;
+            text-align: center;
+          }
+        }
+      }
+      .showinfo_wxcs_sycj {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        .sws_label {
+          width: 40px;
+          color: #c69c70;
+        }
+        .sws_value {
+          flex: 1;
+          display: flex;
+        }
+        .nowtime {
+          color: #c69c70;
+        }
+      }
+      .pzbj {
+        border-top: 1px solid #c69c70;
+        padding: 10px;
+        text-align: center;
+        .pzbj_til {
+          color: #c69c70;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}

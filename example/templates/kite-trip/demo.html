@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+  <button class="btn">随机数</button>
+
+  <script>
+    // 1. 给定的数据
+    const values = [200, 400, 600, 800, 1000]
+
+    // 2. 监听按钮的点击
+    const btnEl = document.querySelector(".btn")
+    btnEl.onclick = () => {
+      const currentValue = Math.floor(Math.random() * 1500)
+      matchIndex(currentValue)
+    }
+    
+    // 匹配对应的索引
+    function matchIndex(currentValue) {
+      let currentIndex = values.length - 1
+
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        if (value > currentValue) {
+          currentIndex = i - 1
+          break
+        }
+      }
+      
+      if (currentIndex === -1) return
+      console.log("value:", currentValue, "index:", currentIndex)
+    }
+
+  </script>
+
+</body>
+</html>

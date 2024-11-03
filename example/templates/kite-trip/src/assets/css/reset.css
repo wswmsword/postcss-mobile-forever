@@ -1,0 +1,21 @@
+html {
+  line-height: 1.2;
+}
+
+body, h1, h2, h3, h4, ul, li {
+  padding: 0;
+  margin: 0;
+}
+
+ul, li {
+  list-style: none;
+}
+
+a {
+  color: #333;
+  text-decoration: none;
+}
+
+img {
+  vertical-align: top;
+}
