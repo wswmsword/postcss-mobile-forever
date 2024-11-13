@@ -23,7 +23,7 @@ postcss-mobile-forever 是一款 PostCSS 插件，用于将固定尺寸转为伸
 
 - [vue3-vant-mobile](https://github.com/easy-temps/vue3-vant-mobile)，一个基于 Vue 3 生态系统的移动 web 应用模板，帮助你快速完成业务开发。（[代码](https://github.com/easy-temps/vue3-vant-mobile)/[演示](https://vue3-vant-mobile.netlify.app/)，[自动矫正定位代码](./example/templates/vue3-vant-mobile)/[演示](https://wswmsword.github.io/examples/templates/vue3-vant-mobile/)）
 - [vue3-vant4-mobile](https://github.com/xiangshu233/vue3-vant4-mobile)，👋👋👋 基于Vue3.4、Vite5、Vant4、Pinia、Typescript、UnoCSS等主流技术开发，集成 Dark Mode（暗黑）模式和系统主题色，且持久化保存，集成 Mock 数据，包括登录/注册/找回/keep-alive/Axios/useEcharts/IconSvg 等其他扩展。你可以在此之上直接开发你的业务代码！（[代码](https://github.com/xiangshu233/vue3-vant4-mobile)/[演示](https://vvmobile.xiangshu233.cn/#/)）
-- [fantastic-mobile](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Ffantastic-mobile%2Fbasic)，一款自成一派的移动端 H5 框架，支持多款 UI 组件库，基于 Vue3。（[代码](https://github.com/fantastic-mobile/basic)/[演示](https://fantastic-mobile.hurui.me/basic-example/)）
+- [fantastic-mobile](https://github.com/fantastic-mobile/basic)，一款自成一派的移动端 H5 框架，支持多款 UI 组件库，基于 Vue3。（[代码](https://github.com/fantastic-mobile/basic)/[演示](https://fantastic-mobile.hurui.me/basic-example/)）
 
 
 <details>
@@ -708,5 +708,5 @@ module.exports = {
 - [CSS3 Media Queries overview](http://cssmediaqueries.com/overview.html)，一个网站，展示本机当前应用的媒体查询；
 - “[Don't target specific devices or sizes!](https://stackoverflow.com/a/20350990)”，一条答案，解释为什么不应该通过设备类型适配界面；
 - [Media Queries for Standard Devices](https://css-tricks.com/snippets/css/media-queries-for-standard-devices/)，罗列了各种屏幕的媒体查询；
-- [增强 vw/rem 移动端适配](https://juejin.cn/post/7431558902171484211)，一篇介绍增强 vw 的科普博文。
+- [增强 vw/rem 移动端适配](https://juejin.cn/post/7431558902171484211)，一篇介绍增强 vw 的科普博文；
 - [响应式设计](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)，MDN 的响应式设计教程。
