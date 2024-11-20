@@ -10,6 +10,12 @@ function percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecisi
   else return `max(${numberStr}%, ${maxN}px)`;
 }
 
+/** fixed 定位的百分比尺寸向 rem 转换 */
+function percentageToRemUnit(number, viewportWidth, unitPrecision) {
+  if (number === 0) return "0%";
+  return `${round(viewportWidth * number / 10000, unitPrecision)}rem`;
+}
+
 /** 限制百分比的最大最小宽度 */
 function percentageToClampLength(number, maxDisplayWidth, minDisplayWidth, numberStr, unitPrecision) {
   if (number === 0) return "0%";
@@ -24,6 +30,12 @@ function vwToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision) {
   const maxN = round(maxDisplayWidth * number / 100, unitPrecision);
   if (number > 0) return `min(${numberStr}vw, ${maxN}px)`;
   else return `max(${numberStr}vw, ${maxN}px)`;
+}
+
+/** vw 向 rem 转换 */
+function vwToRemUnit(number, viewportWidth, unitPrecision) {
+  if (number === 0) return "0vw";
+  return `${round(viewportWidth * number / 10000, unitPrecision)}rem`
 }
 
 /** vw 限制最大最小宽度 */
@@ -65,6 +77,15 @@ function pxToViewUnit(prop, number, unit, viewportWidth, unitPrecision, fontView
   return `${n}${mobileUnit}`;
 }
 
+/** px 转为 rem */
+function pxToRemUnit(number, unitPrecision, viewportUnit, fontViewportUnit, prop, basicRemRatio) {
+  if (number === 0) return `0px`;
+  const fontProp = prop.includes("font");
+  const n = round(number * basicRemRatio / 100, unitPrecision);
+  const mobileUnit = fontProp ? fontViewportUnit : viewportUnit;
+  return `${n}${mobileUnit}`
+}
+
 /** 以根元素为包含块的 left、right 属性的 px 值转换 */
 function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPrecision) {
   const maxNRadio = maxDisplayWidth / viewportWidth;
@@ -73,6 +94,11 @@ function pxToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, viewportWidth, unitPr
   if (number > viewportWidth / 2)
     return `calc(50% - max(${calc2}px, ${calc}%))`;
   else return `calc(50% - min(${calc2}px, ${calc}%))`;
+}
+
+function pxToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision, basicRemRatio) {
+  const n = round((viewportWidth / 2 - number * basicRemRatio) / 100, unitPrecision);
+  return `calc(50% - ${n}rem)`;
 }
 
 /** 以根元素为包含块的 left、right 属性的 vw 值转换 */
@@ -89,6 +115,16 @@ function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
   const calc2 = round(50 - number, unitPrecision);
   if (number < 50) return `calc(50% - min(${calc2}%, ${calc}px))`;
   else return `calc(50% - max(${calc2}%, ${calc}px))`;
+}
+
+function vwToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision) {
+  const n = round(number * viewportWidth / 100, unitPrecision)
+  return `calc(50vw - ${n}rem)`;
+}
+
+function percentageToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision) {
+  const n = round(number * viewportWidth / 100, unitPrecision)
+  return `calc(50% - ${n}rem)`;
 }
 
 /** px 转为媒体查询中的 px */
@@ -171,4 +207,10 @@ module.exports = {
   percentageToClampLength,
   vwToClampLength,
   pxToClampLength,
+  percentageToRemUnit,
+  vwToRemUnit,
+  pxToRemUnit,
+  pxToRemUnit_FIXED_LR,
+  vwToRemUnit_FIXED_LR,
+  percentageToRemUnit_FIXED_LR,
 };

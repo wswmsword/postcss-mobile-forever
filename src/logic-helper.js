@@ -1,6 +1,6 @@
 const { unitContentMatchReg, fixedUnitContentReg } = require("./regexs");
 const { containingBlockWidthProps, horisontalContainingBlockLogicalProps, verticleContainingBlockLogicalProps } = require("./constants");
-const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit, pxToClampLength, vwToClampLength, percentageToClampLength } = require("./unit-transfer");
+const { vwToMediaQueryPx, pxToMediaQueryPx, noUnitZeroToMediaQueryPx_FIXED_LR, pxToMediaQueryPx_FIXED_LR, vwToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED_LR, percentToMediaQueryPx_FIXED, pxToMaxViewUnit, vwToMaxViewUnit, pxToViewUnit, pxToMaxViewUnit_FIXED_LR, vwToMaxViewUnit_FIXED_LR, percentToMaxViewUnit_FIXED_LR, percentageToMaxViewUnit, pxToClampLength, vwToClampLength, percentageToClampLength, pxToRemUnit, vwToRemUnit, pxToRemUnit_FIXED_LR, vwToRemUnit_FIXED_LR, percentageToRemUnit_FIXED_LR, percentageToRemUnit } = require("./unit-transfer");
 
 /** 创建 fixed 时依赖宽度的属性 map */
 const createContainingBlockWidthDecls = (isVerticalWritingMode) => {
@@ -296,6 +296,16 @@ const convertMaxMobile = (number, unit, maxDisplayWidth, viewportWidth, unitPrec
   else return `${number}${unit}`;
 }
 
+/** 转换非 fixed 定位的 px，向 rem 转换 */
+const convertRem = (number, unit, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, basicRemRatio) => {
+  if (unit === "px") {
+    return pxToRemUnit(number, unitPrecision, viewportUnit, fontViewportUnit, prop, basicRemRatio);
+  } else if (unit === "vw") {
+    return vwToRemUnit(number, viewportWidth, unitPrecision);
+  }
+  else return `${number}${unit}`;
+}
+
 /** 转换移动端竖屏，包含块是根元素，left、right 属性 */
 const convertMaxMobile_FIXED_LR = (number, unit, maxDisplayWidth, viewportWidth, unitPrecision, numberStr) => {
   if (unit === "px")
@@ -307,6 +317,20 @@ const convertMaxMobile_FIXED_LR = (number, unit, maxDisplayWidth, viewportWidth,
   else if (unit === " " || unit === "") {
     if (number === 0)
       return `calc(50% - min(50%, ${maxDisplayWidth / 2}px))`;
+    return `${number}${unit}`;
+  } else return `${numberStr}${unit}`;
+};
+
+const convertRem_FIXED_LR = (number, unit, viewportWidth, unitPrecision, numberStr, basicRemRatio) => {
+  if (unit === "px")
+    return pxToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision, basicRemRatio);
+  else if (unit === "vw")
+    return vwToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision);
+  else if (unit === '%')
+    return percentageToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision);
+  else if (unit === " " || unit === "") {
+    if (number === 0)
+      return `calc(50% - ${viewportWidth / 200}rem)`;
     return `${number}${unit}`;
   } else return `${numberStr}${unit}`;
 };
@@ -327,6 +351,16 @@ const convertMaxMobile_FIXED = (number, unit, maxDisplayWidth, viewportWidth, un
       percentageToClampLength(number, maxDisplayWidth, minDisplayWidth, numberStr, unitPrecision) :
       percentageToMaxViewUnit(number, maxDisplayWidth, numberStr, unitPrecision);
   } else return `${numberStr}${unit}`;
+};
+
+const convertRem_FIXED = (number, unit, viewportWidth, unitPrecision, viewportUnit, fontViewportUnit, prop, numberStr, basicRemRatio) => {
+  if (unit === "px") {
+    return pxToRemUnit(number, unitPrecision, viewportUnit, fontViewportUnit, prop, basicRemRatio);
+  } else if (unit === "vw") {
+    return vwToRemUnit(number, viewportWidth, unitPrecision);
+  } else if (unit === '%') {
+    return percentageToRemUnit(number, viewportWidth, unitPrecision);
+  } else return `${numberStr}${unit}123`;
 };
 
 module.exports = {
@@ -350,4 +384,7 @@ module.exports = {
   convertMaxMobile_FIXED_LR,
   convertMaxMobile_FIXED,
   hasApplyWithoutConvertComment,
+  convertRem,
+  convertRem_FIXED_LR,
+  convertRem_FIXED,
 };

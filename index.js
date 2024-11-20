@@ -7,10 +7,13 @@ const { removeDuplicateDecls, mergeRules, createRegArrayChecker, createIncludeFu
   convertPropValue,
   convertMaxMobile_FIXED_LR,
   convertMaxMobile_FIXED,
+  convertRem,
+  convertRem_FIXED_LR,
+  convertRem_FIXED,
 } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
 const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendCentreRoot,
-  appendDisplaysRule, appendCSSVar, extractFile, appendSiders,
+  appendDisplaysRule, appendCSSVar, extractFile, appendSiders, appendRemFontSize,
 } = require("./src/css-generator");
 const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment,
   verticalComment,
@@ -30,6 +33,8 @@ const defaults = {
   appSelector: "#app",
   /** 标准视图宽度 */
   viewportWidth: 750,
+  /** rem 模式的基准宽度 */
+  basicRemWidth: null,
   /** 视图展示的最大宽度，单位会转换成诸如 min(vw, px) 的形式 */
   maxDisplayWidth: null,
   /** 打开媒体查询，打开后将自动关闭 maxDisplayWidth */
@@ -182,6 +187,7 @@ module.exports = (options = {}) => {
     propList, maxDisplayWidth, comment, mobileUnit, customLengthProperty, experimental,
     appContainingBlock,
     necessarySelectorWhenAuto,
+    basicRemWidth,
   } = opts;
   const disableDesktop = enableMediaQuery ? opts.disableDesktop : true;
   const disableLandscape = enableMediaQuery ? opts.disableLandscape : true;
@@ -189,7 +195,6 @@ module.exports = (options = {}) => {
   const { width: sideWidth, width1: sideW1, width2: sideW2, width3: sideW3, width4: sideW4, gap: sideGap, selector1: side1, selector2: side2, selector3: side3, selector4: side4 } = side;
   const { applyWithoutConvert: AWC_CMT, rootContainingBlock: RCB_CMT, notRootContainingBlock: NRCB_CMT, ignoreNext: IN_CMT, ignoreLine: IL_CMT, verticalWritingMode: VWM_CMT } = comment;
   const { rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList, disableAutoApply } = customLengthProperty;
-  const fontViewportUnit = "vw";
 
   const _minDesktopDisplayWidth = minDesktopDisplayWidth == null ? desktopWidth : minDesktopDisplayWidth;
 
@@ -230,10 +235,6 @@ module.exports = (options = {}) => {
       const isDynamicViewportWidth = typeof viewportWidth === "function";
       /** 视图宽度 */
       const _viewportWidth = isDynamicViewportWidth ? viewportWidth(file) : viewportWidth;
-      /** 桌面端缩放比例 */
-      let desktopRadio = 1;
-      /** 移动端横屏缩放比例 */
-      let landscapeRadio = 1;
       /** 选择器在黑名单吗 */
       let blackListedSelector = null;
       /** 是否添加过调试代码了？ */
@@ -244,10 +245,17 @@ module.exports = (options = {}) => {
       let walkedRule = false;
       /** 媒体查询模式，media-query mode */
       const mqMode = enableMediaQuery === true;
+      /** rem 模式，相比 max-vw 模式有更小的产包 */
+      const remMode = !mqMode && (mobileUnit === "rem" || basicRemWidth != null);
       /** max-vw 模式 */
-      const maxVwMode = !enableMediaQuery && (maxDisplayWidth != null);
+      const maxVwMode = !mqMode && !remMode && (maxDisplayWidth != null);
       /** vw 模式 */
-      const vwMode = !mqMode && !maxVwMode;
+      const vwMode = !mqMode && !remMode && !maxVwMode;
+      /** rem 模式的基准宽度 */
+      const _basicRemWidth = remMode ? basicRemWidth == null ? _viewportWidth : basicRemWidth : null;
+      /** rem 模式下，基准宽度和当前视图宽度的比值，用于将视图统一转换为基准视图宽度 */
+      const remRatio = _basicRemWidth / _viewportWidth;
+      const fontViewportUnit = remMode ? "rem" : mobileUnit;
       /** 忽略矫正 fixed 定位 */
       const ignoreToCorrectFixed = ["manual", "auto"].includes(appContainingBlock);
       /** 需要添加到应用根元素的样式，该样式用于指定根元素为包含块 */
@@ -294,56 +302,52 @@ module.exports = (options = {}) => {
           },
           AtRule: initContainingBlockWidthDeclsMap,
           Rule,
-          Declaration(decl) {
-
-            const { prop, value: val } = decl;
-            if (decl.book) return; // 被标记过不转换
-            if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
-
-            if (!satisfyPropList(prop)) return ;
-            if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
-            if (isMatchedStr(valueBlackList, val)) return; // 属性值是否在黑名单中
-
-            if (prop === "position" && val === "fixed" && !ignoreToCorrectFixed) return hadFixed = true;
-            if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
-            // 如果有标注不转换注释，不进行转换
-            if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) return ;
-            // 是否忽略百分比转换？如果不忽略，则需要收集哪些属性会涉及到根包含块
-            if (!ignoreToCorrectFixed) {
-              // 该属性是用于设置根包含块的变量属性
-              const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
-              isRootContainingBlockProp && (hadFixed = true);
-              // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
-              if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
-                const important = decl.important;
-                const mapDecl = containingBlockWidthDeclsMap.get(prop);
-                if (mapDecl == null || important || !mapDecl.important)
-                  containingBlockWidthDeclsMap.set(prop, decl);
-                return;
-              }
-            }
-
-            if (preflightReg.test(val)) {
-              const { mobile } = convertPropValue(prop, val, {
-                enabledMobile: true,
-                matchPercentage: false,
-                convertMobile(number, unit, numberStr) {
-                  if (maxVwMode)
-                    return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
-                  else
-                    return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
-                },
-              });
-              decl.book = true;
-              decl.value = mobile;
-            }
-
-          },
+          Declaration,
           RuleExit: transformContainingBlockWidthDecls,
           AtRuleExit: transformContainingBlockWidthDecls,
           OnceExit(css) {
             const appendedDvh = dvhAtRule.nodes.length > 0;
             if (appendedDvh) css.append(dvhAtRule);
+          }
+        }
+      }
+
+      let maxRemAtRule = [];
+      let hasHtmlRule = false;
+
+      if (remMode) {
+        return {
+          Once(_, postcss) {
+            dvhAtRule = postcss.atRule({ name: "supports", params: "(min-height: 100dvh)", nodes: [] });
+          },
+          AtRule: initContainingBlockWidthDeclsMap,
+          Rule,
+          Declaration,
+          RuleExit: transformContainingBlockWidthDecls,
+          AtRuleExit: transformContainingBlockWidthDecls,
+          OnceExit(css, postcss) {
+            const appendedDvh = dvhAtRule.nodes.length > 0;
+            if (appendedDvh) css.append(dvhAtRule);
+
+            if (hasHtmlRule) {
+              const _maxDisplayWidth = [].concat(maxDisplayWidth);
+              maxRemAtRule = _maxDisplayWidth.map(w => {
+                const mediaRule = postcss.atRule({
+                  name: "media",
+                  params: `(min-width: ${w}px)`,
+                });
+                const htmlRule = postcss.rule({
+                  selector: "html",
+                }).append(bookObj({
+                  prop: "font-size",
+                  value: `${w * 100 / _basicRemWidth}px`,
+                  important: true,
+                }));
+                mediaRule.append(htmlRule);
+                return mediaRule;
+              });
+              maxRemAtRule.forEach(atRule => css.append(atRule));
+            }
           }
         }
       }
@@ -646,11 +650,9 @@ module.exports = (options = {}) => {
         isVerticalWritingMode = false;
         blackListedSelector = false;
 
-        if (mqMode) {
-          /** 桌面端缩放比例 */
-          desktopRadio = desktopWidth / _viewportWidth;
-          /** 移动端横屏缩放比例 */
-          landscapeRadio = landscapeWidth / _viewportWidth;
+        if (remMode && !hasHtmlRule) {
+          hasHtmlRule = selector === "html";
+          hasHtmlRule && appendRemFontSize(rule, _basicRemWidth);
         }
 
         // 设置页面最外层 class 的最大宽度，并居中
@@ -663,7 +665,7 @@ module.exports = (options = {}) => {
             dvhAtRule,
             desktopWidth,
             landscapeWidth,
-            maxVwMode,
+            maxWidthMode: maxVwMode || remMode,
             maxDisplayWidth,
             minDisplayWidth,
           });
@@ -690,7 +692,7 @@ module.exports = (options = {}) => {
             }
           }
 
-          if (prop === "writing-mode" && ["vertical-rl", "vertical-lr", "sideways-rl", "sideways-lr", "tb", "tb-rl"].includes(val))
+          if (!isVerticalWritingMode && prop === "writing-mode" && ["vertical-rl", "vertical-lr", "sideways-rl", "sideways-lr", "tb", "tb-rl"].includes(val))
             isVerticalWritingMode = true;
         });
 
@@ -723,7 +725,15 @@ module.exports = (options = {}) => {
             enabledMobile: true,
             matchPercentage: hadFixed,
             convertMobile: (number, unit, numberStr) => {
-              if (maxVwMode) {
+              if (remMode) {
+                if (hadFixed) {
+                  if (leftOrRight)
+                    return convertRem_FIXED_LR(number, unit, _basicRemWidth, unitPrecision, numberStr, remRatio);
+                  return convertRem_FIXED(number, unit, _basicRemWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, remRatio);
+                }
+                return convertRem(number, unit, _basicRemWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, remRatio);
+              }
+              else if (maxVwMode) {
                 if (hadFixed) {
                   if (leftOrRight)
                     return convertMaxMobile_FIXED_LR(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, numberStr);
@@ -739,6 +749,54 @@ module.exports = (options = {}) => {
           decl.value = mobile;
         });
         containingBlockWidthDeclsMap = new Map();
+      }
+
+      function Declaration(decl) {
+
+        const { prop, value: val } = decl;
+        if (decl.book) return; // 被标记过不转换
+        if (blackListedSelector) return; // 属性在黑名单选择器中，不进行转换
+
+        if (!satisfyPropList(prop)) return ;
+        if (isMatchedSelectorProperty(propertyBlackList, selector, prop)) return; // 属性是否在黑名单中
+        if (isMatchedStr(valueBlackList, val)) return; // 属性值是否在黑名单中
+
+        if (prop === "position" && val === "fixed" && !ignoreToCorrectFixed) return hadFixed = true;
+        if (hasIgnoreComments(decl, result, IN_CMT, IL_CMT)) return;
+        // 如果有标注不转换注释，不进行转换
+        if (hasApplyWithoutConvertComment(decl, result, AWC_CMT)) return ;
+        // 是否忽略百分比转换？如果不忽略，则需要收集哪些属性会涉及到根包含块
+        if (!ignoreToCorrectFixed) {
+          // 该属性是用于设置根包含块的变量属性
+          const isRootContainingBlockProp = rootContainingBlockList_LR.includes(prop) || rootContainingBlockList_NOT_LR.includes(prop);
+          isRootContainingBlockProp && (hadFixed = true);
+          // 受 fixed 布局影响的，需要在 ruleExit 中计算的属性
+          if (containingBlockWidthDeclsMap.has(prop) || isRootContainingBlockProp) {
+            const important = decl.important;
+            const mapDecl = containingBlockWidthDeclsMap.get(prop);
+            if (mapDecl == null || important || !mapDecl.important)
+              containingBlockWidthDeclsMap.set(prop, decl);
+            return;
+          }
+        }
+
+        if (preflightReg.test(val)) {
+          const { mobile } = convertPropValue(prop, val, {
+            enabledMobile: true,
+            matchPercentage: false,
+            convertMobile(number, unit, numberStr) {
+              if (remMode)
+                return convertRem(number, unit, _basicRemWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, remRatio);
+              else if (maxVwMode)
+                return convertMaxMobile(number, unit, maxDisplayWidth, _viewportWidth, unitPrecision, mobileUnit, fontViewportUnit, prop, numberStr, minDisplayWidth);
+              else
+                return convertMobile(prop, number, unit, _viewportWidth, unitPrecision, fontViewportUnit, mobileUnit);
+            },
+          });
+          decl.book = true;
+          decl.value = mobile;
+        }
+
       }
 
     },

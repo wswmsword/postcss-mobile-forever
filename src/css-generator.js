@@ -211,6 +211,14 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
   }
 }
 
+function appendRemFontSize(rule, basicViewWidth) {
+  rule.prepend(b({
+    prop: 'font-size',
+    value: `${10000 / basicViewWidth}vw`, // 100 / basicViewWidth * 100
+    important: true,
+  }))
+}
+
 function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
   rule,
   desktopViewAtRule,
@@ -219,14 +227,14 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   dvhAtRule,
   desktopWidth,
   landscapeWidth,
-  maxVwMode,
+  maxWidthMode,
   maxDisplayWidth,
   minDisplayWidth,
 }) {
   const hadBorder = !!border;
   const c = typeof border === "string" ? border : "#8888881f";
   const isClamp = minDisplayWidth != null;
-  if (maxVwMode) {
+  if (maxWidthMode) {
     if (hadBorder) {
       rule.prepend(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(shadowBorder(c)), b(minFullHeight), b(autoHeight));
       if (dvhAtRule.nodes.length === 0) dvhAtRule.append(postcss.rule({ selector }).append(b(minDFullHeight)));
@@ -236,25 +244,26 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
       isClamp && rule.prepend(b(minWidth(minDisplayWidth)));
     }
     rule.processedLimitedCentreWidth = true; // 做标记，防止死循环
-  }
-  if (hadBorder) {
-    appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
-      desktopViewAtRule,
-      landScapeViewAtRule,
-      sharedAtRule,
-      dvhAtRule,
-      desktopWidth,
-      landscapeWidth,
-      borderColor: c,
-    });
   } else {
-    appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
-      desktopViewAtRule,
-      landScapeViewAtRule,
-      sharedAtRule,
-      desktopWidth,
-      landscapeWidth,
-    });
+    if (hadBorder) { 
+      appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
+        desktopViewAtRule,
+        landScapeViewAtRule,
+        sharedAtRule,
+        dvhAtRule,
+        desktopWidth,
+        landscapeWidth,
+        borderColor: c,
+      });
+    } else {
+      appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
+        desktopViewAtRule,
+        landScapeViewAtRule,
+        sharedAtRule,
+        desktopWidth,
+        landscapeWidth,
+      });
+    }
   }
 }
 
@@ -287,4 +296,5 @@ module.exports = {
   appendSiders,
   appendDisplaysRule,
   extractFile,
+  appendRemFontSize,
 };
