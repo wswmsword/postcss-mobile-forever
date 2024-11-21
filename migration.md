@@ -1,6 +1,6 @@
 # 迁移
 
-下面是一些对 rem 移动端适配做 vw 迁移的说明。
+下面是一些对 rem+js 移动端适配做 mobile-forever 迁移的说明。
 
 ## amfe-flexible 2.0 & postcss-px2rem
 

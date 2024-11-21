@@ -27,6 +27,16 @@ describe("mobile-forever", function() {
     })).process(input).css;
     var output3 = "#app { width: 100%; } .nav { position: fixed; width: 100%; height: 9.6vw; left: 0; top: 0; }";
     expect(processed).toBe(output3);
+
+    input = "html {} #app { width: 100%; } .nav { position: fixed; width: 100%; height: 72px; left: 0; top: 0; }";
+    var processed = postcss(mobileToMultiDisplays({
+      appSelector: "#app",
+      "viewportWidth": 750,
+      "maxDisplayWidth": 560,
+      "mobileUnit": "rem",
+    })).process(input).css;
+    var output4 = "html { font-size: 13.333333333333334vw !important;} #app { max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; width: 100%; } .nav { position: fixed; width: 7.5rem; height: 0.72rem; left: calc(50% - 3.75rem); top: 0; } @media (min-width: 560px) { html { font-size: 74.66666666666667px !important;}}";
+    expect(processed).toBe(output4);
   });
 
   it("should convert px to desktop and landscape radio px", function() {
@@ -1546,6 +1556,45 @@ describe("at rule", function() {
     expect(processed).toBe(output);
   })
 })
+
+describe("rem-mode", function() {
+
+  it("should convert rem from px", function() {
+    var input = "html {} .rule { width: 100px }";
+    var output = "html { font-size: 13.333333333333334vw !important} .rule { width: 1rem } @media (min-width: 560px) { html { font-size: 74.66666666666667px !important}}";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, maxDisplayWidth: 560, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed property", function() {
+    var input = ".rule { position: fixed; width: 50% }";
+    var output = ".rule { position: fixed; width: 3.75rem }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { position: fixed; width: 50vw }";
+    var output = ".rule { position: fixed; width: 3.75rem }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+  });
+
+  it("should convert fixed left/right", function() {
+    var input = ".rule { position: fixed; left: 50% }";
+    var output = ".rule { position: fixed; left: calc(50% - 3.75rem) }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { position: fixed; right: 50vw }";
+    var output = ".rule { position: fixed; right: calc(50vw - 3.75rem) }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = ".rule { position: fixed; right: 75px }";
+    var output = ".rule { position: fixed; right: calc(50% - 3rem) }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(output);
+  })
+});
 
 describe("others", function() {
   it("unitPrecision", function() {

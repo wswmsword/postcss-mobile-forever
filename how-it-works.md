@@ -71,6 +71,8 @@
 		- 例如，转换前，`left: 0;`，
 		- 转换后，`left: calc(50% - min(50%, 300px));`。
 
+除了上面利用 vw 限制最大宽度，另一种方法是使用 rem。当元素都使用 rem 作为尺寸单位时，根元素的 `font-size` 是否动态，决定了视图是否伸缩。mobile-forever 通过设置根元素的 `font-size` 为一个 vw 值，vw 的值是根据宽度变化的，因此这时 `font-size` 是动态的。mobile-forever 又利用 `media-query` 来让 `font-size` 达到某一宽度后，值变为静止的 `px`，从而达到限制伸缩视图宽度的目的。
+
 更多有关限制视口最大宽度的信息，请查看一篇科普博文“[增强 vw/rem 移动端适配](https://juejin.cn/post/7431558902171484211)”，这篇博文也解释了如何通过 CSS 函数矫正 `fixed` 定位的元素。
 
 ---

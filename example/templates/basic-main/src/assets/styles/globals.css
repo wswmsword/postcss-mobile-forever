@@ -1,0 +1,35 @@
+:root {
+  --g-navbar-height: 50px;
+  --g-tabbar-height: 60px;
+
+  color-scheme: light;
+
+  &.dark {
+    color-scheme: dark;
+  }
+}
+
+html {
+  overscroll-behavior: none;
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+/* 全局样式 */
+#app {
+  overflow: hidden auto;
+  font-size: 14px;
+  background-color: var(--g-bg);
+}
+
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 1100;
+}

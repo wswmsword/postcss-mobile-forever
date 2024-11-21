@@ -8,12 +8,19 @@
 
 ### Added
 
-- 添加全宽注释用于在桌面端全宽展示部分元素。
+- 添加选项用于关闭 `calc` 的应用以提高兼容性。
 
 ### Fixed
 
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
+
+## [4.3.0] - 2024-11-21
+
+### Added
+
+- 新增 *rem-mode*，通过 rem 结合 vw 和媒体查询，限制伸缩视图最大宽度，相比 *vw-mode* 有更高兼容性和更小产包；
+- 新增 `basicRemWidth` 选项。
 
 ## [4.2.4] - 2024-11-03
 
