@@ -118,12 +118,12 @@ function percentToMaxViewUnit_FIXED_LR(number, maxDisplayWidth, unitPrecision) {
 }
 
 function vwToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision) {
-  const n = round(number * viewportWidth / 100, unitPrecision)
+  const n = round(number * viewportWidth / 10000, unitPrecision)
   return `calc(50vw - ${n}rem)`;
 }
 
 function percentageToRemUnit_FIXED_LR(number, viewportWidth, unitPrecision) {
-  const n = round(number * viewportWidth / 100, unitPrecision)
+  const n = round(number * viewportWidth / 10000, unitPrecision)
   return `calc(50% - ${n}rem)`;
 }
 
