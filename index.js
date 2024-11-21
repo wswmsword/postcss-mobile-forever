@@ -206,6 +206,8 @@ module.exports = (options = {}) => {
   /** 需要添加到桌面端和横屏的 css 变量 */
   const expectedLengthVars = [...new Set([].concat(rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList))].filter(e => e != null);
 
+  const defaultViewportWidth = typeof viewportWidth === "function" ? viewportWidth() : viewportWidth;
+
   return {
     postcssPlugin: PLUGIN_NAME,
     prepare(result) {
@@ -252,7 +254,7 @@ module.exports = (options = {}) => {
       /** vw 模式 */
       const vwMode = !mqMode && !remMode && !maxVwMode;
       /** rem 模式的基准宽度 */
-      const _basicRemWidth = remMode ? basicRemWidth == null ? _viewportWidth : basicRemWidth : null;
+      const _basicRemWidth = remMode ? basicRemWidth == null ? defaultViewportWidth : basicRemWidth : null;
       /** rem 模式下，基准宽度和当前视图宽度的比值，用于将视图统一转换为基准视图宽度 */
       const remRatio = _basicRemWidth / _viewportWidth;
       const fontViewportUnit = remMode ? "rem" : mobileUnit;

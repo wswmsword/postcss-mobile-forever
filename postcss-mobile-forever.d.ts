@@ -12,6 +12,9 @@ declare namespace mobileForever {
     /** 限制视口单位的最大宽度，使用该参数不可以打开 `disableMobile` */
     maxDisplayWidth?: number
 
+    /** rem 模式的基准宽度 */
+    basicRemWidth?: number
+
     /** 打开媒体查询模式，打开后将自动关闭 maxDisplayWidth */
     enableMediaQuery?: boolean
 
