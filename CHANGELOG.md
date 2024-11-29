@@ -15,6 +15,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.3.1] - 2024-11-29
+
+### Fixed
+
+- 修复 rem-mode 下 fixed 定位的元素，并且该元素和包含块宽度相关，长度没有单位时被转换成 “123” 的问题，[#62](https://github.com/wswmsword/postcss-mobile-forever/issues/62)。
+
 ## [4.3.0] - 2024-11-21
 
 ### Added

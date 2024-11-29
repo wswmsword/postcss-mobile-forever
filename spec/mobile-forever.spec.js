@@ -1576,6 +1576,10 @@ describe("rem-mode", function() {
     var output = ".rule { position: fixed; width: 3.75rem }";
     var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
     expect(processed).toBe(output);
+
+    var input = ".rule { position: fixed; margin: 0 auto; }";
+    var processed = postcss(mobileToMultiDisplays({ viewportWidth: 750, mobileUnit: "rem" })).process(input).css;
+    expect(processed).toBe(input);
   });
 
   it("should convert fixed left/right", function() {

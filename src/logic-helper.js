@@ -360,7 +360,7 @@ const convertRem_FIXED = (number, unit, viewportWidth, unitPrecision, viewportUn
     return vwToRemUnit(number, viewportWidth, unitPrecision);
   } else if (unit === '%') {
     return percentageToRemUnit(number, viewportWidth, unitPrecision);
-  } else return `${numberStr}${unit}123`;
+  } else return `${numberStr}${unit}`;
 };
 
 module.exports = {
