@@ -1050,7 +1050,7 @@ describe("fixed position in media queries", function() {
 
 describe("dynamic viewportWidth", function() {
   var options = {
-    viewportWidth: file => file?.includes("vant") ? 375 : 750,
+    viewportWidth: file => file.includes("vant") ? 375 : 750,
   };
   it("should use truthy viewportWidth by dynamic viewportWidth", function() {
     var input = ".rule { left: 75px; font-size: 75px; } .l{}";

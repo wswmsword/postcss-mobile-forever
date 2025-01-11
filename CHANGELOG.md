@@ -15,6 +15,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.3.2] - 2025-01-11
+
+### Fixed
+
+- 修复函数 viewportWidth 入参为 `undefined` 问题，[#69](https://github.com/wswmsword/postcss-mobile-forever/issues/69)。
+
 ## [4.3.1] - 2024-11-29
 
 ### Fixed

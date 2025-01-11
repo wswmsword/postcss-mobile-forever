@@ -106,7 +106,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 
 ## 配置参数
 
-一大波配置参数正在靠近，不必焦虑，尽在掌握，深入之前可以先尝试最基础的配置参数。下方是一个基础配置（max-vw-mode），表示了应用正在基于 `750px` 的宽度开发，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例缩放，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图始终处于浏览器窗口的中央区域：
+一大波配置参数正在靠近，不必焦虑，尽在掌握，首先我们尝试最基础的配置（max-vw-mode）：
 
 ```json
 {
@@ -116,7 +116,9 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 }
 ```
 
-下面的每一项都是可选的，设定 `viewportWidth` 后激活 **vw-mode**，设定 `maxDisplayWidth` 后激活 **max-vw-mode**，设定 `basicRemWidth` 或指定 `mobileUnit` 的值为 `rem` 后，激活 **rem-mode**，设定 `enableMediaQuery` 后激活 **mq-mode**。前 3 种模式的属性设定是递进的，后一个模式需要同时设定前一个模式的所需属性。
+这样的配置也许已经满足了项目要求。它表示了应用正在基于 `750px` 的宽度编码，经过 mobile-forever 转换后，浏览器中，应用视图将被限制在 `600px` 宽度以内进行等比例缩放，当宽度大于 `600px`，视图将不改变，并且根元素 `#app` 的应用视图始终处于浏览器窗口的中央区域。继续浏览以处理特殊情况。
+
+下表的每一项都是可选的。设定 `viewportWidth` 后激活 **vw-mode**，设定 `maxDisplayWidth` 后激活 **max-vw-mode**，指定 `mobileUnit` 的值为 `rem` 或设定 `basicRemWidth` 后，激活 **rem-mode**。这 3 种模式的属性设定是递进的，后一个模式需要同时设定前一个模式的所需属性。设定 `viewportWidth` 和 `enableMediaQuery` 后激活 **mq-mode**。
 
 激活 *max-vw-mode*、*rem-mode*、*mq-mode* 后，样式文件中至少要包含空的应用最外层选择器，例如 `#app {}`，激活 `rem-mode` 后，样式文件还要至少包含空的 `<html>` 选择器，例如 `html {}`。
 

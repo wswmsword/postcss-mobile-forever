@@ -206,12 +206,12 @@ module.exports = (options = {}) => {
   /** 需要添加到桌面端和横屏的 css 变量 */
   const expectedLengthVars = [...new Set([].concat(rootContainingBlockList_LR, rootContainingBlockList_NOT_LR, ancestorContainingBlockList))].filter(e => e != null);
 
-  const defaultViewportWidth = typeof viewportWidth === "function" ? viewportWidth() : viewportWidth;
+  const defaultViewportWidth = typeof viewportWidth === "function" ? viewportWidth('') : viewportWidth;
 
   return {
     postcssPlugin: PLUGIN_NAME,
     prepare(result) {
-      const file = result.root && result.root.source && result.root.source.input.file;
+      const file = result.root && result.root.source && result.root.source.input.file || '';
       const from = result.opts.from;
       // 包含文件
       if(hasNoIncludeFile(include, file, includeType)) return;
