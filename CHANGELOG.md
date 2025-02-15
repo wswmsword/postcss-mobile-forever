@@ -15,6 +15,13 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [4.4.0] - 2025-02-15
+
+### Added
+
+- 包含块的指定使用 `contain: layer` 替代 `transform: transformZ(0)` 避免性能问题；
+- 优化 `necessarySelectorWhenAuto` 逻辑，使其符合使用直觉，减弱使用负担。
+
 ## [4.3.2] - 2025-01-11
 
 ### Fixed

@@ -460,13 +460,13 @@ describe("appContainingBlock", function() {
   });
 
   it("auto", function() {
-    var input = ".abc { left: 75px; } .necessary {} .def { left: 75px; position: fixed; width: 100%; }";
-    var output = ".abc { transform: translateZ(0); height: 100vh !important; max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; left: min(10vw, 60px); } .necessary { width: 100% !important; height: 100% !important; overflow: auto !important;} .def { left: min(10vw, 60px); position: fixed; width: 100%; }";
+    var input = "bdy {} .abc { left: 75px; } .def { left: 75px; position: fixed; width: 100%; }";
+    var output = "bdy { max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; contain: layout; height: 100vh;} .abc { width: 100% !important; height: 100% !important; overflow: auto !important; left: min(10vw, 60px); } .def { left: min(10vw, 60px); position: fixed; width: 100%; } @supports (min-height: 100dvh) { bdy { height: 100dvh;}}";
     var processed = postcss(mobileToMultiDisplays({
       maxDisplayWidth: 600,
       appContainingBlock: "auto",
       appSelector: ".abc",
-      necessarySelectorWhenAuto: ".necessary",
+      necessarySelectorWhenAuto: "bdy",
     })).process(input).css;
     expect(processed).toBe(output);
   });

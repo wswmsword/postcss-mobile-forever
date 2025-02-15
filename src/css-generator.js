@@ -1,4 +1,4 @@
-const { marginL, marginR, maxWidth, shadowBorder, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth, minDFullHeight } = require("./constants");
+const { marginL, marginR, maxWidth, shadowBorder, minFullHeight, autoHeight, lengthProps, fixedPos, autoDir, sideL, sideR, top, bottom, width, minWidth, minDFullHeight, dFullHeight, layoutContain, fullHVh } = require("./constants");
 const { bookObj: b } = require("./utils");
 const { convertPropValue, } = require("./logic-helper");
 const { varTestReg } = require("./regexs");
@@ -183,6 +183,27 @@ function appendMarginCentreRootClassNoBorder(postcss, selector, disableDesktop, 
   }
 }
 
+function appendMarginCentreBodyClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  sharedAtRule,
+  desktopWidth,
+  landscapeWidth
+}) {
+  if (disableDesktop && !disableLandscape) {
+    // 仅移动端横屏
+    landScapeViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(landscapeWidth), marginL, marginR, fullHVh, layoutContain));
+  } else if (disableLandscape && !disableDesktop) {
+    // 仅桌面
+    desktopViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(desktopWidth), marginL, marginR, fullHVh, layoutContain));
+  } else if (!disableDesktop && !disableLandscape) {
+    // 桌面和移动端横屏
+    desktopViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(desktopWidth)));
+    landScapeViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(landscapeWidth)));
+    sharedAtRule.append(postcss.rule({ selector }).prepend(marginL, marginR, fullHVh, layoutContain));
+  }
+}
+
 /** 居中最外层选择器，用 margin 居中，有 border */
 function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
   desktopViewAtRule,
@@ -208,6 +229,28 @@ function appendMarginCentreRootClassWithBorder(postcss, selector, disableDesktop
     desktopViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(desktopWidth)));
     landScapeViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(landscapeWidth)));
     sharedAtRule.append(postcss.rule({ selector }).prepend(marginL, marginR, shadowBorder(borderColor), minFullHeight, autoHeight));
+  }
+}
+
+function appendMarginCentreBodyClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  sharedAtRule,
+  desktopWidth,
+  landscapeWidth,
+  borderColor,
+}) {
+  if (disableDesktop && !disableLandscape) {
+    // 仅移动端横屏
+    landScapeViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(landscapeWidth), fullHVh, marginL, marginR, shadowBorder(borderColor), layoutContain));
+  } else if (disableLandscape && !disableDesktop) {
+    // 仅桌面
+    desktopViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(desktopWidth), fullHVh, marginL, marginR, shadowBorder(borderColor), layoutContain));
+  } else if (!disableDesktop && !disableLandscape) {
+    // 桌面和移动端横屏
+    desktopViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(desktopWidth)));
+    landScapeViewAtRule.append(postcss.rule({ selector }).prepend(maxWidth(landscapeWidth)));
+    sharedAtRule.append(postcss.rule({ selector }).prepend(marginL, marginR, shadowBorder(borderColor), layoutContain, fullHVh));
   }
 }
 
@@ -267,6 +310,57 @@ function appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, b
   }
 }
 
+function appendCentreBody(postcss, selector, disableDesktop, disableLandscape, border, {
+  rule,
+  desktopViewAtRule,
+  landScapeViewAtRule,
+  sharedAtRule,
+  desktopWidth,
+  landscapeWidth,
+  dvhAtRule,
+  maxWidthMode,
+  maxDisplayWidth,
+  minDisplayWidth,
+}) {
+  const hadBorder = !!border;
+  const c = typeof border === "string" ? border : "#8888881f";
+  const isClamp = minDisplayWidth != null;
+  if (maxWidthMode) {
+    if (hadBorder) {
+      rule.prepend(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(shadowBorder(c)), b(fullHVh), b(layoutContain));
+    }
+    else {
+      rule.prepend(b(maxWidth(maxDisplayWidth)), b(marginL), b(marginR), b(layoutContain), b(fullHVh));
+      isClamp && rule.prepend(b(minWidth(minDisplayWidth)));
+    }
+    if (dvhAtRule.nodes.length === 0) dvhAtRule.append(postcss.rule({ selector }).append(b(dFullHeight)));
+    rule.processedLimitedCentreWidth = true; // 做标记，防止死循环
+  } else {
+    if (hadBorder) {
+      appendMarginCentreBodyClassWithBorder(postcss, selector, disableDesktop, disableLandscape, {
+        desktopViewAtRule,
+        landScapeViewAtRule,
+        sharedAtRule,
+        desktopWidth,
+        landscapeWidth,
+        borderColor: c,
+      });
+    } else {
+      appendMarginCentreBodyClassNoBorder(postcss, selector, disableDesktop, disableLandscape, {
+        desktopViewAtRule,
+        landScapeViewAtRule,
+        sharedAtRule,
+        desktopWidth,
+        landscapeWidth,
+      });
+    }
+    if (!disableDesktop || !disableLandscape) {
+      if (dvhAtRule.nodes.length === 0)
+        dvhAtRule.append(postcss.rule({ selector }).append(dFullHeight));
+    }
+  }
+}
+
 function appendSiders(postcss, siders, desktopWidth, maxLandscapeDisplayHeight) {
   const defaultSideW = 190;
   const side1W = siders[0].width ?? defaultSideW;
@@ -292,6 +386,7 @@ module.exports = {
   appendMediaRadioPxOrReplaceMobileVwFromPx,
   appendDemoContent,
   appendCentreRoot,
+  appendCentreBody,
   appendCSSVar,
   appendSiders,
   appendDisplaysRule,

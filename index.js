@@ -12,12 +12,12 @@ const { removeDuplicateDecls, mergeRules, createRegArrayChecker, createIncludeFu
   convertRem_FIXED,
 } = require("./src/logic-helper");
 const { createPropListMatcher } = require("./src/prop-list-matcher");
-const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendCentreRoot,
+const { appendMediaRadioPxOrReplaceMobileVwFromPx, appendDemoContent, appendCentreRoot, appendCentreBody,
   appendDisplaysRule, appendCSSVar, extractFile, appendSiders, appendRemFontSize,
 } = require("./src/css-generator");
 const { PLUGIN_NAME, demoModeSelector, lengthProps, applyComment, rootCBComment, notRootCBComment, ignoreNextComment, ignorePrevComment,
   verticalComment,
-  gpuLayer, fullW, fullH, autoOverflow, fullHVh
+  fullW, fullH, autoOverflow,
 } = require("./src/constants");
 const { pxToMediaQueryPx_noUnit, vwToMediaQueryPx_noUnit, percentToMediaQueryPx_FIXED_noUnit } = require("./src/unit-transfer");
 const path = require('path');
@@ -49,8 +49,8 @@ const defaults = {
   maxLandscapeDisplayHeight: 640,
   /** 用于指定应用根元素作为包含块 */
   appContainingBlock: "calc", // manual | auto | calc
-  /** 指定 appContainingBlock auto 后的应用第二级选择器名称 */
-  necessarySelectorWhenAuto: null,
+  /** 指定 appContainingBlock auto 后，指定包含块的选择器名称，应是 appSelector 父元素 */
+  necessarySelectorWhenAuto: "body",
   /** 在页面外层展示边框吗 */
   border: false,
   /** 不做桌面端的适配 */
@@ -659,27 +659,37 @@ module.exports = (options = {}) => {
 
         // 设置页面最外层 class 的最大宽度，并居中
         if (selector === appSelector) {
-          appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+          if (autoAppContainingBlock) {
+            rule.prepend(bookObj(fullW), bookObj(fullH), bookObj(autoOverflow));
+            rule.processedAutoAppContainingBlock = true;
+          } else
+            appendCentreRoot(postcss, selector, disableDesktop, disableLandscape, border, {
+              rule,
+              desktopViewAtRule,
+              landScapeViewAtRule,
+              sharedAtRule,
+              dvhAtRule,
+              desktopWidth,
+              landscapeWidth,
+              maxWidthMode: maxVwMode || remMode,
+              maxDisplayWidth,
+              minDisplayWidth,
+            });
+        }
+
+        if (selector === necessarySelectorWhenAuto && autoAppContainingBlock) {
+          appendCentreBody(postcss, selector, disableDesktop, disableLandscape, border, {
             rule,
             desktopViewAtRule,
             landScapeViewAtRule,
             sharedAtRule,
-            dvhAtRule,
             desktopWidth,
             landscapeWidth,
+            dvhAtRule,
             maxWidthMode: maxVwMode || remMode,
             maxDisplayWidth,
             minDisplayWidth,
           });
-
-          if (autoAppContainingBlock) {
-            rule.prepend(bookObj(gpuLayer), bookObj(fullHVh))
-          }
-        }
-
-        if (selector === necessarySelectorWhenAuto && autoAppContainingBlock) {
-          rule.prepend(bookObj(fullW), bookObj(fullH), bookObj(autoOverflow));
-          rule.processedAutoAppContainingBlock = true;
         }
 
         // 标记优先级最高的各个属性

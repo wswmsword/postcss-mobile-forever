@@ -3,9 +3,9 @@ module.exports = {
     ["postcss-mobile-forever", {
       viewportWidth: 750,
       maxDisplayWidth: 600,
-      appSelector: "#app-containing-block",
+      appSelector: "#root",
       appContainingBlock: "auto",
-      necessarySelectorWhenAuto: ".root-class",
+      necessarySelectorWhenAuto: "body",
     }],
   ],
 };

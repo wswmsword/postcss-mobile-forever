@@ -42,6 +42,10 @@ module.exports = {
     prop: 'min-height',
     value: '100dvh',
   },
+  dFullHeight: {
+    prop: 'height',
+    value: '100dvh',
+  },
   autoHeight: {
     prop: 'height',
     value: 'auto',
@@ -75,9 +79,9 @@ module.exports = {
     prop: "bottom",
     value: `${b}px`,
   }),
-  gpuLayer: {
-    prop: "transform",
-    value: "translateZ(0)"
+  layoutContain: {
+    prop: "contain",
+    value: "layout"
   },
   fullW: {
     prop: "width",
@@ -92,7 +96,6 @@ module.exports = {
   fullHVh: {
     prop: "height",
     value: "100vh",
-    important: true,
   },
   autoOverflow: {
     prop: "overflow",

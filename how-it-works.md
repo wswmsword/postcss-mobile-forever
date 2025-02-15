@@ -110,6 +110,8 @@
 
 上面是媒体查询模式的计算方式，CSS 函数的计算方式与之不同，具体的计算方式可以直接查看另一个项目 [scale-view](https://github.com/wswmsword/scale-view) 的源码。使用 CSS 函数计算方式同样会识别 fixed 定位的尺寸单位，对于无法识别的选择器则需要手动指定，在一开始提到过，指定应用的根包含块之后，就可以避免这些问题，因此如果项目有太多的 fixed 定位元素，可以通过这个方法来省一点心，避免手动指定无法识别的 fixed 定位选择器，尚不清楚指定包含快是否会有其它副作用，例如性能。
 
+> [有很多方法指定包含块](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_display/Containing_block#identifying_the_containing_block)，其中 `transform: translateZ(0)` 可能有性能问题，所以 mobile-forever 利用 `contain: layer` 指定包含块。
+
 有的选择器是 fixed 定位的，但是无法识别，例如下面这样：
 
 ```css

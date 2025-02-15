@@ -132,8 +132,8 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | desktopWidth | number | 600 | 适配到桌面端宽度时，展示的视图宽度                                                                                                                                                                                                                                                                             |
 | landscapeWidth | number | 425 | 适配到移动端横屏宽度时，展示的视图宽度                                                                                                                                                                                                                                                                           |
 | appSelector | string | / | 页面最外层选择器，例如“`#app`”，用于设置在桌面端和移动端横屏时的居中样式，样式文件中至少要包含空的选择器 `#app {}`                                                                                                                                                                                                                                                    |
-| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸，是默认行为；`auto` 将通过 `transform: translateZ(0)` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto`                                            |
-| necessarySelectorWhenAuto | string | / | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 往内一层的元素选择器，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性，您也可以查看[使用这个属性的示例项目](./example/cases/auto-app-containing-block/postcss.config.js)以了解如何使用这个属性 |
+| appContainingBlock | "calc"\|"manual"\|"auto" | "calc" | 该属性和矫正 `fixed` 定位元素有关，`manual` 将不矫正；`calc` 将通过插件主动计算的方式矫正元素尺寸，是默认行为；`auto` 将通过 `contain: layer` 强制设置根[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)为 `appSelector`，从而自动矫正元素，并且此时需要设置属性 `necessarySelectorWhenAuto`                                            |
+| necessarySelectorWhenAuto | string | "body" | 当 `appContainingBlock` 设为 `auto` 时，需要指定该属性，该属性指定了 `appSelector` 的父元素，查看一个[关于指定元素作为包含块的实验](https://github.com/wswmsword/web-experiences/tree/main/css/fixed-on-containing-block)以了解如何使用该属性，您也可以查看[使用这个属性的示例项目](./example/cases/auto-app-containing-block/postcss.config.js)以了解如何使用这个属性 |
 | border | boolean\|string | false | 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串                                                                                                                                                                                                                                                        |
 | disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                    |
 | disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                  |
@@ -145,7 +145,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | selectorBlackList | (string\|RegExp)[] | [] | 选择器黑名单，名单上的不转换                                                                                                                                                                                                                                                                              |
 | propertyBlackList | propertyBlackList | [] | 属性黑名单，名单上的不转换，如果要指定选择器内的属性，用对象的键表示选择器名称，具体用法见 [vant 的范例代码](./example/others/vant-vue/postcss.config.cjs#L9C17-L9C17)                                                                                                                                                                        |
 | valueBlackList | (string\|RegExp)[] | [] | 属性值黑名单，名单上的值不转换                                                                                                                                                                                                                                                                             |
-| rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同                                                                                                                                                                                                                                      |
+| rootContainingBlockSelectorList | (string\|RegExp)[] | [] | 包含块是根元素的选择器列表，效果和标注注释 `/* root-containing-block */` 相同，如果列表数量庞大，请考虑指定  `appContainingBlock` 为 `auto`                                                                                                                                                                                                                                      |
 | verticalWritingSelectorList | (string\|RegExp)[] | [] | 纵向书写模式的选择器列表，效果和在选择器顶部标注注释 `/* vertical-writing-mode */` 相同                                                                                                                                                                                                                                 |
 | minDesktopDisplayWidth | number | / | 宽度断点，如果不提供这个值，默认使用 `desktopWidth` 的值，视图大于这个宽度，则页面宽度是桌面端宽度 `desktopWidth`，“原理和输入输出范例”一节具体介绍了该值的触发情况                                                                                                                                                                                          |
 | maxLandscapeDisplayHeight | number | 640 | 高度断点，视图小于这个高度，并满足一定条件，则页面使用移动端横屏宽度，“原理和输入输出范例”一节具体介绍了该值的触发情况                                                                                                                                                                                                                                |
@@ -260,7 +260,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
   "maxLandscapeDisplayHeight": 640,
   "appSelector": "#app",
   "appContainingBlock": "calc",
-  "necessarySelectorWhenAuto": null,
+  "necessarySelectorWhenAuto": "body",
   "border": false,
   "disableDesktop": false,
   "disableLandscape": false,
@@ -522,6 +522,8 @@ appSelector 所在元素的居中属性会被占用，包括 `margin-left`、`ma
 - filter 的值不是 none 或 will-change 的值是 filter（只在 Firefox 下生效）；
 - contain 的值是 paint（例如：`contain: paint;`）；
 - backdrop-filter 的值不是 none（例如：`backdrop-filter: blur(10px);`）。
+
+如果使用了原子化 CSS 框架，例如 [UnoCSS](https://unocss.dev/)、[tailwindcss](https://tailwindcss.com/)，这样的项目里每一个 CSS 属性都是单独的选择器，需要把包含块从浏览器窗口设置成应用根元素，才能解决 fixed 定位矫正问题。当使用原子化 CSS 框架后，请查看并使用 `appContainingBlock` 和 `necessarySelectorWhenAuto` 选项。
 
 <details>
 <summary>

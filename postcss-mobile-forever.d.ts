@@ -36,7 +36,7 @@ declare namespace mobileForever {
     /** 矫正 fixed 定位元素的方式 */
     appContainingBlock?: "calc" | "manual" | "auto"
 
-    /** 指定 `appSelector` 往内一层的元素选择器，当 `appContainingBlock` 值为 `auto` 时，需要设置该属性 */
+    /** 指定应用的包含块，当 `appContainingBlock` 值为 `auto` 时，需要设置该属性 */
     necessarySelectorWhenAuto?: string
 
     /** 在页面外层展示边框吗，用于分辨居中的小版心布局和背景，可以设置颜色字符串 */

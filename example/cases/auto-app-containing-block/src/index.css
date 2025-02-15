@@ -3,10 +3,6 @@ body {
 }
 
 
-#app-containing-block {
-  width: 100%;
-}
-
-.root-class {
+#root {
   width: 100%;
 }
