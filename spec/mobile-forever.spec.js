@@ -469,6 +469,24 @@ describe("appContainingBlock", function() {
       necessarySelectorWhenAuto: "bdy",
     })).process(input).css;
     expect(processed).toBe(output);
+
+    var input = "body {} .abc { left: 75px; } .def { left: 10%; position: fixed; width: 100%; }";
+    var output = "body { max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; contain: layout; height: 100vh;} .abc { width: 100% !important; height: 100% !important; overflow: auto !important; left: min(10vw, 60px); } .def { left: 10%; position: fixed; width: 100%; } @supports (min-height: 100dvh) { body { height: 100dvh;}}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+      appContainingBlock: "auto",
+      appSelector: ".abc",
+    })).process(input).css;
+    expect(processed).toBe(output);
+
+    var input = "body {} .abc { left: 75px; } .def { left: 10vw; position: fixed; width: 100%; }";
+    var output = "body { max-width: 600px !important; margin-left: auto !important; margin-right: auto !important; contain: layout; height: 100vh;} .abc { width: 100% !important; height: 100% !important; overflow: auto !important; left: min(10vw, 60px); } .def { left: min(10vw, 60px); position: fixed; width: 100%; } @supports (min-height: 100dvh) { body { height: 100dvh;}}";
+    var processed = postcss(mobileToMultiDisplays({
+      maxDisplayWidth: 600,
+      appContainingBlock: "auto",
+      appSelector: ".abc",
+    })).process(input).css;
+    expect(processed).toBe(output);
   });
 
   it("default calc", function() {
