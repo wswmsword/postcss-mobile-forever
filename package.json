@@ -1,6 +1,6 @@
 {
   "name": "postcss-mobile-forever",
-  "version": "4.4.0",
+  "version": "5.0.0",
   "description": "PostCSS 伸缩视图转换插件。To adapt different displays by one mobile viewport.",
   "main": "index.js",
   "types": "postcss-mobile-forever.d.ts",
