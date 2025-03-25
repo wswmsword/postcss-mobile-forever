@@ -124,12 +124,12 @@ describe('px-to-viewport', function() {
       expect(processed).toBe(expected);
     });
   
-    it('should ignore every selector with `body$`', function () {
+    it('should ignore every selector with `.class-body$`', function () {
       var rules = 'body { font-size: 16px; } .class-body$ { font-size: 16px; } .simple-class { font-size: 16px; }';
       var expected = 'body { font-size: 5vw; } .class-body$ { font-size: 16px; } .simple-class { font-size: 5vw; }';
       var processed = postcss(mobileToMultiDisplays({
         ...basicOptions,
-        selectorBlackList: ['body$'],
+        selectorBlackList: ['.class-body$'],
       })).process(rules).css;
   
       expect(processed).toBe(expected);

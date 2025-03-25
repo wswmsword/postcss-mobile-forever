@@ -107,7 +107,7 @@ const createExcludeFunc = (TYPE_REG, TYPE_ARY) => (exclude, file, regOrAry) => {
 const isMatchedStr = (list, str) => {
   if (typeof str !== 'string') return;
   return list.some((regex) => {
-    if (typeof regex === 'string') return str.includes(regex);
+    if (typeof regex === 'string') return str === regex;
     return str.match(regex);
   });
 };

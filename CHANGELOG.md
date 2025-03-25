@@ -15,6 +15,12 @@
 - 修复 `experimental.extract` 选项的热重载问题；
 - 修复 `experimental.extract` 分割后加载后续插件问题。
 
+## [5.0.0] - 2025-03-25
+
+### Changed
+
+- `selectorBlackList`、`propertyBlackList`、`valueBlackList`、`rootContainingBlockSelectorList`、`verticalWritingSelectorList` 在传入字符串时，比较的行为从 `includes` 改为全等。
+
 ## [4.4.0] - 2025-02-15
 
 ### Added
