@@ -138,6 +138,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
 | disableDesktop | boolean | false | 打开则不做桌面端适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                    |
 | disableLandscape | boolean | false | 打开则不做移动端横屏适配，使用该参数前需要打开 `enableMediaQuery`                                                                                                                                                                                                                                                  |
 | disableMobile | boolean | false | 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw                                                                                                                                                                                                                                                              |
+| demoMode | boolean | false | 添加标识，用于调试，开启后向 `.DEMO_MODE::before` 注入 content 显示当前适配模式（✨Portrait✨/✨Landscape✨/✨Desktop✨）                                                                                                                                 |
 | exclude | RegExp\|RegExp[] | / | 排除文件或文件夹                                                                                                                                                                                                                                                                                    |
 | include | RegExp\|RegExp[] | / | 包括文件或文件夹                                                                                                                                                                                                                                                                                    |
 | unitPrecision | number | 3 | 单位精确到小数点后几位？                                                                                                                                                                                                                                                                                |
@@ -265,6 +266,7 @@ https://github.com/webpack-contrib/postcss-loader/issues/172
   "disableDesktop": false,
   "disableLandscape": false,
   "disableMobile": false,
+  "demoMode": false,
   "exclude": null,
   "include": null,
   "unitPrecision": 3,

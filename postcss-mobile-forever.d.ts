@@ -51,6 +51,9 @@ declare namespace mobileForever {
     /** 打开则不做移动端竖屏适配，把 px 转换为视口单位，如 vw */
     disableMobile?: boolean
 
+    /** 添加标识，用于调试，开启后向 `.DEMO_MODE::before` 注入 content 显示当前适配模式（竖屏/横屏/桌面端） */
+    demoMode?: boolean
+
     /** 排除文件或文件夹 */
     exclude?: RegExp | RegExp[]
 
